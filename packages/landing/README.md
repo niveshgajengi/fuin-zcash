@@ -1,5 +1,3 @@
 # landing
 
-Landing
-
-_Placeholder — not built yet. Spec: grokbot/specs/zec-sealed-bid-auction.md._
+`index.html`: one static page. Serve with `python3 -m http.server -d packages/landing`.

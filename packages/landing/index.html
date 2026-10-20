@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sealed-Bid Auction on Zcash</title>
+    <meta name="description" content="Shielded sealed bids on Zcash testnet: equal deposits, commitment memos, and a Groth16 proof that opens only the winning bid." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600&family=Spline+Sans+Mono&display=swap" rel="stylesheet" />
+    <style>
+      :root { --base: #1b1714; --surface: #251f1a; --paper: #efe6d6; --rule: #3a3028; --text: #f3ede4; --muted: #b3a592; --wax: #c8463d; --sage: #7bc99a; color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--base); color: var(--text); font: 400 17px/1.65 'Public Sans', system-ui, sans-serif; }
+      a { color: #e7b9a0; }
+      :focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
+      code { font: 0.85em 'Spline Sans Mono', monospace; overflow-wrap: anywhere; }
+      .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
+      header { padding: 72px 0 40px; }
+      h1 { font: 700 clamp(2rem, 6vw, 3.4rem)/1.06 'Fraunces', serif; margin: 0 0 18px; max-width: 18ch; }
+      header p { color: var(--muted); max-width: 58ch; }
+      .seals { display: flex; gap: 14px; margin: 28px 0; }
+      .seal { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e07b70, var(--wax) 60%); }
+      .seal.open { background: var(--sage); }
+      section { border-top: 1px solid var(--rule); padding: 44px 0; }
+      h2 { font: 700 1.6rem 'Fraunces', serif; margin: 0 0 12px; }
+      section > p, ol { color: var(--muted); max-width: 64ch; }
+      li { margin-bottom: 8px; }
+      .btn { display: inline-block; padding: 12px 18px; border-radius: 6px; background: var(--sage); color: #14231a; font-weight: 600; text-decoration: none; }
+      footer { border-top: 1px solid var(--rule); padding: 28px 0 52px; color: var(--muted); font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <header>
+        <h1>Three sealed bids. Only the winner is opened.</h1>
+        <p>Each bid on Zcash testnet was a shielded deposit of exactly 0.02 TAZ, its memo a commitment to the bid. A Groth16 proof then showed which commitment holds the highest bid, so the losing bids are never published, not even in the result.</p>
+        <div class="seals" aria-label="Two sealed bids and one opened bid"><span class="seal"></span><span class="seal"></span><span class="seal open"></span></div>
+        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction">Code on GitHub</a>
+      </header>
+      <section aria-labelledby="run">
+        <h2 id="run">What happened on testnet</h2>
+        <ol>
+          <li>Three valid sealed bids, plus four deposits the auction refused: a wrong amount, a memo that is not a bid, a duplicate commitment, and one after the close.</li>
+          <li>A bidder tried to reveal a different bid with its real salt. Refused: the opening matches no commitment.</li>
+          <li>One shielded settlement (<a href="https://testnet.zcashexplorer.app/transactions/89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a"><code>89bf60fd…</code></a>) paid the seller 0.0175 TAZ and refunded everyone else. Each recipient decrypted only its own outputs with its own viewing key.</li>
+        </ol>
+      </section>
+      <section aria-labelledby="trust">
+        <h2 id="trust">What you still trust</h2>
+        <p>The auctioneer sees bids when they are revealed and is trusted to settle. Zcash has no contracts, so the rules run in the auction service, but every input to them can be re-read from the chain with the published incoming viewing key. The proof uses a single-party Groth16 setup.</p>
+      </section>
+    </main>
+    <footer class="wrap">MIT · Copyright (c) 2026 Nivesh Gajengi</footer>
+  </body>
+</html>

@@ -1,25 +1,25 @@
-# zec-sealed-bid-auction — hackathon submission draft (DO NOT SUBMIT until built and verified)
+# Sealed-Bid Auction on Zcash — submission draft (portfolio; Zecathon's one entry is Shielded x402)
 
-## Project name
-zec-sealed-bid-auction
+Not entered in Zecathon (one entry per team). Written Oct 20, 2026.
 
 ## Short overview
-_TBD from spec pitch once built._
+Sealed bids as equal-size shielded Zcash deposits whose memos are Poseidon commitments; a Groth16
+MaxBid proof opens only the winning bid; one shielded settlement pays the seller and refunds everyone
+else, each output checked by the recipient's own viewing key. Live on Zcash testnet.
 
-## Detailed description
-Problem / what it does / what is live on testnet (addresses, txids) / honest scope.
+## What is live (testnet)
+Auction `sba-testnet-2026-10-20T13:30`: 3 valid sealed bids (06d12181…, 3d104727…, d910ebad…);
+rejected: wrong amount 29c23b7d…, memo mismatch 76b0b9bb…, duplicate c1b89ecd…, late c2e20a26…;
+altered reveal refused; settlement 89bf60fd… (7 outputs, all viewing-key checks match);
+Ironwood-only throughout. Proof and auction incoming viewing key in deployments/testnet.json.
 
-## Tracks
-_From the event's actual track list only._
-
-## Tech stack
-_Fill from what was actually used._
+## Honest scope
+Auctioneer learns bids at reveal and is trusted to settle; rules are enforced by the service
+(Zcash has no contracts) but re-checkable with the published key; single-party Groth16 setup;
+prior art exists.
 
 ## Test coverage
-_Real counts from TESTING.md only._
+15 tests (circuits 6, service 5, mcp 4). See TESTING.md.
 
 ## Links
-Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (not created yet) · demo video: TBD · explorer links: TBD
-
-## Project continuity
-Pre-existing work: planning docs/specs dated Oct 20, 2026 (disclose). Built during the event: _list_.
+Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (Nick creates it) · video: `grokbot/videos/zec-sealed-bid-audit.mp4`.
