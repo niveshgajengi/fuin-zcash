@@ -5,9 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "predev": "cp ../circuits/build/verification_key.json public/verification_key.json",
+    "predev": "mkdir -p public && cp ../circuits/build/verification_key.json public/verification_key.json",
     "dev": "vite",
-    "prebuild": "cp ../circuits/build/verification_key.json public/verification_key.json",
+    "prebuild": "mkdir -p public && cp ../circuits/build/verification_key.json public/verification_key.json",
     "build": "tsc --noEmit -p tsconfig.json && vite build"
   },
   "dependencies": {
