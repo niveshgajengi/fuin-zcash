@@ -18,7 +18,7 @@
       "memo": "sba1:6201170948318861529:4625148566346356633467925861742323288356315185240091082404763733094706206802",
       "status": "valid",
       "reason": null,
-      "label": "bidder3 bids 0.009 TAZ"
+      "label": "bidder3 sealed bid"
     },
     {
       "txid": "3d104727044cf3164fc8df304d8ea95d3307ca90f0b0d4c21d994a1f350b0890",
@@ -27,7 +27,7 @@
       "memo": "sba1:6201170948318861529:2002479952111780691523662653945562757578599755853041751881298296329332806441",
       "status": "valid",
       "reason": null,
-      "label": "bidder1 bids 0.012 TAZ"
+      "label": "bidder1 sealed bid"
     },
     {
       "txid": "d910ebad413bf37c0ffb38f9032c61bb2d1b26ae54ca2422d3bdd2428bb3e1eb",
@@ -36,7 +36,7 @@
       "memo": "sba1:6201170948318861529:7048382942817773029383939956163605402304634834687269351737470118206643152395",
       "status": "valid",
       "reason": null,
-      "label": "bidder2 bids 0.0175 TAZ"
+      "label": "bidder2 sealed bid"
     },
     {
       "txid": "29c23b7d99be5dc70e8b505fef16628454a32aed8189cf87ad375fd5c95bf1dc",

@@ -122,9 +122,9 @@ async function main() {
       const c = await commitment(cfg.auctionId, bid, salt);
       return { wallet, label, bid: bid.toString(), salt: salt.toString(), amount: amount.toString(), memo: memoOverride ?? depositMemo(cfg.auctionId, c), expect };
     };
-    const b1 = await mk('bidder1', 'bidder1 bids 0.012 TAZ', 1_200_000n, DEPOSIT, 'valid');
-    const b2 = await mk('bidder2', 'bidder2 bids 0.0175 TAZ', 1_750_000n, DEPOSIT, 'valid');
-    const b3 = await mk('bidder3', 'bidder3 bids 0.009 TAZ', 900_000n, DEPOSIT, 'valid');
+    const b1 = await mk('bidder1', 'bidder1 sealed bid', 1_200_000n, DEPOSIT, 'valid');
+    const b2 = await mk('bidder2', 'bidder2 sealed bid', 1_750_000n, DEPOSIT, 'valid');
+    const b3 = await mk('bidder3', 'bidder3 sealed bid', 900_000n, DEPOSIT, 'valid');
     const dup = { ...b1, label: 'bidder1 re-sends the same commitment', expect: 'duplicate', txid: undefined };
     const wrong = await mk('bidder2', 'bidder2 deposits 0.005 TAZ instead of 0.02', 400_000n, 500_000n, 'wrong_amount');
     const garbage = await mk('bidder3', 'bidder3 sends a memo that is not a bid', 0n, 100_000n, 'memo_mismatch', 'hello auction');
@@ -186,7 +186,7 @@ async function main() {
   }
   const altered = await checkReveal(cfg, classified, { bid: BigInt(state.bids[2].bid) + 1_000_000n, salt: BigInt(state.bids[2].salt), refundAddress: await refund('bidder3') });
   if (altered.ok) throw new Error('an altered reveal was accepted');
-  say(`altered reveal (bidder3 claims 0.019 TAZ with its salt): rejected (${altered.reason})`);
+  say(`altered reveal (bidder3 claims a different bid with its salt): rejected (${altered.reason})`);
 
   // 7. Decide, prove, settle in one shielded transaction.
   if (!state.settlement) {
