@@ -1,0 +1,221 @@
+{
+  "network": "testnet",
+  "auction": {
+    "name": "sba-testnet-2026-10-20T13:30",
+    "auctionId": "6201170948318861529",
+    "address": "utest1nf60qztq7tcpqut63kmyx8epl52hrlkwzl57ql8m8rxnjcs6rlsprw3gwn7h4vsma4jsvxl5hnur7wgeddqvgzrslfhy582h8vagnvxf",
+    "uivk": "uivktest13q05lhhc5ha8m7dhcsccm80qlcka82drx4cs4p9whv24w3uvcnevfu0np504u9zngp7ld4f8tmvu9mzzfh54j3w4gpjmnvx2c44tgd7ywpnmrjqdflccgemweunqapxx8r8huh8xph4jv5vhs9ja0eltcw0fhw9weyfulkzjtmcgs8u974a27xl6vd77cpfulah046gjd92d75qsxuec95mjsyh07lzf23v95lwydm6n7kkt60z",
+    "depositZat": "2000000",
+    "reserveZat": "500000",
+    "closeHeight": 4522278,
+    "seller": "utest137az5fc0a0cmv8yttg8c7e9ztgpn2t63pe7u6jr406evyx09w0my2kzy268gszrg4a9qsc2skq3epu4k7tq7y7gy94634fkv6gppa22h"
+  },
+  "deposits": [
+    {
+      "txid": "06d121813387444ca3ecc9720e73160b5b80645d9204c6c411e51cef3a190af1",
+      "height": 4522268,
+      "valueZat": "2000000",
+      "memo": "sba1:6201170948318861529:4625148566346356633467925861742323288356315185240091082404763733094706206802",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder3 bids 0.009 TAZ"
+    },
+    {
+      "txid": "3d104727044cf3164fc8df304d8ea95d3307ca90f0b0d4c21d994a1f350b0890",
+      "height": 4522268,
+      "valueZat": "2000000",
+      "memo": "sba1:6201170948318861529:2002479952111780691523662653945562757578599755853041751881298296329332806441",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder1 bids 0.012 TAZ"
+    },
+    {
+      "txid": "d910ebad413bf37c0ffb38f9032c61bb2d1b26ae54ca2422d3bdd2428bb3e1eb",
+      "height": 4522268,
+      "valueZat": "2000000",
+      "memo": "sba1:6201170948318861529:7048382942817773029383939956163605402304634834687269351737470118206643152395",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder2 bids 0.0175 TAZ"
+    },
+    {
+      "txid": "29c23b7d99be5dc70e8b505fef16628454a32aed8189cf87ad375fd5c95bf1dc",
+      "height": 4522275,
+      "valueZat": "500000",
+      "memo": "sba1:6201170948318861529:8554917622192744414572806065306283312335835842914023058547097332034571907165",
+      "status": "wrong_amount",
+      "reason": "500000 zat, deposit is 2000000",
+      "label": "bidder2 deposits 0.005 TAZ instead of 0.02"
+    },
+    {
+      "txid": "76b0b9bb76aee301fe5640fe7b1c3ff0746a999c743d9a4199dbf60375c39aa0",
+      "height": 4522275,
+      "valueZat": "100000",
+      "memo": "hello auction",
+      "status": "memo_mismatch",
+      "reason": "memo is not sba1:<auction>:<commitment>",
+      "label": "bidder3 sends a memo that is not a bid"
+    },
+    {
+      "txid": "c1b89ecd0d0bbbbeaecc86ca3d353788e8c2e1f71ac99d8be87154ddef8d6503",
+      "height": 4522275,
+      "valueZat": "2000000",
+      "memo": "sba1:6201170948318861529:2002479952111780691523662653945562757578599755853041751881298296329332806441",
+      "status": "duplicate",
+      "reason": "commitment already used by an earlier deposit",
+      "label": "bidder1 re-sends the same commitment"
+    },
+    {
+      "txid": "c2e20a26d0279db8c55d037068c83af5cef68a3227dab45f423ad622708387fc",
+      "height": 4522283,
+      "valueZat": "2000000",
+      "memo": "sba1:6201170948318861529:2066184780017143197419925648763807069299028431113962105591226953927092977642",
+      "status": "late",
+      "reason": "mined at 4522283, after close 4522278",
+      "label": "bidder1 deposits after the close"
+    }
+  ],
+  "alteredReveal": {
+    "rejected": true,
+    "reason": "altered"
+  },
+  "outcome": {
+    "winnerSlot": 2,
+    "winningBidZat": "1750000",
+    "reserveZat": "500000",
+    "commitments": [
+      "4625148566346356633467925861742323288356315185240091082404763733094706206802",
+      "2002479952111780691523662653945562757578599755853041751881298296329332806441",
+      "7048382942817773029383939956163605402304634834687269351737470118206643152395",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227"
+    ],
+    "proof": {
+      "pi_a": [
+        "7202789995930966507463375185199950789321076559378310270350689815968324742613",
+        "20537361270083637897421797639609346787236021886774890959819711633984504309675",
+        "1"
+      ],
+      "pi_b": [
+        [
+          "3751180173618270854532451715014246906743961638788830959799783752406894484226",
+          "9346021305947987877699724128446194426960618776132942672177787331855018708220"
+        ],
+        [
+          "18631481754229945168789013333428608711595523532277270383175883871479417287090",
+          "6587961843053225376602176498917209541645043275338977449899876565770457584731"
+        ],
+        [
+          "1",
+          "0"
+        ]
+      ],
+      "pi_c": [
+        "18308905539040701727771612731152511526291038834497662281297579331562400113847",
+        "10805916739181422972536792954630174076217520899180893401941816504257652794706",
+        "1"
+      ],
+      "protocol": "groth16",
+      "curve": "bn128"
+    },
+    "publicSignals": [
+      "6201170948318861529",
+      "500000",
+      "4625148566346356633467925861742323288356315185240091082404763733094706206802",
+      "2002479952111780691523662653945562757578599755853041751881298296329332806441",
+      "7048382942817773029383939956163605402304634834687269351737470118206643152395",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "7625806751729372662817094563926976359882716782841860588165408119285678515227",
+      "2",
+      "1750000"
+    ],
+    "proofVerifies": true,
+    "slotsMatchDeposits": true
+  },
+  "settlement": {
+    "txid": "89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a",
+    "height": 4522291,
+    "outputs": [
+      {
+        "amountZat": "1750000",
+        "why": "winning bid to the seller",
+        "recipient": "seller"
+      },
+      {
+        "amountZat": "190000",
+        "why": "winner: deposit minus bid and settlement fee",
+        "recipient": "bidder2"
+      },
+      {
+        "amountZat": "2000000",
+        "why": "refund (losing bid deposit 06d12181)",
+        "recipient": "bidder3"
+      },
+      {
+        "amountZat": "2000000",
+        "why": "refund (losing bid deposit 3d104727)",
+        "recipient": "bidder1"
+      },
+      {
+        "amountZat": "500000",
+        "why": "refund (wrong_amount deposit 29c23b7d)",
+        "recipient": "bidder2"
+      },
+      {
+        "amountZat": "2000000",
+        "why": "refund (duplicate deposit c1b89ecd)",
+        "recipient": "bidder1"
+      },
+      {
+        "amountZat": "2000000",
+        "why": "refund (late deposit c2e20a26)",
+        "recipient": "bidder1"
+      }
+    ],
+    "viewingKeyChecks": [
+      {
+        "recipient": "seller",
+        "expected": "1750000",
+        "seen": [
+          1750000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder1",
+        "expected": "2000000+2000000+2000000",
+        "seen": [
+          2000000,
+          2000000,
+          2000000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder2",
+        "expected": "190000+500000",
+        "seen": [
+          190000,
+          500000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder3",
+        "expected": "2000000",
+        "seen": [
+          2000000
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "ironwoodOnly": true,
+  "verificationKeySha256": "d2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2"
+}
