@@ -5,54 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sealed-Bid Auction on Zcash</title>
     <meta name="description" content="Shielded sealed bids on Zcash testnet: equal deposits, commitment memos, and a Groth16 proof that opens only the winning bid." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='%238E1F22'/%3E%3Ccircle cx='16' cy='16' r='6' fill='none' stroke='%23d8a29a' stroke-width='2'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Public+Sans:wght@400;600&family=Spline+Sans+Mono&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Karla:wght@400;600&family=Spline+Sans+Mono&display=swap" rel="stylesheet" />
     <style>
-      :root { --base: #1b1714; --surface: #251f1a; --paper: #efe6d6; --rule: #3a3028; --text: #f3ede4; --muted: #b3a592; --wax: #c8463d; --sage: #7bc99a; color-scheme: dark; }
+      :root { --stone: #3a3936; --stone-2: #45433f; --slab: #f1ece3; --ink: #1e1c1a; --muted: #b9b2a6; --rule: #57544e; --wax: #8e1f22; --wax-hi: #b8383a; --open: #c9b98f; color-scheme: dark; }
       * { box-sizing: border-box; }
-      body { margin: 0; background: var(--base); color: var(--text); font: 400 17px/1.65 'Public Sans', system-ui, sans-serif; }
-      a { color: #e7b9a0; }
-      :focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
-      code { font: 0.85em 'Spline Sans Mono', monospace; overflow-wrap: anywhere; }
-      .wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
-      header { padding: 72px 0 40px; }
-      h1 { font: 700 clamp(2rem, 6vw, 3.4rem)/1.06 'Fraunces', serif; margin: 0 0 18px; max-width: 18ch; }
-      header p { color: var(--muted); max-width: 58ch; }
-      .seals { display: flex; gap: 14px; margin: 28px 0; }
-      .seal { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e07b70, var(--wax) 60%); }
-      .seal.open { background: var(--sage); }
-      section { border-top: 1px solid var(--rule); padding: 44px 0; }
-      h2 { font: 700 1.6rem 'Fraunces', serif; margin: 0 0 12px; }
-      section > p, ol { color: var(--muted); max-width: 64ch; }
-      li { margin-bottom: 8px; }
-      .btn { display: inline-block; margin: 6px 8px 0 0; padding: 12px 18px; border-radius: 6px; background: var(--sage); color: #14231a; font-weight: 600; text-decoration: none; }
-      footer { border-top: 1px solid var(--rule); padding: 28px 0 52px; color: var(--muted); font-size: 0.85rem; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; background: var(--stone); color: var(--slab); font: 400 17px/1.7 'Karla', system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+      a { color: var(--slab); text-decoration-color: var(--wax-hi); text-underline-offset: 4px; }
+      :focus-visible { outline: 2px solid var(--open); outline-offset: 3px; }
+      code { font: 0.82em 'Spline Sans Mono', monospace; overflow-wrap: anywhere; }
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+      .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+      .top { display: flex; justify-content: space-between; align-items: center; padding: 22px 16px; font-size: 0.92rem; color: var(--muted); }
+      .top b { color: var(--slab); font-weight: 600; letter-spacing: 0.02em; }
+      .top nav { display: flex; gap: 22px; }
+      .top nav a { text-decoration: none; color: var(--muted); }
+      .top nav a:hover { color: var(--slab); }
+
+      .hero { position: relative; min-height: min(86vh, 760px); display: flex; align-items: center; isolation: isolate; }
+      .hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background: url('assets/hero.webp') 72% 50% / cover no-repeat, var(--stone); }
+      .hero::after { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, var(--stone) 22%, rgba(58,57,54,.6) 48%, rgba(58,57,54,0) 66%), linear-gradient(0deg, var(--stone), transparent 22%); }
+      .hero-copy { max-width: 540px; }
+      h1 { font: 500 clamp(2.8rem, 7vw, 5.2rem)/0.95 'Cormorant Garamond', Georgia, serif; letter-spacing: -0.015em; margin: 0 0 26px; }
+      h1 em { color: var(--open); }
+      .lede { color: #d8d2c7; max-width: 46ch; margin: 0 0 32px; }
+      .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+      .btn { padding: 13px 22px; background: var(--slab); color: var(--ink); text-decoration: none; font-weight: 600; border-radius: 2px; transition: background .2s; }
+      .btn:hover { background: #fff; }
+      .btn.line { background: none; color: var(--slab); box-shadow: inset 0 0 0 1px var(--rule); }
+      .btn.line:hover { box-shadow: inset 0 0 0 1px var(--slab); }
+
+      section { padding: 96px 0; }
+      h2 { font: 500 clamp(2rem, 4.4vw, 3.2rem)/1 'Cormorant Garamond', Georgia, serif; margin: 0 0 18px; max-width: 20ch; }
+      .sub { color: var(--muted); max-width: 60ch; margin: 0 0 48px; }
+
+      /* The reveal: three seals, one opens. */
+      .seals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .bid { background: var(--stone-2); border: 1px solid var(--rule); padding: 30px 26px 28px; position: relative; min-height: 260px; display: flex; flex-direction: column; }
+      .bid .who { color: var(--muted); font-size: 0.9rem; }
+      .seal { width: 76px; height: 76px; margin: 26px 0 22px; border-radius: 50%; background: radial-gradient(circle at 34% 30%, var(--wax-hi), var(--wax) 58%, #5d1416); box-shadow: 0 6px 14px rgba(0,0,0,.35), inset 0 -4px 8px rgba(0,0,0,.25); display: grid; place-items: center; transition: transform .9s cubic-bezier(.3,1.4,.4,1), opacity .9s; }
+      .seal::after { content: ''; width: 34px; height: 34px; border-radius: 50%; border: 2px solid rgba(255,220,210,.35); }
+      .bid .val { font: 600 1.9rem/1 'Cormorant Garamond', Georgia, serif; margin-top: auto; }
+      .bid .val small { display: block; font: 400 0.9rem 'Karla', sans-serif; color: var(--muted); margin-top: 8px; }
+      .hidden-val { color: #8d877c; letter-spacing: 0.3em; }
+      .bid.win .shown { opacity: 0; transform: translateY(8px); transition: opacity .8s .5s, transform .8s .5s; }
+      .seals.open .bid.win .seal { transform: scale(.5) rotate(-35deg); opacity: 0; }
+      .seals.open .bid.win .shown { opacity: 1; transform: none; }
+      .seals.open .bid.win { border-color: var(--open); }
+      .bid.win .shown { position: absolute; left: 26px; right: 26px; top: 92px; font: 500 3.4rem/1 'Cormorant Garamond', Georgia, serif; color: var(--open); }
+
+      /* Catalogue of lots (every deposit) */
+      .lots { border-top: 1px solid var(--rule); }
+      .lot { display: grid; grid-template-columns: 70px 1fr 220px 120px; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+      .lot .n { font: 600 1.4rem 'Cormorant Garamond', Georgia, serif; color: var(--muted); }
+      .lot .verdict { font-size: 0.92rem; }
+      .lot .verdict.r { color: #e3a19a; }
+      .lot .verdict.w { color: var(--open); }
+      .lot a { font-size: 0.9rem; }
+
+      .settle { margin-top: 56px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; align-items: start; }
+      .settle .card { background: var(--slab); color: var(--ink); padding: 34px; }
+      .settle .card h3 { font: 600 1.8rem 'Cormorant Garamond', Georgia, serif; margin: 0 0 6px; }
+      .settle .card p { margin: 0 0 18px; color: #4d4943; }
+      .settle .card a { color: var(--wax); }
+      .payouts { list-style: none; margin: 0; padding: 0; }
+      .payouts li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid #d9d2c5; font-size: 0.95rem; }
+      .payouts b { font-weight: 600; white-space: nowrap; }
+
+      .trust { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+      .trust h3 { font: 600 1.4rem 'Cormorant Garamond', Georgia, serif; margin: 0 0 8px; }
+      .trust p { color: var(--muted); margin: 0; font-size: 0.97rem; }
+      footer { border-top: 1px solid var(--rule); padding: 30px 0 52px; color: var(--muted); font-size: 0.86rem; }
+
+      @media (max-width: 860px) {
+        .top nav { display: none; }
+        .hero { align-items: flex-end; }
+        .hero::before { background-position: 78% 0; background-size: auto 62%; }
+        .hero::after { background: linear-gradient(0deg, var(--stone) 42%, rgba(58,57,54,.2) 70%, rgba(58,57,54,0) 100%); }
+        .hero-copy { padding: 40vh 0 40px; }
+        .seals { grid-template-columns: 1fr; } .bid { min-height: 220px; }
+        .lot { grid-template-columns: 44px 1fr; } .lot .verdict, .lot a { grid-column: 2; }
+        .settle, .trust { grid-template-columns: 1fr; }
+        section { padding: 68px 0; }
+      }
+      @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .seal, .bid .shown { transition: none !important; } }
     </style>
   </head>
   <body>
-    <main class="wrap">
-      <header>
-        <h1>Three sealed bids. Only the winner is opened.</h1>
-        <p>Each bid on Zcash testnet was a shielded deposit of exactly 0.02 TAZ, its memo a commitment to the bid. A Groth16 proof then showed which commitment holds the highest bid, so the losing bids are never published, not even in the result.</p>
-        <div class="seals" aria-label="Two sealed bids and one opened bid"><span class="seal"></span><span class="seal"></span><span class="seal open"></span></div>
-        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction">Code on GitHub</a>
-        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction#live-run-on-zcash-testnet">Every transaction</a>
-        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>
-      </header>
-      <section aria-labelledby="run">
-        <h2 id="run">What happened on testnet</h2>
-        <ol>
-          <li>Three valid sealed bids, plus four deposits the auction refused: a wrong amount, a memo that is not a bid, a duplicate commitment, and one after the close.</li>
-          <li>A bidder tried to reveal a different bid with its real salt. Refused: the opening matches no commitment.</li>
-          <li>One shielded settlement (<a href="https://testnet.zcashexplorer.app/transactions/89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a"><code>89bf60fd…</code></a>) paid the seller 0.0175 TAZ and refunded everyone else. Each recipient decrypted only its own outputs with its own viewing key.</li>
-        </ol>
+    <div class="wrap top"><b>Sealed-Bid Auction</b><nav><a href="#reveal">The reveal</a><a href="#lots">Every deposit</a><a href="#trust">Trust</a></nav></div>
+    <header class="hero">
+      <div class="wrap">
+        <div class="hero-copy">
+          <h1>Three sealed bids. <em>Only the winner</em> is opened.</h1>
+          <p class="lede">Each bid on Zcash testnet was a shielded deposit of exactly 0.02 TAZ with a commitment to the bid in its memo. A Groth16 proof shows which commitment holds the highest bid, so the losing bids are never published, not even in the result.</p>
+          <div class="cta">
+            <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction">Read the code</a>
+            <a class="btn line" href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="reveal" aria-labelledby="reveal-h">
+        <div class="wrap">
+          <h2 id="reveal-h">The result names one bid</h2>
+          <p class="sub">Auction <code>sba-testnet-2026-10-20T13:30</code>: deposit 0.02 TAZ, reserve 0.005 TAZ, closed after block 4,522,278. The proof's eight public inputs are exactly the three deposit memos on the chain.</p>
+          <div class="seals" id="seals">
+            <div class="bid"><span class="who">bidder1</span><span class="seal" aria-hidden="true"></span><span class="val"><span class="hidden-val" aria-label="never revealed">• • •</span><small>Lost. Never revealed, refunded.</small></span></div>
+            <div class="bid win"><span class="who">bidder2</span><span class="seal" aria-hidden="true"></span><span class="shown">0.0175</span><span class="val">Winning bid<small>0.0175 TAZ, opened by the proof</small></span></div>
+            <div class="bid"><span class="who">bidder3</span><span class="seal" aria-hidden="true"></span><span class="val"><span class="hidden-val" aria-label="never revealed">• • •</span><small>Lost. Never revealed, refunded.</small></span></div>
+          </div>
+        </div>
       </section>
-      <section aria-labelledby="trust">
-        <h2 id="trust">What you still trust</h2>
-        <p>The auctioneer sees bids when they are revealed and is trusted to settle. Zcash has no contracts, so the rules run in the auction service, but every input to them can be re-read from the chain with the published incoming viewing key. The proof uses a single-party Groth16 setup.</p>
+
+      <section id="lots" aria-labelledby="lots-h">
+        <div class="wrap">
+          <h2 id="lots-h">Every deposit, as the auction judged it</h2>
+          <p class="sub">Three valid bids, and four deposits the rules refused. A fifth attempt, bidder3 revealing 0.019 TAZ with its real salt, was refused because the opening matches no commitment.</p>
+          <div class="lots" role="list">
+            <div class="lot" role="listitem"><span class="n">1</span><span>bidder3 sealed bid</span><span class="verdict">valid</span><a href="https://testnet.zcashexplorer.app/transactions/06d121813387444ca3ecc9720e73160b5b80645d9204c6c411e51cef3a190af1"><code>06d12181…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">2</span><span>bidder1 sealed bid</span><span class="verdict">valid</span><a href="https://testnet.zcashexplorer.app/transactions/3d104727044cf3164fc8df304d8ea95d3307ca90f0b0d4c21d994a1f350b0890"><code>3d104727…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">3</span><span>bidder2 sealed bid</span><span class="verdict w">valid, wins</span><a href="https://testnet.zcashexplorer.app/transactions/d910ebad413bf37c0ffb38f9032c61bb2d1b26ae54ca2422d3bdd2428bb3e1eb"><code>d910ebad…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">4</span><span>bidder2 deposits 0.005 TAZ instead of 0.02</span><span class="verdict r">refused: wrong amount</span><a href="https://testnet.zcashexplorer.app/transactions/29c23b7d99be5dc70e8b505fef16628454a32aed8189cf87ad375fd5c95bf1dc"><code>29c23b7d…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">5</span><span>bidder3 sends a memo that is not a bid</span><span class="verdict r">refused: memo mismatch</span><a href="https://testnet.zcashexplorer.app/transactions/76b0b9bb76aee301fe5640fe7b1c3ff0746a999c743d9a4199dbf60375c39aa0"><code>76b0b9bb…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">6</span><span>bidder1 re-sends the same commitment</span><span class="verdict r">refused: duplicate</span><a href="https://testnet.zcashexplorer.app/transactions/c1b89ecd0d0bbbbeaecc86ca3d353788e8c2e1f71ac99d8be87154ddef8d6503"><code>c1b89ecd…</code></a></div>
+            <div class="lot" role="listitem"><span class="n">7</span><span>bidder1 deposits after the close</span><span class="verdict r">refused: late</span><a href="https://testnet.zcashexplorer.app/transactions/c2e20a26d0279db8c55d037068c83af5cef68a3227dab45f423ad622708387fc"><code>c2e20a26…</code></a></div>
+          </div>
+
+          <div class="settle">
+            <div>
+              <h2 class="serif" style="font-size: 2rem">One settlement pays everyone</h2>
+              <p class="sub" style="margin: 0">A single shielded transaction with seven outputs. Each recipient decrypted only its own outputs, with its own viewing key.</p>
+            </div>
+            <div class="card">
+              <h3>Settlement</h3>
+              <p>Block 4,522,291 · <a href="https://testnet.zcashexplorer.app/transactions/89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a"><code>89bf60fd…</code></a></p>
+              <ul class="payouts">
+                <li><span>seller, the winning bid</span><b>1,750,000 zat</b></li>
+                <li><span>bidder2, change and its wrong-amount deposit back</span><b>190,000 + 500,000</b></li>
+                <li><span>bidder1, losing bid, duplicate and late refunds</span><b>2,000,000 × 3</b></li>
+                <li><span>bidder3, losing bid refunded</span><b>2,000,000 zat</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="trust" aria-labelledby="trust-h">
+        <div class="wrap">
+          <h2 id="trust-h">What you still trust</h2>
+          <div class="trust">
+            <div><h3>The auctioneer</h3><p>Sees bids when they are revealed to it and is trusted to settle. Zcash has no contracts, so the rules run in the auction service.</p></div>
+            <div><h3>But not blindly</h3><p>Every input to those rules can be re-read from the chain with the auction's published incoming viewing key.</p></div>
+            <div><h3>The setup</h3><p>The Groth16 setup is single-party. Testnet only, not audited.</p></div>
+          </div>
+        </div>
       </section>
     </main>
     <footer class="wrap">MIT · Copyright (c) 2026 Nivesh Gajengi</footer>
+    <script>
+      const s = document.getElementById('seals');
+      if ('IntersectionObserver' in window) new IntersectionObserver((e, o) => { if (e[0].isIntersecting) { setTimeout(() => s.classList.add('open'), 500); o.disconnect(); } }, { threshold: 0.25 }).observe(s);
+      else s.classList.add('open');
+    </script>
   </body>
 </html>
