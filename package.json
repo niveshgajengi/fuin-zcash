@@ -1,0 +1,11 @@
+{
+  "name": "zec-sealed-bid-auction",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.29.2",
+  "scripts": {
+    "build:verifier": "cd packages/verifier && cargo build --release",
+    "build": "pnpm build:verifier && pnpm -r --if-present build",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present test"
+  }
+}

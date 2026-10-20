@@ -1,0 +1,32 @@
+{
+  "name": "@sba/service",
+  "version": "0.1.0",
+  "description": "Sealed-bid auction on Zcash testnet: shielded fixed deposits with commitment memos, reveals, MaxBid proof, one shielded settlement",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "sba": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "testnet-run": "tsx src/testnet-run.ts"
+  },
+  "dependencies": {
+    "@sba/circuits": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

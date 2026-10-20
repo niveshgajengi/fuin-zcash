@@ -5,8 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "./scripts/build.sh",
-    "test": "vitest run"
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "setup": "./scripts/build.sh"
   },
   "dependencies": {
     "circomlib": "2.0.5",
@@ -17,5 +18,13 @@
     "@types/node": "^22.20.5",
     "typescript": "~5.9.3",
     "vitest": "^3.2.7"
+  },
+  "main": "dist/maxbid.js",
+  "types": "dist/maxbid.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/maxbid.d.ts",
+      "import": "./dist/maxbid.js"
+    }
   }
 }
