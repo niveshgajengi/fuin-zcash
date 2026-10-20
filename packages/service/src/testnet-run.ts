@@ -242,7 +242,8 @@ async function main() {
   say(`wrote deployments/testnet.json`);
 }
 
-main().catch((e) => {
+// snarkjs keeps its bn128 worker threads alive after proving, so exit explicitly.
+main().then(() => process.exit(0)).catch((e) => {
   console.error(`FAILED: ${(e as Error).message}`);
   process.exit(1);
 });
