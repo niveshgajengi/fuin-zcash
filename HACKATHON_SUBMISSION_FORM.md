@@ -19,7 +19,7 @@ Auctioneer learns bids at reveal and is trusted to settle; rules are enforced by
 prior art exists.
 
 ## Test coverage
-15 tests (circuits 6, service 5, mcp 4). See TESTING.md.
+18 tests (verifier 3, circuits 6, service 5, mcp 4). See TESTING.md.
 
 ## Links
-Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (Nick creates it) · video: `grokbot/videos/zec-sealed-bid-audit.mp4` (16 s, unedited asciinema recording of a live audit of the run at `58c2393`; captions marked ###; idle gaps shortened).
+Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (public before submission) · video: `zec-sealed-bid-audit.mp4` (shared separately until hosted) (16 s, unedited asciinema recording of a live audit of the run at `58c2393`; captions marked ###; idle gaps shortened).

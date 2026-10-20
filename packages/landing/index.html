@@ -26,7 +26,7 @@
       h2 { font: 700 1.6rem 'Fraunces', serif; margin: 0 0 12px; }
       section > p, ol { color: var(--muted); max-width: 64ch; }
       li { margin-bottom: 8px; }
-      .btn { display: inline-block; padding: 12px 18px; border-radius: 6px; background: var(--sage); color: #14231a; font-weight: 600; text-decoration: none; }
+      .btn { display: inline-block; margin: 6px 8px 0 0; padding: 12px 18px; border-radius: 6px; background: var(--sage); color: #14231a; font-weight: 600; text-decoration: none; }
       footer { border-top: 1px solid var(--rule); padding: 28px 0 52px; color: var(--muted); font-size: 0.85rem; }
     </style>
   </head>
@@ -37,6 +37,8 @@
         <p>Each bid on Zcash testnet was a shielded deposit of exactly 0.02 TAZ, its memo a commitment to the bid. A Groth16 proof then showed which commitment holds the highest bid, so the losing bids are never published, not even in the result.</p>
         <div class="seals" aria-label="Two sealed bids and one opened bid"><span class="seal"></span><span class="seal"></span><span class="seal open"></span></div>
         <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction">Code on GitHub</a>
+        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction#live-run-on-zcash-testnet">Every transaction</a>
+        <a class="btn" href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>
       </header>
       <section aria-labelledby="run">
         <h2 id="run">What happened on testnet</h2>

@@ -70,11 +70,16 @@ zingo-cli (`SBA_ZINGO_CLI`, default `~/src/zingolib/target/release/zingo-cli`).
 ```sh
 pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
-pnpm test                      # circuits 6 + service 5 + mcp 4 (mcp reads live testnet)
+pnpm test                      # verifier 3 (Rust) + circuits 6 + service 5 + mcp 4 = 18 (mcp reads live testnet)
 pnpm --filter @sba/dashboard dev
 # a new live auction: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidder1 funded
 pnpm --filter @sba/service testnet-run
+# re-check a published auction from the chain with only its incoming viewing key
+SBA_AUDIT_UIVK=<a recipient's UIVK, optional> pnpm --filter @sba/service audit
 ```
+
+Demo video: `zec-sealed-bid-audit.mp4` (shared separately until hosted): the audit script re-reading
+the live auction with only its viewing key.
 
 Testnet funds came from the public Valar testnet faucet (0.125 TAZ). Wallet files and keys stay in
 the gitignored `.demo/` folder.

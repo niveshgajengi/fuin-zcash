@@ -125,3 +125,36 @@ async fn main() {
         _ => die("usage: sba-verify tx <txid>...   (SBA_UIVK)   |   sba-verify derive   (SBA_UFVK)"),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn memo(bytes: &[u8]) -> [u8; 512] {
+        let mut m = [0u8; 512];
+        m[..bytes.len()].copy_from_slice(bytes);
+        m
+    }
+
+    #[test]
+    fn text_memos_decode_and_empty_is_null() {
+        assert_eq!(memo_value(&memo(b"sba1:42:7")), json!({ "text": "sba1:42:7" }));
+        let mut empty = [0u8; 512];
+        empty[0] = 0xF6;
+        assert_eq!(memo_value(&empty), json!(null));
+    }
+
+    #[test]
+    fn binary_memos_are_flagged_not_decoded() {
+        let mut bin = [0u8; 512];
+        bin[0] = 0xFF;
+        bin[1] = 0x01;
+        assert_eq!(memo_value(&bin), json!({ "non_text": true }));
+    }
+
+    #[test]
+    fn txids_parse_in_display_order_only_when_well_formed() {
+        assert!(lwd::parse_txid(&"ab".repeat(32)).is_some());
+        assert!(lwd::parse_txid("xyz").is_none());
+    }
+}

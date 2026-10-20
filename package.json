@@ -6,6 +6,7 @@
   "scripts": {
     "build:verifier": "cd packages/verifier && cargo build --release",
     "build": "pnpm build:verifier && pnpm -r --if-present build",
-    "test": "pnpm -r --workspace-concurrency=1 --if-present test"
+    "test": "pnpm test:verifier && pnpm -r --workspace-concurrency=1 --if-present test",
+    "test:verifier": "cd packages/verifier && cargo test --release"
   }
 }
