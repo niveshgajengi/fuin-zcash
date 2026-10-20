@@ -18,7 +18,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "testnet-run": "tsx src/testnet-run.ts"
+    "testnet-run": "tsx src/testnet-run.ts",
+    "audit": "tsx src/audit.ts"
   },
   "dependencies": {
     "@sba/circuits": "workspace:*"
