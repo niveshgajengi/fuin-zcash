@@ -1,0 +1,26 @@
+{
+  "name": "@sba/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for agent bidders in shielded sealed-bid auctions on Zcash testnet",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "sba-mcp": "dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@sba/circuits": "workspace:*",
+    "@sba/service": "workspace:*",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
