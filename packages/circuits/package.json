@@ -1,0 +1,21 @@
+{
+  "name": "@sba/circuits",
+  "version": "0.1.0",
+  "description": "MaxBid Groth16 circuit: the declared winner holds the highest committed bid, at or above the reserve, without revealing losing bids",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7",
+    "snarkjs": "0.7.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
