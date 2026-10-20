@@ -7,6 +7,6 @@
     "build:verifier": "cd packages/verifier && cargo build --release",
     "build": "pnpm build:verifier && pnpm -r --if-present build",
     "test": "pnpm test:verifier && pnpm --filter @sba/circuits --filter @sba/service build && pnpm -r --workspace-concurrency=1 --if-present test",
-    "test:verifier": "cd packages/verifier && cargo test --release"
+    "test:verifier": "cd packages/verifier && cargo test --release && cargo build --release"
   }
 }
