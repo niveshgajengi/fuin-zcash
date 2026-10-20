@@ -22,4 +22,4 @@ prior art exists.
 15 tests (circuits 6, service 5, mcp 4). See TESTING.md.
 
 ## Links
-Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (Nick creates it) · video: `grokbot/videos/zec-sealed-bid-audit.mp4`.
+Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (Nick creates it) · video: `grokbot/videos/zec-sealed-bid-audit.mp4` (16 s, unedited asciinema recording of a live audit of the run at `58c2393`; captions marked ###; idle gaps shortened).
