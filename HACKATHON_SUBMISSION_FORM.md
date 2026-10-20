@@ -1,4 +1,4 @@
-# Sealed-Bid Auction on Zcash — submission draft (portfolio; Zecathon's one entry is Shielded x402)
+# Fuin — sealed-bid auctions on Zcash — submission draft (portfolio; Zecathon's one entry is Shielded x402)
 
 Not entered in Zecathon (one entry per team). Written Oct 20, 2026.
 

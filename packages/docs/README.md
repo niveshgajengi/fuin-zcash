@@ -1,4 +1,4 @@
-# Protocol and threat model
+# Fuin — protocol and threat model
 
 ## Roles
 

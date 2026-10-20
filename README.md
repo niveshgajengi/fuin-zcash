@@ -1,6 +1,6 @@
-# Sealed-Bid Auction on Zcash
+# Fuin — sealed-bid auctions on Zcash
 
-A sealed-bid auction where every bid is a **shielded Zcash deposit of the same size**, its memo a
+Fuin (封印, Japanese for "seal") is a sealed-bid auction where every bid is a **shielded Zcash deposit of the same size**, its memo a
 Poseidon commitment to the bid. After the close, a **Groth16 proof (`MaxBid`)** shows which
 commitment holds the highest bid at or above the reserve, so **only the winning bid is ever
 published**. One shielded transaction then pays the seller and refunds everyone else, and each
