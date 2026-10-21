@@ -9,6 +9,8 @@
 //!         output this key decrypts, one JSON line each as above. This is how an auditor finds every
 //!         deposit to an auction without trusting the auctioneer's list.
 //!     sba-verify tip                  prints the chain tip height
+//!     sba-verify block <height>...    one JSON line per block: {"height","time","hash"} (time is
+//!                                     the header's Unix timestamp)
 //!     sba-verify derive               prints the UIVK for the UFVK in SBA_UFVK (env only)
 //!
 //! An incoming viewing key sees received notes and their memos. It cannot spend and cannot see
@@ -177,11 +179,23 @@ async fn main() {
                 }
             }
         }
+        Some("block") if args.len() > 1 => {
+            let mut c = connect().await;
+            for h in &args[1..] {
+                let height: u32 = h.parse().unwrap_or_else(|_| die(format!("bad height {h}")));
+                let b = lwd::block_range(&mut c, height, height).await.unwrap_or_else(|e| die(e));
+                let b = b.first().unwrap_or_else(|| die(format!("no block at {height}")));
+                let mut hash = b.hash.clone();
+                hash.reverse();
+                let hex: String = hash.iter().map(|x| format!("{x:02x}")).collect();
+                println!("{}", json!({ "height": b.height, "time": b.time, "hash": hex }));
+            }
+        }
         Some("tip") => {
             let mut c = connect().await;
             println!("{}", u32::from(lwd::chain_tip(&mut c).await.unwrap_or_else(|e| die(e))));
         }
-        _ => die("usage: sba-verify tx <txid>... | scan <from> <to>   (SBA_UIVK)   |   tip   |   derive   (SBA_UFVK)"),
+        _ => die("usage: sba-verify tx <txid>... | scan <from> <to>   (SBA_UIVK)   |   tip   |   block <height>...   |   derive   (SBA_UFVK)"),
     }
 }
 
