@@ -65,6 +65,16 @@ export async function blockTime(height: number): Promise<{ height: number; time:
   }
 }
 
+/** Whether `address`'s Orchard receiver belongs to `uivk` (any diversified address of it). */
+export async function owns(uivk: string, address: string): Promise<boolean> {
+  try {
+    const { stdout } = await run(verifierBin(), ['owns', address], { env: { ...process.env, SBA_UIVK: uivk }, timeout: 60_000 });
+    return stdout.trim() === 'true';
+  } catch (e) {
+    throw new Error(`sba-verify owns failed: ${((e as { stderr?: string }).stderr ?? (e as Error).message).trim()}`);
+  }
+}
+
 /** UFVK → UIVK (UFVK passed by environment only). */
 export async function uivkOf(ufvk: string): Promise<string> {
   const { stdout } = await run(verifierBin(), ['derive'], { env: { ...process.env, SBA_UFVK: ufvk }, timeout: 60_000 });
