@@ -31,10 +31,12 @@ describe('sba-mcp', () => {
     expect((await client.listTools()).tools.map((t) => t.name).sort()).toEqual(['auction_status', 'bid', 'verify_result']);
   });
 
-  it('auction_status reads the deposits live with the auction viewing key', async () => {
+  it('auction_status finds the deposits by scanning the auction blocks with its viewing key', async () => {
     const r = JSON.parse((await call(client, 'auction_status')).text);
     const live = Object.fromEntries(r.deposits.map((d: { txid: string; status: string }) => [d.txid, d.status]));
     expect(live).toEqual(Object.fromEntries(run.deposits.map((d) => [d.txid, d.status])));
+    expect(r.missing_from_published_record).toEqual([]);
+    expect(r.blocks_scanned).toBe('4522258-4522291');
   }, 180_000);
 
   it('verify_result checks the proof and that it is about exactly the on-chain deposits', async () => {
@@ -54,5 +56,13 @@ describe('sba-mcp', () => {
     const bare = await connect({});
     expect((await call(bare, 'auction_status')).text).toMatch(/Setup required: SBA_AUCTION_FILE/);
     await bare.close();
+  }, 60_000);
+
+  it('bid refuses a deposit into an auction that has closed (live chain tip), before zingo-cli runs', async () => {
+    const bidder = await connect({ SBA_AUCTION_FILE: AUCTION, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: '/nonexistent/fuin-openings' });
+    const closed = await call(bidder, 'bid', { bid_zat: 1_000_000, refund_address: 'utest1x' });
+    await bidder.close();
+    expect(closed.isError).toBe(true);
+    expect(closed.text).toMatch(/closed after block 4522278 .* nothing was sent/);
   }, 60_000);
 });
