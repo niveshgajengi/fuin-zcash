@@ -13,6 +13,8 @@
 //!     sba-verify tip                  prints the chain tip height
 //!     sba-verify block <height>...    one JSON line per block: {"height","time","hash"} (time is
 //!                                     the header's Unix timestamp)
+//!     sba-verify owns <address>       (UIVK from SBA_UIVK) prints true if the address's Orchard
+//!                                     receiver belongs to the key, false if not
 //!     sba-verify derive               prints the UIVK for the UFVK in SBA_UFVK (env only)
 //!
 //! An incoming viewing key sees received notes and their memos. It cannot spend and cannot see
@@ -62,6 +64,16 @@ fn orchard_family<'a, V: DomainVersion, T: 'a>(
             out.push(json!({ "pool": pool, "index": index, "value": note.value().inner(), "memo": memo_value(&memo) }));
         }
     }
+}
+
+/// Whether `ua`'s Orchard receiver (the one Ironwood and Orchard notes are sent to) belongs to the
+/// incoming viewing key. A dispute uses this to show that a refund address's key is the right one.
+fn owns(ivk: Option<&orchard::keys::IncomingViewingKey>, ua: &str) -> Result<bool, String> {
+    let addr = zcash_keys::address::Address::decode(&NETWORK, ua.trim()).ok_or_else(|| format!("not a testnet address: {ua}"))?;
+    let zcash_keys::address::Address::Unified(u) = addr else { return Err("not a unified address".into()) };
+    let o = u.orchard().ok_or("the unified address has no Orchard receiver")?;
+    let ivk = ivk.ok_or("the viewing key has no Orchard part")?;
+    Ok(ivk.diversifier_index(o).is_some())
 }
 
 async fn inspect(c: &mut lwd::Client, uivk: &UnifiedIncomingViewingKey, txid: &str, tip: BlockHeight) -> Value {
@@ -195,11 +207,15 @@ async fn main() {
                 println!("{}", json!({ "height": b.height, "time": b.time, "hash": hex }));
             }
         }
+        Some("owns") if args.len() == 2 => {
+            let uivk = uivk_from_env();
+            println!("{}", owns(uivk.orchard().as_ref(), &args[1]).unwrap_or_else(|e| die(e)));
+        }
         Some("tip") => {
             let mut c = connect().await;
             println!("{}", u32::from(lwd::chain_tip(&mut c).await.unwrap_or_else(|e| die(e))));
         }
-        _ => die("usage: sba-verify tx <txid>... | scan <from> <to>   (SBA_UIVK)   |   tip   |   block <height>...   |   derive   (SBA_UFVK)"),
+        _ => die("usage: sba-verify tx <txid>... | scan <from> <to> | owns <address>   (SBA_UIVK)   |   tip   |   block <height>...   |   derive   (SBA_UFVK)"),
     }
 }
 
@@ -261,6 +277,21 @@ mod tests {
         assert_eq!(memos, ["sba1:42:111", "sba1:42:222"]);
         assert!(out.iter().all(|o| o["value"] == 150_000 && o["pool"] == "Ironwood"));
         assert_ne!(out[0]["index"], out[1]["index"], "each output names its own action");
+    }
+
+    #[test]
+    fn owns_matches_any_diversified_address_of_the_key_and_nothing_else() {
+        use orchard::keys::{FullViewingKey, Scope, SpendingKey};
+        use zcash_keys::address::UnifiedAddress;
+        let fvk = |b: u8| FullViewingKey::from(&SpendingKey::from_bytes([b; 32]).unwrap());
+        let ua = |f: &FullViewingKey, j: u32| UnifiedAddress::from_receivers(Some(f.address_at(j, Scope::External)), None, None, None, None).unwrap().encode(&NETWORK);
+        let (mine, other) = (fvk(7), fvk(9));
+        let ivk = mine.to_ivk(Scope::External);
+        assert_eq!(owns(Some(&ivk), &ua(&mine, 0)), Ok(true));
+        assert_eq!(owns(Some(&ivk), &ua(&mine, 5)), Ok(true));
+        assert_eq!(owns(Some(&ivk), &ua(&other, 0)), Ok(false));
+        assert!(owns(Some(&ivk), "utest1notanaddress").is_err());
+        assert!(owns(None, &ua(&mine, 0)).is_err());
     }
 
     #[test]
