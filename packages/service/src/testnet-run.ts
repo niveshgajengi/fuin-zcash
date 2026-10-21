@@ -9,6 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { commitment, readPublic } from '@sba/circuits';
 import {
   auctionIdFor,
+  blockTime,
   chainTip,
   checkOutcome,
   checkReveal,
@@ -221,6 +222,11 @@ async function main() {
   const allIronwood = pools.every(ironwoodOnly);
   say(`every deposit and the settlement are Ironwood-only (no transparent part): ${allIronwood}`);
 
+  const times = {
+    open: await blockTime(a.openHeight!),
+    close: await blockTime(a.closeHeight),
+    settlement: await blockTime(settle.height!),
+  };
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(
     OUT,
@@ -233,6 +239,7 @@ async function main() {
         outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: state.outcome!.proof, publicSignals: state.outcome!.publicSignals, unrevealed: state.outcome!.unrevealed ?? [], proofVerifies: proofOk, slotsMatchDeposits: slotsMatch },
         settlement: { txid: state.settlement.txids[0], height: settle.height, outputs: state.settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
         ironwoodOnly: allIronwood,
+        blockTimes: times,
         verificationKeySha256: 'd2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2',
       },
       null,

@@ -54,6 +54,16 @@ export async function chainTip(): Promise<number> {
   }
 }
 
+/** A block's header time (Unix seconds) and hash, from lightwalletd. */
+export async function blockTime(height: number): Promise<{ height: number; time: number; hash: string }> {
+  try {
+    const { stdout } = await run(verifierBin(), ['block', String(height)], { timeout: 60_000 });
+    return JSON.parse(stdout.trim());
+  } catch (e) {
+    throw new Error(`sba-verify block failed: ${((e as { stderr?: string }).stderr ?? (e as Error).message).trim()}`);
+  }
+}
+
 /** UFVK → UIVK (UFVK passed by environment only). */
 export async function uivkOf(ufvk: string): Promise<string> {
   const { stdout } = await run(verifierBin(), ['derive'], { env: { ...process.env, SBA_UFVK: ufvk }, timeout: 60_000 });

@@ -219,5 +219,22 @@
     ]
   },
   "ironwoodOnly": true,
+  "blockTimes": {
+    "open": {
+      "hash": "0000103ec37aeb0cab5b09408d0b0b8c1aa5dee4af02bf52852be81971525999",
+      "height": 4522258,
+      "time": 1792502968
+    },
+    "close": {
+      "hash": "00000e0a807052009bc234225ddaade02b99abe0cc5bb5985da922725b9c5b82",
+      "height": 4522278,
+      "time": 1792503321
+    },
+    "settlement": {
+      "hash": "0000112338e2135463cb1e168c27324444897912b13ed595efb862829d1c0b2e",
+      "height": 4522291,
+      "time": 1792503770
+    }
+  },
   "verificationKeySha256": "d2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2"
 }
