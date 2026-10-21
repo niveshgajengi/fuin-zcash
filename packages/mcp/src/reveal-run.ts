@@ -57,8 +57,8 @@ const TSX = resolve(import.meta.dirname, '../node_modules/.bin/tsx');
 const cfgZ = zingoConfig();
 const DEPOSIT = 200_000n;
 const RESERVE = 50_000n;
-const CLOSE_AFTER = 20; // blocks from the tip when the auction is created
-const REVEAL_BLOCKS = 16;
+const CLOSE_AFTER = 30; // blocks from the tip when the auction is created
+const REVEAL_BLOCKS = 24;
 const DISPUTE_BLOCKS = 60;
 const w = (name: string) => resolve(WALLETS, name);
 const sleep = (s: number) => new Promise((r) => setTimeout(r, s * 1000));
@@ -101,7 +101,8 @@ async function step<T>(name: string, fn: () => Promise<T>): Promise<T> {
   return v;
 }
 
-const retryable = (m: string) => /insufficient|not enough|Propose send error|Mixnet|no proven exit|spendable/i.test(m);
+// Transmission failures leave the transaction marked failed in the wallet (nothing was broadcast), so retrying is safe.
+const retryable = (m: string) => /insufficient|not enough|Propose send error|Mixnet|no proven exit|spendable|Transmission failed/i.test(m);
 
 /** quicksend that waits out unspendable change and mixnet start-up failures (nothing is sent on those). */
 async function send(wallet: string, receivers: Parameters<typeof quicksend>[2]) {
@@ -324,6 +325,9 @@ async function main() {
   const all = await decrypt(card.uivk, [...new Set([...found.map((t) => t.txid), settlement.txids[0]])]);
   const allIronwood = all.every(ironwoodOnly);
   const pub = readPublic(outcome.publicSignals);
+  // An earlier attempt was abandoned when lightwalletd transmission failures held its deposits in the
+  // mempool past its close; they were mined in this auction's first block and read as memo mismatches.
+  const abandoned = new Set(((state as { abandoned?: { steps: Record<string, { txid?: string }> }[] }).abandoned ?? []).flatMap((x) => Object.values(x.steps).map((v) => v?.txid ?? '')));
   const labels: Record<string, string> = {
     [b1.txid]: 'bidder1 sealed bid (via MCP)',
     [b2.txid]: 'bidder2 sealed bid (via MCP)',
@@ -346,7 +350,7 @@ async function main() {
       {
         network: 'testnet',
         auction: card,
-        deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: labels[d.ref] ?? (d.txid === b3.txid ? 'bidder3 second payment of the same commitment' : null) })),
+        deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: labels[d.ref] ?? (d.txid === b3.txid ? 'bidder3 second payment of the same commitment' : abandoned.has(d.txid) ? 'deposit for an earlier, abandoned attempt (mined after its close)' : null) })),
         reveals: log.map((l) => ({ ...l, label: revealLabels[l.txid] ?? null })),
         outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: outcome.proof, publicSignals: outcome.publicSignals, unrevealed: outcome.unrevealed, proofVerifies: result.checks[0].ok, slotsMatchDeposits: result.ok },
         settlement: { txid: settlement.txids[0], height: settle.height, outputs: settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
