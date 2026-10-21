@@ -1,6 +1,7 @@
 # @sba/dashboard
 
-The Fuin saleroom: Vite + React results page for the published auction (`deployments/testnet.json`).
+The Fuin saleroom: Vite + React results page for the published auctions (`deployments/testnet.json`,
+and Sale 002 from `deployments/testnet-reveal.json`).
 
 - **Sale header:** the hammer price (the only bid ever published), a live clock since the settlement
   block's header time, and the open / close / hammer blocks with their UTC times from lightwalletd.
@@ -12,7 +13,11 @@ The Fuin saleroom: Vite + React results page for the published auction (`deploym
   slots are empty, the winner is a real deposit. Two tamper buttons (claim 1 zat more, slip a phantom
   commitment into an empty slot) show which checks catch each.
 - **Provenance:** what each recipient decrypted from the settlement with its own viewing key.
-- **Audit:** how to re-read it from the chain, and the auction's incoming viewing key.
+- **Sale 002 · the reveal channel:** every reveal note on chain with its block, the deposit it opens
+  and its status (accepted, wrong deposit, late), the reveal window, the two-payment deposit, the
+  deposits never revealed, and the recipient checks. It shows no opening: the notes are sealed.
+- **Audit:** how to re-read it from the chain (including reveal logs and complaints), and the
+  auction's incoming viewing key.
 
 This page checks the record against itself; only `pnpm --filter @sba/service audit` re-reads the
 deposits from the chain.
