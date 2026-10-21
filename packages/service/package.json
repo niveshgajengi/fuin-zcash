@@ -12,9 +12,6 @@
       "import": "./dist/index.js"
     }
   },
-  "bin": {
-    "sba": "dist/cli.js"
-  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
