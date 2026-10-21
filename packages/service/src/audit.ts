@@ -7,7 +7,7 @@
 // in the settlement. Exit 1 if anything does not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposits, checkOutcome, classifyDeposits, decrypt, depositRef, ironwoodOnly, scan, type AuctionConfig } from './index.js';
+import { asDeposits, asMessages, auditReveals, checkOutcome, classifyDeposits, decrypt, depositRef, ironwoodOnly, REVEAL_PREFIX, scan, type AuctionConfig } from './index.js';
 
 const file = resolve(process.argv[2] ?? resolve(import.meta.dirname, '../../../deployments/testnet.json'));
 const run = JSON.parse(readFileSync(file, 'utf8'));
@@ -48,6 +48,20 @@ console.log('\nrules applied to what the chain shows:');
 for (const d of classified) {
   const recorded = run.deposits.find((x: { txid: string; output?: string }) => depositRef(x) === d.ref)?.status ?? 'not listed';
   check(recorded === d.status, `${d.ref.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`} ${d.status}${d.reason ? ` (${d.reason})` : ''}${recorded === d.status ? '' : `; the record says ${recorded}`}`);
+}
+
+const revealMsgs = found.flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:`));
+if (a.revealKey) {
+  console.log(`\nreveals (sealed to the auctioneer's reveal key; this key sees only which deposit each names and when), window ${a.closeHeight + 1}-${a.revealCloseHeight}:`);
+  for (const m of revealMsgs) {
+    const rec = (run.reveals ?? []).find((r: { ref: string }) => r.ref === depositRef(m));
+    console.log(`  ${depositRef(m).slice(0, 10)}  block ${m.height}  names deposit ${m.memo.split(':')[2]?.slice(0, 10)}  record: ${rec ? rec.status : 'not listed'}`);
+  }
+  const r = auditReveals({ auctionId: cfg.auctionId, closeHeight: a.closeHeight, revealCloseHeight: a.revealCloseHeight }, classified, revealMsgs, run.reveals ?? [], run.outcome.unrevealed ?? []);
+  for (const c of r.checks) check(c.ok, `${c.name}: ${c.detail}`);
+  for (const n of r.notes) console.log(`  note: ${n}`);
+} else {
+  console.log(`\nreveals: this auction predates the reveal channel (openings were handed over out of band); ${revealMsgs.length} reveal note(s) on chain`);
 }
 
 console.log('\nthe result:');

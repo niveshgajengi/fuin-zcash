@@ -76,16 +76,33 @@ export const memoText = (m: DecryptedTx['outputs'][number]['memo']) => (m && 'te
 /** True when the transaction has only an Ironwood bundle (no transparent, Sapling or Orchard parts). */
 export const ironwoodOnly = (t: DecryptedTx) => t.pools.ironwood && !t.pools.transparent && !t.pools.sapling && !t.pools.orchard;
 
+/** Memo prefixes of channel messages (reveals, complaint anchors): notes that carry them are not deposits. */
+export const CHANNEL_PREFIXES = ['sba1r:', 'sba1d:'];
+const isChannel = (memo: string) => CHANNEL_PREFIXES.some((p) => memo.startsWith(p));
+const outputName = (o: DecryptedTx['outputs'][number]) => `${o.pool === 'Ironwood' ? '' : o.pool === 'Orchard' ? 'o' : 's'}${o.index}`;
+
 /**
- * Every output of a decrypted transaction, as deposits. A transaction that pays the auction once is
- * one deposit named by its txid; one that pays it several times is one deposit per output, each
- * named `txid:<index>` (`o<index>` / `s<index>` for Orchard / Sapling outputs).
+ * Every deposit output of a decrypted transaction (channel messages left out). A transaction that
+ * pays the auction once is one deposit named by its txid; one that pays it several times is one
+ * deposit per output, each named `txid:<index>` (`o<index>` / `s<index>` for Orchard / Sapling).
  */
 export function asDeposits(t: DecryptedTx): { txid: string; output?: string; height: number | null; value: bigint; memo: string }[] {
-  const outs = t.outputs;
+  const outs = t.outputs.filter((o) => !isChannel(memoText(o.memo)));
   return outs.map((o) => ({
     txid: t.txid,
-    ...(outs.length > 1 ? { output: `${o.pool === 'Ironwood' ? '' : o.pool === 'Orchard' ? 'o' : 's'}${o.index}` } : {}),
+    ...(outs.length > 1 ? { output: outputName(o) } : {}),
+    height: t.height,
+    value: BigInt(o.value),
+    memo: memoText(o.memo),
+  }));
+}
+
+/** The outputs of a decrypted transaction whose memo starts with `prefix` (e.g. `sba1r:`), named like deposits. */
+export function asMessages(t: DecryptedTx, prefix: string): { txid: string; output?: string; height: number | null; value: bigint; memo: string }[] {
+  const outs = t.outputs.filter((o) => memoText(o.memo).startsWith(prefix));
+  return outs.map((o) => ({
+    txid: t.txid,
+    ...(outs.length > 1 ? { output: outputName(o) } : {}),
     height: t.height,
     value: BigInt(o.value),
     memo: memoText(o.memo),

@@ -1,6 +1,8 @@
 // Real MCP client ↔ real sba-mcp (stdio) ↔ live Zcash testnet (lightwalletd via sba-verify).
 // Uses the published auction in deployments/testnet.json; no deposit is sent by these tests.
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { resolve } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -28,7 +30,7 @@ afterAll(async () => client?.close());
 
 describe('sba-mcp', () => {
   it('lists its tools', async () => {
-    expect((await client.listTools()).tools.map((t) => t.name).sort()).toEqual(['auction_status', 'bid', 'verify_result']);
+    expect((await client.listTools()).tools.map((t) => t.name).sort()).toEqual(['auction_status', 'bid', 'reveal', 'verify_result']);
   });
 
   it('auction_status finds the deposits by scanning the auction blocks with its viewing key', async () => {
@@ -65,4 +67,33 @@ describe('sba-mcp', () => {
     expect(closed.isError).toBe(true);
     expect(closed.text).toMatch(/closed after block 4522278 .* nothing was sent/);
   }, 60_000);
+
+  it('reveal refuses outside the reveal window (live chain tip) and on an auction with no channel, before zingo-cli runs', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-reveal-'));
+    try {
+      const rec = JSON.parse(readFileSync(AUCTION, 'utf8'));
+      const opening = { auctionId: rec.auction.auctionId, bid: '1000000', salt: '7', refundAddress: rec.auction.seller, txid: rec.deposits[0].txid, complaintKey: '11'.repeat(32), complaintSecret: '22'.repeat(32) };
+      writeFileSync(join(dir, `${rec.auction.auctionId}-${opening.txid}.json`), JSON.stringify(opening));
+      const env = (file: string) => ({ SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: dir });
+      const tryReveal = async (auction: object) => {
+        const file = join(dir, 'auction.json');
+        writeFileSync(file, JSON.stringify({ ...rec, auction: { ...rec.auction, ...auction } }));
+        const c = await connect(env(file));
+        const r = await call(c, 'reveal');
+        await c.close();
+        return r;
+      };
+      const none = await connect(env(AUCTION));
+      expect((await call(none, 'reveal')).text).toMatch(/no reveal channel .* nothing was sent/);
+      await none.close();
+      const key = '33'.repeat(32);
+      const late = await tryReveal({ revealKey: key, revealCloseHeight: rec.auction.closeHeight + 10 });
+      expect(late.isError).toBe(true);
+      expect(late.text).toMatch(/reveal window closed at block \d+ .* would be late, so nothing was sent/);
+      const early = await tryReveal({ revealKey: key, closeHeight: 99_000_000, revealCloseHeight: 99_000_010 });
+      expect(early.text).toMatch(/closes after block 99000000 .* would be early, so nothing was sent/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 120_000);
 });

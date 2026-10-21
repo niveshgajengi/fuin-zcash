@@ -4,18 +4,31 @@
 // Env: SBA_AUCTION_FILE (published auction JSON, e.g. deployments/testnet.json), SBA_BIDDER_WALLET
 // (zingo-cli data dir; needed for `bid`), SBA_BIDDER_DIR (where openings are kept).
 import { randomBytes } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, classifyDeposits, depositMemo, depositRef, quicksend, scan, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintKeyPair, depositMemo, depositRef, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
-  auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string };
+  auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number };
   deposits: { txid: string; output?: string }[];
   settlement?: { height: number };
   outcome?: { proof: object; publicSignals: string[]; unrevealed?: string[] };
+}
+
+/** What the bid tool keeps in SBA_BIDDER_DIR (mode 0600). The reveal and complaint secrets never leave it unless the bidder files a complaint. */
+interface Opening {
+  auctionId: string;
+  bid: string;
+  salt: string;
+  refundAddress: string;
+  txid: string;
+  complaintKey: string;
+  complaintSecret: string;
+  revealTxid?: string;
+  revealSecret?: string;
 }
 
 function need(name: string): string {
@@ -107,10 +120,44 @@ export function createServer(): McpServer {
         if (tip >= cfg.closeHeight) throw new Error(`the auction closed after block ${cfg.closeHeight} and the chain is at ${tip}; a deposit now would be late, so nothing was sent`);
         const salt = BigInt('0x' + randomBytes(31).toString('hex'));
         const c = await commitment(cfg.auctionId, BigInt(bid_zat), salt);
+        const complaint = complaintKeyPair();
         const [txid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: cfg.depositZat, memo: depositMemo(cfg.auctionId, c) }]);
         mkdirSync(dir, { recursive: true, mode: 0o700 });
-        writeFileSync(resolve(dir, `${cfg.auctionId}-${txid}.json`), JSON.stringify({ auctionId: cfg.auctionId.toString(), bid: String(bid_zat), salt: salt.toString(), refundAddress: refund_address, txid }), { mode: 0o600 });
-        return { sent: true, txid, deposit_zat: cfg.depositZat.toString(), commitment: c, note: 'the bid amount is not visible on-chain; reveal it to the auctioneer after the close' };
+        const opening: Opening = { auctionId: cfg.auctionId.toString(), bid: String(bid_zat), salt: salt.toString(), refundAddress: refund_address, txid, complaintKey: complaint.public, complaintSecret: complaint.secret };
+        writeFileSync(resolve(dir, `${cfg.auctionId}-${txid}.json`), JSON.stringify(opening), { mode: 0o600 });
+        return { sent: true, txid, deposit_zat: cfg.depositZat.toString(), commitment: c, note: 'the bid amount is not visible on-chain; after the close, call reveal to send it to the auctioneer encrypted' };
+      }),
+  );
+
+  server.registerTool(
+    'reveal',
+    {
+      title: 'Reveal sealed bids to the auctioneer',
+      description:
+        "During the reveal window (after the close, up to the auction's revealCloseHeight), sends each of this bidder's unrevealed openings from SBA_BIDDER_DIR to the auction address as a 1-zat shielded note whose memo is the opening encrypted to the auction's published reveal key. Only the auctioneer can read it; the auction's viewing key shows only which deposit it names. Refuses outside the window, before any wallet call.",
+    },
+    () =>
+      wrap(async () => {
+        const p = published();
+        const cfg = config(p);
+        if (!p.auction.revealKey || typeof p.auction.revealCloseHeight !== 'number') throw new Error('this auction has no reveal channel (auction.revealKey and auction.revealCloseHeight are missing); nothing was sent');
+        const dir = need('SBA_BIDDER_DIR');
+        const wallet = need('SBA_BIDDER_WALLET');
+        const mine = existsSync(dir) ? readdirSync(dir).filter((f) => f.startsWith(`${cfg.auctionId}-`) && f.endsWith('.json')) : [];
+        const pending = mine.map((f) => ({ file: resolve(dir, f), o: JSON.parse(readFileSync(resolve(dir, f), 'utf8')) as Opening })).filter((x) => !x.o.revealTxid);
+        if (pending.length === 0) throw new Error(`no unrevealed opening for auction ${cfg.auctionId} in SBA_BIDDER_DIR; nothing was sent`);
+        const tip = await chainTip();
+        // A note sent now is mined at tip + 1 at the earliest.
+        if (tip < cfg.closeHeight) throw new Error(`the auction closes after block ${cfg.closeHeight} and the chain is at ${tip}; a reveal now would be early, so nothing was sent`);
+        if (tip + 1 > p.auction.revealCloseHeight) throw new Error(`the reveal window closed at block ${p.auction.revealCloseHeight} and the chain is at ${tip}; a reveal now would be late, so nothing was sent`);
+        const sent = [];
+        for (const { file, o } of pending) {
+          const { memo, esk } = sealReveal(cfg.auctionId, p.auction.revealKey, o.txid, { bid: BigInt(o.bid), salt: BigInt(o.salt), refundAddress: o.refundAddress, complaintKey: o.complaintKey });
+          const [revealTxid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: REVEAL_ZAT, memo }]);
+          writeFileSync(file, JSON.stringify({ ...o, revealTxid, revealSecret: esk }), { mode: 0o600 });
+          sent.push({ deposit: o.txid, reveal_txid: revealTxid });
+        }
+        return { sent, window_closes_after: p.auction.revealCloseHeight, note: 'each memo is encrypted to the auction reveal key; the bid, salt and refund address are not visible with the auction viewing key' };
       }),
   );
 
