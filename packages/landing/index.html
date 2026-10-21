@@ -369,10 +369,11 @@
             <li><p><b>Commit.</b> A bidder picks a bid and a random 248-bit salt and computes <code>Poseidon(auction, bid, salt)</code>.</p></li>
             <li><p><b>Deposit.</b> It sends exactly the auction's deposit to the auction address, shielded, with memo <code>sba1:&lt;auction&gt;:&lt;commitment&gt;</code>. All deposits are equal, so the amount says nothing.</p></li>
             <li><p><b>Close.</b> Deposits mined after the close height are late. A copied commitment is a duplicate; a wrong amount or a non-bid memo is not a bid.</p></li>
-            <li><p><b>Reveal.</b> After the close, each bidder gives the auctioneer its bid, salt and refund address. An opening that matches no deposit is refused as altered.</p></li>
+            <li><p><b>Reveal.</b> After the close, each bidder sends a 1-zat shielded note to the auction address. Its memo is the bid, salt and refund address sealed to the auction's reveal key, so the public viewing key shows only which deposit it opens and when. A reveal outside the window, one that does not decrypt, or one whose opening does not match the deposit it names is refused.</p></li>
             <li><p><b>Prove.</b> The <code>MaxBid(8)</code> Groth16 proof shows the opened slot holds the highest bid (earliest deposit wins ties) and meets the reserve. Every other bid stays private.</p></li>
             <li><p><b>Tie it to the chain.</b> The proof's slots must be the valid deposits in chain order, any unused slot must be empty, and the winner must be a real deposit. A valid deposit left out has to be listed as unrevealed.</p></li>
             <li><p><b>Settle.</b> One shielded transaction pays the seller the winning bid and refunds every other revealed deposit in full. The winner gets its deposit back minus the bid and a 60,000 zat fee budget.</p></li>
+            <li><p><b>Dispute.</b> For a set number of blocks after the settlement, a bidder whose valid reveal was ignored, or who was underpaid, can file a signed complaint anchored on chain. The audit checks it against the chain and names the failure. Filing one makes that bidder's own bid public.</p></li>
           </ol>
         </div>
       </section>
@@ -422,8 +423,8 @@ all checks pass</pre>
             <div><h2 id="report-title">What Fuin does not do</h2><p>Read this before you bid.</p></div>
           </div>
           <div class="report">
-            <div><h3>The auctioneer learns every bid</h3><p>It sees each opening at the reveal and is trusted to settle. It cannot prove a winner the bids do not support, and a dropped bid has to be listed as unrevealed.</p></div>
-            <div><h3>No reveal channel yet</h3><p>Bidders hand openings to the auctioneer out of band. In the live run, one script played every bidder and the auctioneer.</p></div>
+            <div><h3>The auctioneer learns every bid</h3><p>It decrypts each opening at the reveal and is trusted to settle. It cannot prove a winner the bids do not support. A dropped reveal shows on chain, and its bidder can prove it with a complaint, but nothing forces the auctioneer to settle.</p></div>
+            <div><h3>Reveals cost a transaction</h3><p>Each bidder sends one more shielded note (about 10,000 zat in fees), and the public key shows which deposits were revealed and when. The first sale shown here predates the reveal channel: one script held every opening. The second sale used it.</p></div>
             <div><h3>Single-party trusted setup</h3><p>Whoever ran the Groth16 setup could forge proofs. A multi-party ceremony would remove that trust.</p></div>
             <div><h3>Testnet only, and not the first</h3><p>Sealed-bid auctions with zero-knowledge proofs have prior art. Fuin's part is equal shielded deposits whose memos are the proof's public inputs.</p></div>
           </div>

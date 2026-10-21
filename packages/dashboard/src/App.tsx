@@ -3,6 +3,7 @@ import * as snarkjs from 'snarkjs';
 import { checkResult, readPublic, type ResultCheck } from '@sba/circuits/result';
 import { emptyCommitment } from '@sba/circuits/poseidon';
 import run from '@deployments/testnet.json';
+import run2 from '@deployments/testnet-reveal.json';
 
 type Deposit = { txid: string; height: number | null; valueZat: string; memo: string; status: string; reason: string | null; label?: string };
 type BlockTime = { height: number; time: number; hash: string };
@@ -15,6 +16,16 @@ const r = run as unknown as {
   ironwoodOnly: boolean;
   blockTimes: { open: BlockTime; close: BlockTime; settlement: BlockTime };
   verificationKeySha256: string;
+};
+
+type RevealEntry = { ref: string; txid: string; height: number | null; deposit: string | null; status: string; reason: string | null; label: string | null };
+type Deposit2 = Deposit & { output?: string };
+const r2 = run2 as unknown as {
+  auction: { name: string; depositZat: string; closeHeight: number; revealCloseHeight: number; disputeBlocks: number };
+  deposits: Deposit2[];
+  reveals?: RevealEntry[];
+  outcome?: { winningBidZat: string; unrevealed: string[] };
+  settlement?: { txid: string; height: number; viewingKeyChecks: { ok: boolean }[] };
 };
 
 const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';
@@ -354,14 +365,107 @@ function Audit() {
         <li>
           <code>pnpm --filter @sba/service audit</code> scans the auction&apos;s blocks with its incoming viewing key, so a deposit left out of the record shows up.
         </li>
-        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch.</li>
+        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch. A transaction that pays the auction twice is two deposits.</li>
         <li>It verifies the proof and ties it to those deposits, the same checks this page runs.</li>
+        <li>On an auction with the reveal channel it checks the reveal log: every reveal note on chain is listed, and every status the chain alone decides (window, auction, named deposit) is right.</li>
+        <li>
+          Given a bidder&apos;s complaint file, it opens that bidder&apos;s reveal with the published secret and says <b>rejected</b>, <b>unfounded</b> or <b>upheld</b>, naming what the auctioneer did wrong.
+        </li>
       </ol>
       <details className="key">
         <summary>Auction incoming viewing key</summary>
         <code>{r.auction.uivk}</code>
         <p>Reads deposits to the auction address: amounts and commitment memos. It cannot spend, and it never shows a bid.</p>
       </details>
+    </section>
+  );
+}
+
+const REVEAL_STATUS: Record<string, string> = {
+  accepted: 'accepted',
+  duplicate: 'duplicate',
+  conflicting: 'conflicting',
+  wrong_commitment: 'wrong deposit',
+  tampered: 'tampered',
+  late: 'late',
+  early: 'early',
+  pending: 'pending',
+  malformed: 'malformed',
+  other_auction: 'other auction',
+  unknown_deposit: 'no such deposit',
+  bid_over_deposit: 'over deposit',
+};
+
+/* ---------- sale 2: openings read from sealed reveal notes on chain ---------- */
+function RevealChannel() {
+  const { reveals, outcome, settlement } = r2;
+  if (!reveals || !outcome || !settlement) return null; // the record is written when the live run settles
+  // A bid transaction that pays the auction more than once (its payments are separate deposits).
+  const multiTx = r2.deposits.find((d) => d.output !== undefined && d.status === 'valid')?.txid;
+  const multi = r2.deposits.filter((d) => d.txid === multiTx);
+  const checks = settlement.viewingKeyChecks;
+  return (
+    <section className="block" aria-labelledby="sale2-title">
+      <div className="block-head">
+        <div>
+          <span className="eyebrow">Sale 002 · the reveal channel</span>
+          <h2 id="sale2-title">Bids opened by sealed memo</h2>
+        </div>
+        <a className="btn btn-line" href={EXPLORER + settlement.txid} target="_blank" rel="noreferrer">
+          {short(settlement.txid)} ↗
+        </a>
+      </div>
+      <p className="block-sub">
+        <code>{r2.auction.name}</code>. After the close, each bidder sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the
+        auction&apos;s reveal key. The public viewing key sees only which deposit a reveal names and when. The auctioneer read the openings from the chain, never from the
+        bidders. Hammer price {taz(outcome.winningBidZat)}.
+      </p>
+      <div className="ledger" role="table" aria-label="Reveal notes on chain">
+        <div className="reveal-row ledger-head" role="row">
+          <span role="columnheader">Block</span>
+          <span role="columnheader">Reveal note</span>
+          <span role="columnheader">Opens deposit</span>
+          <span role="columnheader">Status</span>
+        </div>
+        {reveals.map((v) => (
+          <div className="reveal-row" role="row" key={v.ref}>
+            <span role="cell" className="num">
+              {v.height?.toLocaleString('en-US') ?? 'mempool'}
+            </span>
+            <span role="cell">
+              <a href={EXPLORER + v.txid} target="_blank" rel="noreferrer">
+                {short(v.txid)}
+              </a>
+              {v.label ? <small>{v.label}</small> : null}
+            </span>
+            <span role="cell" className="num">
+              {v.deposit ? short(v.deposit) : '—'}
+            </span>
+            <span role="cell" title={v.reason ?? undefined}>
+              <span className={`res ${v.status === 'accepted' ? 'res-ok' : 'res-bad'}`}>{REVEAL_STATUS[v.status] ?? v.status}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      <ul className="facts">
+        <li>
+          Reveal window: blocks <b>{(r2.auction.closeHeight + 1).toLocaleString('en-US')}</b>–<b>{r2.auction.revealCloseHeight.toLocaleString('en-US')}</b>; complaints
+          until {r2.auction.disputeBlocks} blocks after the settlement.
+        </li>
+        {multi.length > 0 ? (
+          <li>
+            Transaction <b>{short(multi[0].txid)}</b> pays the auction {multi.length} times: read as {multi.length} deposits (
+            {multi.map((d) => STATUS[d.status]?.toLowerCase() ?? d.status).join(', ')}).
+          </li>
+        ) : null}
+        <li>
+          Deposits never revealed, listed in the outcome: <b>{outcome.unrevealed.length}</b>
+          {outcome.unrevealed.length ? ` (${outcome.unrevealed.map((t) => short(t)).join(', ')})` : ''}.
+        </li>
+        <li>
+          Settlement outputs each recipient decrypted with its own key: <b>{checks.filter((c) => c.ok).length} of {checks.length} match</b>.
+        </li>
+      </ul>
     </section>
   );
 }
@@ -437,6 +541,7 @@ export function App() {
           <div className="col">
             <Catalogue />
             <Provenance />
+            <RevealChannel />
             <Audit />
           </div>
           <aside className="side">
