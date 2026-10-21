@@ -94,7 +94,7 @@ export function checkResult(input: ResultInput): ResultCheck {
   for (let i = 0; i < SLOTS; i++) {
     const want = i < n ? proven[i].commitment : input.emptyCommitment;
     if (pub.commitments[i] !== want) {
-      slotErrors.push(i < n ? `slot ${i} is not deposit ${proven[i].txid.slice(0, 10)}'s memo` : `slot ${i} should be empty but holds a commitment no deposit has`);
+      slotErrors.push(i < n ? `slot ${i} is not deposit ${proven[i].txid.slice(0, 10)}'s memo` : `slot ${i} should be empty, Poseidon(auction, 0, 0), but is not`);
     }
   }
   add(
