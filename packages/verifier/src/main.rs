@@ -3,7 +3,9 @@
 //!     sba-verify tx <txid>...        (UIVK from SBA_UIVK)
 //!         For each transaction: fetch it from lightwalletd (SBA_LWD_URL, default testnet.zec.rocks),
 //!         trial-decrypt every Sapling, Orchard and Ironwood output, and print one JSON line:
-//!         {"txid","height","confirmations","outputs":[{"pool","value","memo"}],"transparent":bool}
+//!         {"txid","height","confirmations","outputs":[{"pool","index","value","memo"}],"pools":{..}}
+//!         One entry per decrypted output: a transaction that pays the key twice has two, each with
+//!         its action (or Sapling output) index in its bundle.
 //!     sba-verify scan <from> <to>    (UIVK from SBA_UIVK)
 //!         Every transaction mined in blocks from..=to (at most 5,000 blocks) that has at least one
 //!         output this key decrypts, one JSON line each as above. This is how an auditor finds every
@@ -45,17 +47,19 @@ fn memo_value(m: &[u8; 512]) -> Value {
     }
 }
 
-fn orchard_family<V: DomainVersion>(
+/// Trial-decrypts every action of an Orchard-family bundle. Each decrypted output carries its action
+/// index, so two payments to the same key in one transaction are two outputs, not one.
+fn orchard_family<'a, V: DomainVersion, T: 'a>(
     pool: &str,
     ivk: &orchard::keys::IncomingViewingKey,
-    bundle: &orchard::bundle::Bundle<orchard::bundle::Authorized, zcash_protocol::value::ZatBalance>,
+    actions: impl IntoIterator<Item = &'a orchard::Action<T>>,
     out: &mut Vec<Value>,
 ) {
     let p = orchard::keys::PreparedIncomingViewingKey::new(ivk);
-    for a in bundle.actions() {
+    for (index, a) in actions.into_iter().enumerate() {
         let d = NoteEncryptionDomain::<V>::for_action(a);
         if let Some((note, _, memo)) = try_note_decryption(&d, &p, a) {
-            out.push(json!({ "pool": pool, "value": note.value().inner(), "memo": memo_value(&memo) }));
+            out.push(json!({ "pool": pool, "index": index, "value": note.value().inner(), "memo": memo_value(&memo) }));
         }
     }
 }
@@ -80,18 +84,18 @@ async fn inspect(c: &mut lwd::Client, uivk: &UnifiedIncomingViewingKey, txid: &s
     if let (Some(b), Some(ivk)) = (tx.sapling_bundle(), uivk.sapling()) {
         let d = SaplingDomain::new(zip212_enforcement(&NETWORK, mined.unwrap_or(tip + 1)));
         let p = ivk.prepare();
-        for o in b.shielded_outputs() {
+        for (index, o) in b.shielded_outputs().iter().enumerate() {
             if let Some((note, _, memo)) = try_note_decryption(&d, &p, o) {
-                out.push(json!({ "pool": "Sapling", "value": note.value().inner(), "memo": memo_value(&memo) }));
+                out.push(json!({ "pool": "Sapling", "index": index, "value": note.value().inner(), "memo": memo_value(&memo) }));
             }
         }
     }
     if let Some(ivk) = uivk.orchard() {
         if let Some(b) = tx.orchard_bundle() {
-            orchard_family::<OrchardVersion>("Orchard", ivk, b, &mut out);
+            orchard_family::<OrchardVersion, _>("Orchard", ivk, b.actions(), &mut out);
         }
         if let Some(b) = tx.ironwood_bundle() {
-            orchard_family::<IronwoodVersion>("Ironwood", ivk, b, &mut out);
+            orchard_family::<IronwoodVersion, _>("Ironwood", ivk, b.actions(), &mut out);
         }
     }
     let transparent = tx.transparent_bundle().is_some_and(|b| !b.vin.is_empty() || !b.vout.is_empty());
@@ -223,6 +227,40 @@ mod tests {
         bin[0] = 0xFF;
         bin[1] = 0x01;
         assert_eq!(memo_value(&bin), json!({ "non_text": true }));
+    }
+
+    /// A real Ironwood bundle built in-process (note encryption as on chain; no proof is needed to
+    /// decrypt) that pays the auction key twice and someone else once. Both payments come back, each
+    /// with its own action index and memo; the other key's output does not.
+    #[test]
+    fn two_payments_to_one_key_in_one_bundle_are_two_outputs() {
+        use orchard::builder::{Builder, BundleType};
+        use orchard::bundle::BundleVersion;
+        use orchard::keys::{FullViewingKey, Scope, SpendingKey};
+        use orchard::tree::Anchor;
+        use orchard::value::NoteValue;
+        use rand::SeedableRng;
+
+        let fvk = |b: u8| FullViewingKey::from(&SpendingKey::from_bytes([b; 32]).unwrap());
+        let (auction, other) = (fvk(7), fvk(9));
+        let version = BundleVersion::ironwood_v3();
+        let mut builder = Builder::new(BundleType::DEFAULT, version, version.default_flags(), Anchor::empty_tree()).unwrap();
+        let to = auction.address_at(0u32, Scope::External);
+        builder.add_output(None, to, NoteValue::from_raw(150_000), memo(b"sba1:42:111")).unwrap();
+        builder.add_output(None, to, NoteValue::from_raw(150_000), memo(b"sba1:42:222")).unwrap();
+        builder.add_output(None, other.address_at(0u32, Scope::External), NoteValue::from_raw(5), memo(b"not for the auction")).unwrap();
+        let mut rng = rand::rngs::StdRng::seed_from_u64(1);
+        let (bundle, _) = builder.build::<i64>(&mut rng).unwrap().unwrap();
+        assert!(bundle.actions().len() >= 3);
+
+        let mut out = Vec::new();
+        orchard_family::<IronwoodVersion, _>("Ironwood", &auction.to_ivk(Scope::External), bundle.actions(), &mut out);
+        assert_eq!(out.len(), 2, "both payments to the auction key are read: {out:?}");
+        let mut memos: Vec<_> = out.iter().map(|o| o["memo"]["text"].as_str().unwrap().to_string()).collect();
+        memos.sort();
+        assert_eq!(memos, ["sba1:42:111", "sba1:42:222"]);
+        assert!(out.iter().all(|o| o["value"] == 150_000 && o["pool"] == "Ironwood"));
+        assert_ne!(out[0]["index"], out[1]["index"], "each output names its own action");
     }
 
     #[test]

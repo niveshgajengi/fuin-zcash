@@ -308,6 +308,7 @@ dependencies = [
  "cfg-if",
  "cipher",
  "cpufeatures 0.3.1",
+ "rand_core 0.10.1",
 ]
 
 [[package]]
@@ -1462,6 +1463,7 @@ version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af"
 dependencies = [
+ "chacha20",
  "getrandom 0.4.3",
  "rand_core 0.10.1",
 ]
@@ -1696,6 +1698,7 @@ name = "sba-verify"
 version = "0.1.0"
 dependencies = [
  "orchard",
+ "rand 0.10.3",
  "sapling-crypto",
  "serde_json",
  "tokio",
