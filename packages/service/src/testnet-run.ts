@@ -19,12 +19,12 @@ import {
   depositMemo,
   exportUfvk,
   ironwoodOnly,
-  memoText,
   quicksend,
   uivkOf,
   valueTransfers,
   zingoConfig,
   address,
+  asDeposits,
   type AuctionConfig,
   type IncomingDeposit,
   type Reveal,
@@ -167,10 +167,7 @@ async function main() {
   // 5. Read every deposit with the auction's incoming viewing key (not the auction wallet).
   const all = [...state.bids, state.late];
   const decrypted = await decrypt(a.uivk, all.map((b) => b.txid!));
-  const incoming: IncomingDeposit[] = decrypted.map((t) => {
-    const out = t.outputs.find((o) => memoText(o.memo)) ?? t.outputs[0];
-    return { txid: t.txid, height: t.height, value: BigInt(out?.value ?? 0), memo: memoText(out?.memo ?? null) };
-  });
+  const incoming: IncomingDeposit[] = decrypted.flatMap(asDeposits);
   const classified = classifyDeposits(cfg, incoming);
   for (const d of classified) say(`  ${d.txid.slice(0, 10)} at ${d.height}: ${d.status}${d.reason ? ` (${d.reason})` : ''}`);
   for (const b of all) {
@@ -234,7 +231,7 @@ async function main() {
       {
         network: 'testnet',
         auction: { name: a.name, auctionId: a.auctionId, address: a.address, uivk: a.uivk, depositZat: a.depositZat, reserveZat: a.reserveZat, openHeight: a.openHeight, closeHeight: a.closeHeight, seller: a.sellerAddress },
-        deposits: classified.map((d) => ({ txid: d.txid, height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: all.find((b) => b.txid === d.txid)?.label })),
+        deposits: classified.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: all.find((b) => b.txid === d.txid)?.label })),
         alteredReveal: { rejected: true, reason: (altered as { reason: string }).reason },
         outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: state.outcome!.proof, publicSignals: state.outcome!.publicSignals, unrevealed: state.outcome!.unrevealed ?? [], proofVerifies: proofOk, slotsMatchDeposits: slotsMatch },
         settlement: { txid: state.settlement.txids[0], height: settle.height, outputs: state.settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },

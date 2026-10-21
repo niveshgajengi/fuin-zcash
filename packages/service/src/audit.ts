@@ -7,7 +7,7 @@
 // in the settlement. Exit 1 if anything does not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposit, checkOutcome, classifyDeposits, decrypt, ironwoodOnly, scan, type AuctionConfig } from './index.js';
+import { asDeposits, checkOutcome, classifyDeposits, decrypt, depositRef, ironwoodOnly, scan, type AuctionConfig } from './index.js';
 
 const file = resolve(process.argv[2] ?? resolve(import.meta.dirname, '../../../deployments/testnet.json'));
 const run = JSON.parse(readFileSync(file, 'utf8'));
@@ -26,14 +26,14 @@ const check = (ok: boolean, line: string) => {
 console.log(`auction ${a.name}: deposit ${a.depositZat} zat, reserve ${a.reserveZat} zat, open at block ${a.openHeight}, close after block ${a.closeHeight}`);
 const end = run.settlement.height as number;
 const found = await scan(cfg.uivk, a.openHeight, end);
-console.log(`\nblocks ${a.openHeight}-${end} scanned with the auction incoming viewing key: ${found.length} transaction(s) pay the auction`);
-const incoming = found.map((t) => {
-  const d = asDeposit(t);
-  console.log(`  ${t.txid.slice(0, 10)}  block ${t.height}  ${String(d.value).padStart(8)} zat  memo ${d.memo.length > 40 ? d.memo.slice(0, 40) + '…' : d.memo}`);
-  return d;
-});
-const listed = new Set<string>(run.deposits.map((d: { txid: string }) => d.txid));
-const onChain = new Set(found.map((t) => t.txid));
+const incoming = found.flatMap(asDeposits);
+console.log(`\nblocks ${a.openHeight}-${end} scanned with the auction incoming viewing key: ${found.length} transaction(s) pay the auction, ${incoming.length} payment(s)`);
+for (const d of incoming) {
+  const name = depositRef(d);
+  console.log(`  ${name.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`}  block ${d.height}  ${String(d.value).padStart(8)} zat  memo ${d.memo.length > 40 ? d.memo.slice(0, 40) + '…' : d.memo}`);
+}
+const listed = new Set<string>(run.deposits.map(depositRef));
+const onChain = new Set(incoming.map(depositRef));
 check(
   [...onChain].every((t) => listed.has(t)),
   `every deposit on chain is in the published list${[...onChain].filter((t) => !listed.has(t)).map((t) => `; NOT LISTED: ${t}`).join('')}`,
@@ -46,8 +46,8 @@ check(
 const classified = classifyDeposits(cfg, incoming);
 console.log('\nrules applied to what the chain shows:');
 for (const d of classified) {
-  const recorded = run.deposits.find((x: { txid: string }) => x.txid === d.txid)?.status ?? 'not listed';
-  check(recorded === d.status, `${d.txid.slice(0, 10)} ${d.status}${d.reason ? ` (${d.reason})` : ''}${recorded === d.status ? '' : `; the record says ${recorded}`}`);
+  const recorded = run.deposits.find((x: { txid: string; output?: string }) => depositRef(x) === d.ref)?.status ?? 'not listed';
+  check(recorded === d.status, `${d.ref.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`} ${d.status}${d.reason ? ` (${d.reason})` : ''}${recorded === d.status ? '' : `; the record says ${recorded}`}`);
 }
 
 console.log('\nthe result:');

@@ -10,7 +10,8 @@ export interface DecryptedTx {
   txid: string;
   height: number | null;
   confirmations: number;
-  outputs: { pool: string; value: number; memo: { text: string } | { non_text: true } | null }[];
+  /** One entry per output the key decrypts; `index` is the output's action index in its pool's bundle. */
+  outputs: { pool: string; index: number; value: number; memo: { text: string } | { non_text: true } | null }[];
   pools: { sapling: boolean; orchard: boolean; ironwood: boolean; transparent: boolean };
 }
 
@@ -75,8 +76,18 @@ export const memoText = (m: DecryptedTx['outputs'][number]['memo']) => (m && 'te
 /** True when the transaction has only an Ironwood bundle (no transparent, Sapling or Orchard parts). */
 export const ironwoodOnly = (t: DecryptedTx) => t.pools.ironwood && !t.pools.transparent && !t.pools.sapling && !t.pools.orchard;
 
-/** A decrypted transaction as a deposit: the output carrying a text memo (or the first output). */
-export function asDeposit(t: DecryptedTx): { txid: string; height: number | null; value: bigint; memo: string } {
-  const o = t.outputs.find((x) => memoText(x.memo)) ?? t.outputs[0];
-  return { txid: t.txid, height: t.height, value: BigInt(o?.value ?? 0), memo: memoText(o?.memo ?? null) };
+/**
+ * Every output of a decrypted transaction, as deposits. A transaction that pays the auction once is
+ * one deposit named by its txid; one that pays it several times is one deposit per output, each
+ * named `txid:<index>` (`o<index>` / `s<index>` for Orchard / Sapling outputs).
+ */
+export function asDeposits(t: DecryptedTx): { txid: string; output?: string; height: number | null; value: bigint; memo: string }[] {
+  const outs = t.outputs;
+  return outs.map((o) => ({
+    txid: t.txid,
+    ...(outs.length > 1 ? { output: `${o.pool === 'Ironwood' ? '' : o.pool === 'Orchard' ? 'o' : 's'}${o.index}` } : {}),
+    height: t.height,
+    value: BigInt(o.value),
+    memo: memoText(o.memo),
+  }));
 }

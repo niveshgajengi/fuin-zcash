@@ -2,6 +2,7 @@
 // the same functions classify the live testnet deposits in testnet-run.ts.
 import { describe, expect, it } from 'vitest';
 import { commitment, readPublic, verify } from '@sba/circuits';
+import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { auctionIdFor, checkOutcome, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
@@ -106,5 +107,53 @@ describe('unrevealed bids', () => {
     const hidden = await checkOutcome(cfg, deposits, { ...o, unrevealed: [] });
     expect(hidden.ok).toBe(false);
     expect(hidden.checks.find((c) => !c.ok)?.name).toBe('slots');
+  });
+});
+
+describe('multi-payment deposits', () => {
+  // The shape sba-verify prints for a transaction whose Ironwood bundle pays the auction twice (the
+  // Rust test two_payments_to_one_key_in_one_bundle_are_two_outputs builds such a bundle for real).
+  const twice = async (memo2: string): Promise<DecryptedTx> => ({
+    txid: 'm'.repeat(64),
+    height: 20,
+    confirmations: 5,
+    outputs: [
+      { pool: 'Ironwood', index: 2, value: Number(cfg.depositZat), memo: { text: depositMemo(cfg.auctionId, await commitment(cfg.auctionId, 1_100_000n, 7n)) } },
+      { pool: 'Ironwood', index: 0, value: Number(cfg.depositZat), memo: { text: memo2 } },
+    ],
+    pools: { sapling: false, orchard: false, ironwood: true, transparent: false },
+  });
+
+  it('a transaction that pays the auction twice is two deposits, each named by its output', async () => {
+    const t = await twice(depositMemo(cfg.auctionId, await commitment(cfg.auctionId, 1_300_000n, 8n)));
+    const ds = asDeposits(t);
+    expect(ds.map((d) => [d.output, d.value])).toEqual([
+      ['2', cfg.depositZat],
+      ['0', cfg.depositZat],
+    ]);
+    const classified = classifyDeposits(cfg, ds);
+    expect(classified.map((d) => [d.ref, d.status])).toEqual([
+      [`${'m'.repeat(64)}:0`, 'valid'],
+      [`${'m'.repeat(64)}:2`, 'valid'],
+    ]);
+    // Both bids compete: the higher one (output 0) wins, the other is refunded in full.
+    const o = await decide(cfg, classified, [
+      { bid: 1_100_000n, salt: 7n, refundAddress: 'r' },
+      { bid: 1_300_000n, salt: 8n, refundAddress: 'r' },
+    ]);
+    expect(o.winningBid).toBe(1_300_000n);
+    expect(o.payouts.filter((p) => p.why.startsWith('refund')).map((p) => p.amount)).toEqual([cfg.depositZat]);
+  });
+
+  it('a second payment with the same commitment in the same transaction is a duplicate and is refunded', async () => {
+    const first = depositMemo(cfg.auctionId, await commitment(cfg.auctionId, 1_100_000n, 7n));
+    const classified = classifyDeposits(cfg, asDeposits(await twice(first)));
+    expect(classified.map((d) => d.status)).toEqual(['valid', 'duplicate']);
+    const o = await decide(cfg, [...classified, ...classifyDeposits(cfg, [await dep('n', 21, 900_000n, 3n)])], [
+      { bid: 1_100_000n, salt: 7n, refundAddress: 'r1' },
+      { bid: 900_000n, salt: 3n, refundAddress: 'r2' },
+    ]);
+    expect(o.winningBid).toBe(1_100_000n);
+    expect(o.payouts.map((p) => [p.address, p.amount])).toContainEqual(['r1', cfg.depositZat]);
   });
 });

@@ -45,9 +45,11 @@ export function parseMemo(memo: string): { auctionId: bigint; commitment: string
   return m ? { auctionId: BigInt(m[1]), commitment: m[2] } : null;
 }
 
-/** A received transaction as the auction sees it (from its wallet or from sba-verify). */
+/** One payment to the auction as it sees it (from sba-verify). */
 export interface IncomingDeposit {
   txid: string;
+  /** Which output, when the transaction pays the auction more than once (see `asDeposits`). */
+  output?: string;
   height: number | null;
   value: bigint;
   memo: string;
@@ -55,20 +57,26 @@ export interface IncomingDeposit {
 
 export type DepositStatus = 'valid' | 'late' | 'pending' | 'wrong_amount' | 'memo_mismatch' | 'duplicate';
 
+/** A deposit's name: its txid, or `txid:<output>` when its transaction pays the auction more than once. */
+export const depositRef = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
+
 export interface ClassifiedDeposit extends IncomingDeposit {
+  ref: string;
   status: DepositStatus;
   commitment: string | null;
   reason?: string;
 }
 
 /**
- * Classifies deposits in chain order (height, then txid). Only `valid` deposits can win; the first
- * deposit with a given commitment is the bid and later copies are duplicates.
+ * Classifies deposits in chain order (height, then name). Only `valid` deposits can win; the first
+ * deposit with a given commitment is the bid and later copies are duplicates. Each payment is its
+ * own deposit, including a second payment in the same transaction.
  */
 export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]): ClassifiedDeposit[] {
   const seen = new Set<string>();
-  return [...deposits]
-    .sort((a, b) => (a.height ?? Infinity) - (b.height ?? Infinity) || a.txid.localeCompare(b.txid))
+  return deposits
+    .map((d) => ({ ...d, ref: depositRef(d) }))
+    .sort((a, b) => (a.height ?? Infinity) - (b.height ?? Infinity) || a.ref.localeCompare(b.ref))
     .map((d): ClassifiedDeposit => {
       const parsed = parseMemo(d.memo);
       if (!parsed || parsed.auctionId !== cfg.auctionId) {
@@ -136,7 +144,7 @@ export async function checkOutcome(
   const r = checkResult({
     auctionId: cfg.auctionId,
     reserve: cfg.reserveZat,
-    deposits,
+    deposits: deposits.map((d) => ({ ...d, txid: d.ref })),
     unrevealed: o.unrevealed ?? [],
     publicSignals: o.publicSignals,
     emptyCommitment: await emptyCommitment(cfg.auctionId),
@@ -157,7 +165,7 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     if (check.ok) byCommitment.set(check.commitment, r);
   }
   const valid = deposits.filter((d) => d.status === 'valid' && byCommitment.has(d.commitment!));
-  const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.txid);
+  const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.ref);
   if (valid.length === 0) throw new Error('no valid revealed bid');
   if (valid.length > SLOTS) throw new Error(`more than ${SLOTS} valid bids: the circuit has ${SLOTS} slots`);
   const openings: Opening[] = valid.map((d) => ({ bid: byCommitment.get(d.commitment!)!.bid, salt: byCommitment.get(d.commitment!)!.salt }));
@@ -178,7 +186,7 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     const r = byCommitment.get(d.commitment);
     if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
-    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.txid.slice(0, 8)})` });
+    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.ref.length > 64 ? `${d.ref.slice(0, 8)}…${d.ref.slice(64)}` : d.ref.slice(0, 8)})` });
   }
   return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
 }

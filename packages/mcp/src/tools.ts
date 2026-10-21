@@ -9,11 +9,11 @@ import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposit, chainTip, checkOutcome, classifyDeposits, depositMemo, quicksend, scan, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, classifyDeposits, depositMemo, depositRef, quicksend, scan, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string };
-  deposits: { txid: string }[];
+  deposits: { txid: string; output?: string }[];
   settlement?: { height: number };
   outcome?: { proof: object; publicSignals: string[]; unrevealed?: string[] };
 }
@@ -45,9 +45,9 @@ async function depositsOnChain(p: Published) {
   if (typeof p.auction.openHeight !== 'number') throw new Error('Setup required: auction.openHeight in SBA_AUCTION_FILE (the block to start scanning from)');
   const end = p.settlement?.height ?? (await chainTip());
   const found = await scan(cfg.uivk, p.auction.openHeight, end);
-  const classified = classifyDeposits(cfg, found.map(asDeposit));
-  const listed = new Set(p.deposits.map((d) => d.txid));
-  const onChain = new Set(found.map((t) => t.txid));
+  const classified = classifyDeposits(cfg, found.flatMap(asDeposits));
+  const listed = new Set(p.deposits.map(depositRef));
+  const onChain = new Set(classified.map((d) => d.ref));
   return {
     cfg,
     classified,
@@ -81,7 +81,7 @@ export function createServer(): McpServer {
           reserve_zat: p.auction.reserveZat,
           close_height: p.auction.closeHeight,
           blocks_scanned: scanned,
-          deposits: deposits.map((d) => ({ txid: d.txid, height: d.height, status: d.status, reason: d.reason ?? null })),
+          deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, status: d.status, reason: d.reason ?? null })),
           missing_from_published_record: notListed,
         };
       }),
