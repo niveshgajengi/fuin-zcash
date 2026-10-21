@@ -7,6 +7,7 @@
     "uivk": "uivktest13q05lhhc5ha8m7dhcsccm80qlcka82drx4cs4p9whv24w3uvcnevfu0np504u9zngp7ld4f8tmvu9mzzfh54j3w4gpjmnvx2c44tgd7ywpnmrjqdflccgemweunqapxx8r8huh8xph4jv5vhs9ja0eltcw0fhw9weyfulkzjtmcgs8u974a27xl6vd77cpfulah046gjd92d75qsxuec95mjsyh07lzf23v95lwydm6n7kkt60z",
     "depositZat": "2000000",
     "reserveZat": "500000",
+    "openHeight": 4522258,
     "closeHeight": 4522278,
     "seller": "utest137az5fc0a0cmv8yttg8c7e9ztgpn2t63pe7u6jr406evyx09w0my2kzy268gszrg4a9qsc2skq3epu4k7tq7y7gy94634fkv6gppa22h"
   },
@@ -135,6 +136,7 @@
       "2",
       "1750000"
     ],
+    "unrevealed": [],
     "proofVerifies": true,
     "slotsMatchDeposits": true
   },

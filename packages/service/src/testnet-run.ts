@@ -9,6 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { commitment, readPublic } from '@sba/circuits';
 import {
   auctionIdFor,
+  chainTip,
   checkOutcome,
   checkReveal,
   classifyDeposits,
@@ -40,7 +41,7 @@ const sleep = (s: number) => new Promise((r) => setTimeout(r, s * 1000));
 
 type Bid = { wallet: string; label: string; bid: string; salt: string; amount: string; memo: string; txid?: string; expect: string };
 interface State {
-  auction?: Omit<AuctionConfig, 'auctionId' | 'depositZat' | 'reserveZat'> & { auctionId: string; depositZat: string; reserveZat: string };
+  auction?: Omit<AuctionConfig, 'auctionId' | 'depositZat' | 'reserveZat'> & { auctionId: string; depositZat: string; reserveZat: string; openHeight?: number };
   uivks: Record<string, string>;
   bids: Bid[];
   late?: Bid;
@@ -57,12 +58,7 @@ function say(line: string) {
   save();
 }
 
-async function tip(): Promise<number> {
-  // Any decryptable lookup returns the tip-relative confirmations; use the auction UIVK on a known tx.
-  const probe = state.bids.find((b) => b.txid)?.txid ?? '6afa00383ef7eae26c1e76f09948f6ae9c39179f09af780131bb1952c09c4d3b';
-  const [t] = await decrypt(state.uivks.auction, [probe]);
-  return (t.height ?? 0) + t.confirmations - 1;
-}
+const tip = chainTip;
 
 async function waitMined(txid: string, minConf = 1) {
   for (let i = 0; ; i++) {
@@ -108,13 +104,15 @@ async function main() {
       uivk: state.uivks.auction,
       depositZat: DEPOSIT.toString(),
       reserveZat: RESERVE.toString(),
+      openHeight: t,
       closeHeight: t + 20,
       sellerAddress: await address(cfgZ, w('seller')),
     };
     say(`auction ${name} id ${state.auction.auctionId}: deposit ${DEPOSIT} zat, reserve ${RESERVE} zat, closes after block ${state.auction.closeHeight} (tip ${t})`);
   }
   const a = state.auction;
-  const cfg: AuctionConfig = { ...a, auctionId: BigInt(a.auctionId), depositZat: BigInt(a.depositZat), reserveZat: BigInt(a.reserveZat) };
+  const { openHeight: _open, ...cfgFields } = a;
+  const cfg: AuctionConfig = { ...cfgFields, auctionId: BigInt(a.auctionId), depositZat: BigInt(a.depositZat), reserveZat: BigInt(a.reserveZat) };
 
   // 3. Bids: three valid, plus a duplicate commitment, a wrong amount, and a memo mismatch.
   if (state.bids.length === 0) {
@@ -229,7 +227,7 @@ async function main() {
     JSON.stringify(
       {
         network: 'testnet',
-        auction: { name: a.name, auctionId: a.auctionId, address: a.address, uivk: a.uivk, depositZat: a.depositZat, reserveZat: a.reserveZat, closeHeight: a.closeHeight, seller: a.sellerAddress },
+        auction: { name: a.name, auctionId: a.auctionId, address: a.address, uivk: a.uivk, depositZat: a.depositZat, reserveZat: a.reserveZat, openHeight: a.openHeight, closeHeight: a.closeHeight, seller: a.sellerAddress },
         deposits: classified.map((d) => ({ txid: d.txid, height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: all.find((b) => b.txid === d.txid)?.label })),
         alteredReveal: { rejected: true, reason: (altered as { reason: string }).reason },
         outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: state.outcome!.proof, publicSignals: state.outcome!.publicSignals, unrevealed: state.outcome!.unrevealed ?? [], proofVerifies: proofOk, slotsMatchDeposits: slotsMatch },
