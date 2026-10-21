@@ -2,7 +2,7 @@
 // the same functions classify the live testnet deposits in testnet-run.ts.
 import { describe, expect, it } from 'vitest';
 import { commitment, readPublic, verify } from '@sba/circuits';
-import { auctionIdFor, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -84,5 +84,27 @@ describe('reveals and settlement', () => {
   it('refuses to sell below the reserve', async () => {
     const deposits = classifyDeposits(cfg, [await dep('z', 10, 400_000n, 5n)]);
     await expect(decide(cfg, deposits, [{ bid: 400_000n, salt: 5n, refundAddress: 'r' }])).rejects.toThrow(/below the reserve/);
+  });
+});
+
+describe('unrevealed bids', () => {
+  it('a valid deposit with no reveal is declared unrevealed, so the outcome still passes its check; hiding it does not', async () => {
+    const deposits = classifyDeposits(cfg, [
+      await dep('u1', 10, 1_200_000n, 11n),
+      await dep('u2', 11, 1_750_000n, 22n), // never revealed
+      await dep('u3', 12, 900_000n, 33n),
+    ]);
+    const o = await decide(cfg, deposits, [
+      { bid: 1_200_000n, salt: 11n, refundAddress: 'b1' },
+      { bid: 900_000n, salt: 33n, refundAddress: 'b3' },
+    ]);
+    expect(o.unrevealed).toEqual(['u2']);
+    expect(o.winningBid).toBe(1_200_000n);
+    const published = await checkOutcome(cfg, deposits, o);
+    expect(published).toMatchObject({ ok: true, winnerTxid: 'u1' });
+    // An auctioneer that leaves the deposit out without saying so is caught.
+    const hidden = await checkOutcome(cfg, deposits, { ...o, unrevealed: [] });
+    expect(hidden.ok).toBe(false);
+    expect(hidden.checks.find((c) => !c.ok)?.name).toBe('slots');
   });
 });

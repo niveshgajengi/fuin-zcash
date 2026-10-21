@@ -13,7 +13,7 @@
 // Zcash has no contracts, so the rejections below are enforced by this service; anyone can check
 // them with the auction's incoming viewing key (sba-verify) and the published proof.
 import { createHash } from 'node:crypto';
-import { commitment, inputs, prove, SLOTS, verify, winnerOf, type Opening } from '@sba/circuits';
+import { checkResult, commitment, emptyCommitment, inputs, prove, SLOTS, verify, winnerOf, type Check, type Opening } from '@sba/circuits';
 
 export const MEMO_PREFIX = 'sba1';
 export const SETTLEMENT_FEE_BUDGET_ZAT = 60_000n;
@@ -110,7 +110,39 @@ export interface Outcome {
   slots: string[];
   proof: object;
   publicSignals: string[];
+  /** Valid deposits with no accepted reveal: left out of the proof, published so it is visible. */
+  unrevealed: string[];
   payouts: { address: string; amount: bigint; why: string }[];
+}
+
+export interface OutcomeCheck {
+  ok: boolean;
+  checks: Check[];
+  winnerTxid: string | null;
+  winningBid: bigint;
+}
+
+/**
+ * Checks a published outcome against classified deposits: the Groth16 proof verifies, and
+ * checkResult ties it to exactly these deposits (no phantom slots, the winner is a real deposit,
+ * only declared-unrevealed valid deposits are left out).
+ */
+export async function checkOutcome(
+  cfg: AuctionConfig,
+  deposits: ClassifiedDeposit[],
+  o: { publicSignals: string[]; proof: object; unrevealed?: string[] },
+): Promise<OutcomeCheck> {
+  const proofOk = await verify(o.publicSignals, o.proof).catch(() => false);
+  const r = checkResult({
+    auctionId: cfg.auctionId,
+    reserve: cfg.reserveZat,
+    deposits,
+    unrevealed: o.unrevealed ?? [],
+    publicSignals: o.publicSignals,
+    emptyCommitment: await emptyCommitment(cfg.auctionId),
+  });
+  const checks = [{ name: 'proof', ok: proofOk, detail: proofOk ? 'the Groth16 proof verifies with the MaxBid verification key' : 'the Groth16 proof does not verify' }, ...r.checks];
+  return { ok: proofOk && r.ok, checks, winnerTxid: r.winnerTxid, winningBid: r.winningBid };
 }
 
 /**
@@ -125,6 +157,7 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     if (check.ok) byCommitment.set(check.commitment, r);
   }
   const valid = deposits.filter((d) => d.status === 'valid' && byCommitment.has(d.commitment!));
+  const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.txid);
   if (valid.length === 0) throw new Error('no valid revealed bid');
   if (valid.length > SLOTS) throw new Error(`more than ${SLOTS} valid bids: the circuit has ${SLOTS} slots`);
   const openings: Opening[] = valid.map((d) => ({ bid: byCommitment.get(d.commitment!)!.bid, salt: byCommitment.get(d.commitment!)!.salt }));
@@ -132,7 +165,8 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
   if (openings[w].bid < cfg.reserveZat) throw new Error(`highest bid ${openings[w].bid} is below the reserve ${cfg.reserveZat}: no sale`);
   const input = await inputs(cfg.auctionId, cfg.reserveZat, openings, w);
   const { proof, publicSignals } = await prove(input);
-  if (!(await verify(publicSignals, proof))) throw new Error('internal: the MaxBid proof does not verify');
+  const self = await checkOutcome(cfg, deposits, { publicSignals, proof, unrevealed });
+  if (!self.ok) throw new Error(`internal: the outcome fails its own check: ${self.checks.filter((c) => !c.ok).map((c) => c.detail).join('; ')}`);
 
   const winner = valid[w];
   const winnerReveal = byCommitment.get(winner.commitment!)!;
@@ -142,9 +176,9 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
   for (const d of deposits) {
     if (d === winner || d.commitment === null) continue;
     const r = byCommitment.get(d.commitment);
-    if (!r) continue; // no reveal, no refund address
+    if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
     payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.txid.slice(0, 8)})` });
   }
-  return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, payouts };
+  return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
 }
