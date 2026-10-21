@@ -6,9 +6,10 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { commitment, readPublic, verify } from '@sba/circuits';
+import { commitment, readPublic } from '@sba/circuits';
 import {
   auctionIdFor,
+  checkOutcome,
   checkReveal,
   classifyDeposits,
   decide,
@@ -44,7 +45,7 @@ interface State {
   bids: Bid[];
   late?: Bid;
   settlement?: { txids: string[]; payouts: { address: string; amount: string; why: string }[] };
-  outcome?: { winnerCommitment: string; winningBid: string; proof: object; publicSignals: string[] };
+  outcome?: { winnerCommitment: string; winningBid: string; proof: object; publicSignals: string[]; unrevealed: string[] };
   log: string[];
 }
 
@@ -192,7 +193,7 @@ async function main() {
   if (!state.settlement) {
     const o = await decide(cfg, classified, reveals);
     say(`winner: commitment ${o.winnerCommitment.slice(0, 12)}…, bid ${o.winningBid} zat; MaxBid proof verifies`);
-    state.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals };
+    state.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed };
     const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: `sba1:${a.auctionId}:settlement` })));
     state.settlement = { txids, payouts: o.payouts.map((p) => ({ ...p, amount: p.amount.toString() })) };
     say(`settlement tx ${txids[0]}: ${o.payouts.length} outputs`);
@@ -213,10 +214,11 @@ async function main() {
     if (!ok) throw new Error(`${name}'s settlement output does not match`);
   }
   const pub = readPublic(state.outcome!.publicSignals);
-  const proofOk = await verify(state.outcome!.publicSignals, state.outcome!.proof);
-  const onChainCommitments = classified.filter((d) => d.status === 'valid').map((d) => d.commitment);
-  const slotsMatch = onChainCommitments.every((c, i) => pub.commitments[i] === c);
-  say(`proof verifies: ${proofOk}; proof commitments = valid on-chain deposit memos: ${slotsMatch}`);
+  const result = await checkOutcome(cfg, classified, state.outcome!);
+  const proofOk = result.checks.find((c) => c.name === 'proof')!.ok;
+  const slotsMatch = result.ok;
+  for (const c of result.checks) say(`result check ${c.name}: ${c.ok ? 'ok' : 'FAILED'} (${c.detail})`);
+  if (!result.ok) throw new Error('the published outcome fails its own check');
   const pools = await decrypt(a.uivk, [...all.map((b) => b.txid!), state.settlement.txids[0]]);
   const allIronwood = pools.every(ironwoodOnly);
   say(`every deposit and the settlement are Ironwood-only (no transparent part): ${allIronwood}`);
@@ -230,7 +232,7 @@ async function main() {
         auction: { name: a.name, auctionId: a.auctionId, address: a.address, uivk: a.uivk, depositZat: a.depositZat, reserveZat: a.reserveZat, closeHeight: a.closeHeight, seller: a.sellerAddress },
         deposits: classified.map((d) => ({ txid: d.txid, height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: all.find((b) => b.txid === d.txid)?.label })),
         alteredReveal: { rejected: true, reason: (altered as { reason: string }).reason },
-        outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: state.outcome!.proof, publicSignals: state.outcome!.publicSignals, proofVerifies: proofOk, slotsMatchDeposits: slotsMatch },
+        outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: state.outcome!.proof, publicSignals: state.outcome!.publicSignals, unrevealed: state.outcome!.unrevealed ?? [], proofVerifies: proofOk, slotsMatchDeposits: slotsMatch },
         settlement: { txid: state.settlement.txids[0], height: settle.height, outputs: state.settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
         ironwoodOnly: allIronwood,
         verificationKeySha256: 'd2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2',

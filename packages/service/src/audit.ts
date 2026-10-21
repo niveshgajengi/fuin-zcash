@@ -6,8 +6,7 @@
 // in the settlement. Exit 1 if anything does not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { readPublic, verify } from '@sba/circuits';
-import { classifyDeposits, decrypt, ironwoodOnly, memoText, type AuctionConfig } from './index.js';
+import { checkOutcome, classifyDeposits, decrypt, ironwoodOnly, memoText, type AuctionConfig } from './index.js';
 
 const file = resolve(process.argv[2] ?? resolve(import.meta.dirname, '../../../deployments/testnet.json'));
 const run = JSON.parse(readFileSync(file, 'utf8'));
@@ -36,13 +35,9 @@ for (const d of classified) {
   check(recorded === d.status, `${d.txid.slice(0, 10)} ${d.status}${d.reason ? ` (${d.reason})` : ''}`);
 }
 console.log('\nthe result:');
-const proofOk = await verify(run.outcome.publicSignals, run.outcome.proof);
-check(proofOk, 'MaxBid Groth16 proof verifies with the verification key');
-const pub = readPublic(run.outcome.publicSignals);
-const valid = classified.filter((d) => d.status === 'valid');
-check(valid.every((d, i) => d.commitment === pub.commitments[i]), `its ${pub.commitments.length} public commitments start with the ${valid.length} valid on-chain memos, in chain order`);
-check(pub.auctionId === cfg.auctionId && pub.reserve === cfg.reserveZat, 'it is for this auction and this reserve');
-console.log(`  winner: deposit ${valid[pub.winner].txid.slice(0, 10)}, winning bid ${pub.winningBid} zat (the only bid made public)`);
+const outcome = await checkOutcome(cfg, classified, run.outcome);
+for (const c of outcome.checks) check(c.ok, `${c.name}: ${c.detail}`);
+if (outcome.winnerTxid) console.log(`  winner: deposit ${outcome.winnerTxid.slice(0, 10)}, winning bid ${outcome.winningBid} zat (the only bid made public)`);
 check(txs.every(ironwoodOnly), `all ${txs.length} transactions have only an Ironwood bundle (no transparent part)`);
 const settle = txs[txs.length - 1];
 check(settle.outputs.length === 0, 'the auction key sees no outputs of the settlement (refunds are only visible to their recipients)');

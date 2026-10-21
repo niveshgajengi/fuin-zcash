@@ -8,13 +8,13 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { commitment, readPublic, verify } from '@sba/circuits';
-import { classifyDeposits, decrypt, depositMemo, memoText, quicksend, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
+import { commitment } from '@sba/circuits';
+import { checkOutcome, classifyDeposits, decrypt, depositMemo, memoText, quicksend, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; closeHeight: number; seller: string };
   deposits: { txid: string }[];
-  outcome?: { proof: object; publicSignals: string[] };
+  outcome?: { proof: object; publicSignals: string[]; unrevealed?: string[] };
 }
 
 function need(name: string): string {
@@ -98,7 +98,7 @@ export function createServer(): McpServer {
     'verify_result',
     {
       title: "Check the auction's published result",
-      description: "Verifies the MaxBid Groth16 proof against the verification key and checks that its commitments are exactly the valid deposits' memos as read on-chain with the auction's viewing key.",
+      description: "Verifies the MaxBid Groth16 proof and checks it is about exactly this auction's deposits as read on-chain with the auction's viewing key: proven slots are the valid deposits in chain order (minus any declared unrevealed), spare slots are empty, and the winner is a real deposit.",
       annotations: { readOnlyHint: true },
     },
     () =>
@@ -106,23 +106,26 @@ export function createServer(): McpServer {
         const p = published();
         if (!p.outcome) throw new Error('this auction has no published result yet');
         const cfg = config(p);
-        const proofOk = await verify(p.outcome.publicSignals, p.outcome.proof);
-        const pub = readPublic(p.outcome.publicSignals);
         const txs = await decrypt(cfg.uivk, p.deposits.map((d) => d.txid));
-        const valid = classifyDeposits(
+        const classified = classifyDeposits(
           cfg,
           txs.map((t) => {
             const o = t.outputs.find((x) => memoText(x.memo)) ?? t.outputs[0];
             return { txid: t.txid, height: t.height, value: BigInt(o?.value ?? 0), memo: memoText(o?.memo ?? null) };
           }),
-        ).filter((d) => d.status === 'valid');
-        const matches = valid.every((d, i) => d.commitment === pub.commitments[i]);
+        );
+        const r = await checkOutcome(cfg, classified, p.outcome);
+        const ok = (name: string) => r.checks.find((c) => c.name === name)?.ok ?? false;
         return {
-          proof_verifies: proofOk,
-          commitments_match_chain: matches,
-          auction_id_matches: pub.auctionId === cfg.auctionId,
-          winning_bid_zat: pub.winningBid.toString(),
-          winner_deposit: valid[pub.winner]?.txid ?? null,
+          result_holds: r.ok,
+          proof_verifies: ok('proof'),
+          auction_id_matches: ok('auction'),
+          slots_are_the_chain_deposits: ok('slots') && ok('unrevealed'),
+          winner_is_a_deposit: ok('winner'),
+          winning_bid_zat: r.winningBid.toString(),
+          winner_deposit: r.winnerTxid,
+          unrevealed: p.outcome.unrevealed ?? [],
+          failed: r.checks.filter((c) => !c.ok).map((c) => `${c.name}: ${c.detail}`),
           losing_bids_revealed: false,
         };
       }),

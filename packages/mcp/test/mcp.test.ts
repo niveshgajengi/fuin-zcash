@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const ROOT = resolve(__dirname, '../../..');
 const AUCTION = resolve(ROOT, 'deployments/testnet.json');
-const run = JSON.parse(readFileSync(AUCTION, 'utf8')) as { deposits: { txid: string; status: string }[]; outcome: { winningBidZat: string } };
+const run = JSON.parse(readFileSync(AUCTION, 'utf8')) as { deposits: { txid: string; status: string; label: string }[]; outcome: { winningBidZat: string } };
 let client: Client;
 
 async function connect(env: Record<string, string>) {
@@ -37,9 +37,10 @@ describe('sba-mcp', () => {
     expect(live).toEqual(Object.fromEntries(run.deposits.map((d) => [d.txid, d.status])));
   }, 180_000);
 
-  it('verify_result checks the proof and that its commitments are the on-chain memos', async () => {
+  it('verify_result checks the proof and that it is about exactly the on-chain deposits', async () => {
     const r = JSON.parse((await call(client, 'verify_result')).text);
-    expect(r).toMatchObject({ proof_verifies: true, commitments_match_chain: true, auction_id_matches: true, losing_bids_revealed: false, winning_bid_zat: run.outcome.winningBidZat });
+    expect(r).toMatchObject({ result_holds: true, proof_verifies: true, slots_are_the_chain_deposits: true, winner_is_a_deposit: true, auction_id_matches: true, failed: [], losing_bids_revealed: false, winning_bid_zat: run.outcome.winningBidZat });
+    expect(r.winner_deposit).toBe(run.deposits.find((d) => d.label === 'bidder2 sealed bid')?.txid);
   }, 180_000);
 
   it('bid refuses out-of-range bids before sending anything, and names missing settings', async () => {
