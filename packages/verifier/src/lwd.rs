@@ -3,8 +3,9 @@
 use std::time::Duration;
 
 use tonic::transport::{Channel, ClientTlsConfig, Endpoint};
+use zcash_client_backend::proto::compact_formats::CompactBlock;
 use zcash_client_backend::proto::service::{
-    compact_tx_streamer_client::CompactTxStreamerClient, ChainSpec, Empty, TxFilter,
+    compact_tx_streamer_client::CompactTxStreamerClient, BlockId, BlockRange, ChainSpec, Empty, PoolType, TxFilter,
 };
 use zcash_protocol::{consensus::BlockHeight, TxId};
 
@@ -120,4 +121,20 @@ fn is_not_found(s: &tonic::Status) -> bool {
 /// Parse a display-order (block-explorer) txid.
 pub fn parse_txid(s: &str) -> Option<TxId> {
     TxId::from_hex(s.trim())
+}
+
+/// Compact blocks `from..=to` with their shielded parts (Sapling, Orchard, Ironwood).
+pub async fn block_range(client: &mut Client, from: u32, to: u32) -> Result<Vec<CompactBlock>, LwdError> {
+    let id = |h: u32| Some(BlockId { height: u64::from(h), hash: vec![] });
+    let range = BlockRange {
+        start: id(from),
+        end: id(to),
+        pool_types: vec![PoolType::Sapling as i32, PoolType::Orchard as i32, PoolType::Ironwood as i32],
+    };
+    let mut stream = client.get_block_range(range).await.map_err(LwdError::Rpc)?.into_inner();
+    let mut blocks = Vec::new();
+    while let Some(b) = stream.message().await.map_err(LwdError::Rpc)? {
+        blocks.push(b);
+    }
+    Ok(blocks)
 }

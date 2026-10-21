@@ -4,6 +4,11 @@
 //!         For each transaction: fetch it from lightwalletd (SBA_LWD_URL, default testnet.zec.rocks),
 //!         trial-decrypt every Sapling, Orchard and Ironwood output, and print one JSON line:
 //!         {"txid","height","confirmations","outputs":[{"pool","value","memo"}],"transparent":bool}
+//!     sba-verify scan <from> <to>    (UIVK from SBA_UIVK)
+//!         Every transaction mined in blocks from..=to (at most 5,000 blocks) that has at least one
+//!         output this key decrypts, one JSON line each as above. This is how an auditor finds every
+//!         deposit to an auction without trusting the auctioneer's list.
+//!     sba-verify tip                  prints the chain tip height
 //!     sba-verify derive               prints the UIVK for the UFVK in SBA_UFVK (env only)
 //!
 //! An incoming viewing key sees received notes and their memos. It cannot spend and cannot see
@@ -103,6 +108,31 @@ async fn inspect(c: &mut lwd::Client, uivk: &UnifiedIncomingViewingKey, txid: &s
     })
 }
 
+const MAX_SCAN_BLOCKS: u32 = 5_000;
+
+/// Parses `scan` heights: both numbers, from <= to, at most MAX_SCAN_BLOCKS blocks.
+fn scan_range(from: &str, to: &str) -> Result<(u32, u32), String> {
+    let f: u32 = from.parse().map_err(|_| format!("bad start height {from}"))?;
+    let t: u32 = to.parse().map_err(|_| format!("bad end height {to}"))?;
+    if f > t {
+        return Err(format!("start {f} is after end {t}"));
+    }
+    if t - f + 1 > MAX_SCAN_BLOCKS {
+        return Err(format!("{} blocks requested, at most {MAX_SCAN_BLOCKS}", t - f + 1));
+    }
+    Ok((f, t))
+}
+
+fn uivk_from_env() -> UnifiedIncomingViewingKey {
+    let s = std::env::var("SBA_UIVK").unwrap_or_else(|_| die("Setup required: SBA_UIVK"));
+    UnifiedIncomingViewingKey::decode(&NETWORK, s.trim()).unwrap_or_else(|e| die(e))
+}
+
+async fn connect() -> lwd::Client {
+    let url = std::env::var("SBA_LWD_URL").unwrap_or_else(|_| lwd::DEFAULT_LWD_URL.to_string());
+    lwd::connect(&url).await.unwrap_or_else(|e| die(e))
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -113,16 +143,45 @@ async fn main() {
             println!("{}", ufvk.to_unified_incoming_viewing_key().encode(&NETWORK).unwrap_or_else(|e| die(format!("{e:?}"))));
         }
         Some("tx") if args.len() > 1 => {
-            let s = std::env::var("SBA_UIVK").unwrap_or_else(|_| die("Setup required: SBA_UIVK"));
-            let uivk = UnifiedIncomingViewingKey::decode(&NETWORK, s.trim()).unwrap_or_else(|e| die(e));
-            let url = std::env::var("SBA_LWD_URL").unwrap_or_else(|_| lwd::DEFAULT_LWD_URL.to_string());
-            let mut c = lwd::connect(&url).await.unwrap_or_else(|e| die(e));
+            let uivk = uivk_from_env();
+            let mut c = connect().await;
             let tip = lwd::chain_tip(&mut c).await.unwrap_or_else(|e| die(e));
             for txid in &args[1..] {
                 println!("{}", inspect(&mut c, &uivk, txid, tip).await);
             }
         }
-        _ => die("usage: sba-verify tx <txid>...   (SBA_UIVK)   |   sba-verify derive   (SBA_UFVK)"),
+        Some("scan") if args.len() == 3 => {
+            let (from, to) = scan_range(&args[1], &args[2]).unwrap_or_else(|e| die(e));
+            let uivk = uivk_from_env();
+            let mut c = connect().await;
+            let tip = lwd::chain_tip(&mut c).await.unwrap_or_else(|e| die(e));
+            if to > u32::from(tip) {
+                die(format!("end {to} is above the chain tip {}", u32::from(tip)));
+            }
+            let blocks = lwd::block_range(&mut c, from, to).await.unwrap_or_else(|e| die(e));
+            if blocks.len() as u32 != to - from + 1 {
+                die(format!("lightwalletd returned {} blocks for {from}..={to}", blocks.len()));
+            }
+            for b in blocks {
+                for t in b.vtx {
+                    if t.outputs.is_empty() && t.actions.is_empty() && t.ironwood_actions.is_empty() {
+                        continue;
+                    }
+                    let mut id = t.txid.clone();
+                    id.reverse();
+                    let hex: String = id.iter().map(|x| format!("{x:02x}")).collect();
+                    let v = inspect(&mut c, &uivk, &hex, tip).await;
+                    if v["outputs"].as_array().is_some_and(|o| !o.is_empty()) {
+                        println!("{v}");
+                    }
+                }
+            }
+        }
+        Some("tip") => {
+            let mut c = connect().await;
+            println!("{}", u32::from(lwd::chain_tip(&mut c).await.unwrap_or_else(|e| die(e))));
+        }
+        _ => die("usage: sba-verify tx <txid>... | scan <from> <to>   (SBA_UIVK)   |   tip   |   derive   (SBA_UFVK)"),
     }
 }
 
@@ -150,6 +209,15 @@ mod tests {
         bin[0] = 0xFF;
         bin[1] = 0x01;
         assert_eq!(memo_value(&bin), json!({ "non_text": true }));
+    }
+
+    #[test]
+    fn scan_ranges_are_bounded_and_ordered() {
+        assert_eq!(scan_range("10", "12"), Ok((10, 12)));
+        assert!(scan_range("12", "10").is_err());
+        assert!(scan_range("x", "10").is_err());
+        assert!(scan_range("1", "5001").is_err());
+        assert_eq!(scan_range("1", "5000"), Ok((1, 5000)));
     }
 
     #[test]
