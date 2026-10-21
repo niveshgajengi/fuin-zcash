@@ -1,23 +1,16 @@
 // MaxBid helpers: commitments, inputs, Groth16 prove/verify with the committed build artefacts.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { buildPoseidon } from 'circomlibjs';
 import * as snarkjs from 'snarkjs';
+import { commitment } from './poseidon.js';
+import { SLOTS } from './result.js';
 
-export const SLOTS = 8;
+export { commitment, emptyCommitment } from './poseidon.js';
+export { checkResult, readPublic, SLOTS, type Check, type ResultCheck, type ResultDeposit, type ResultInput } from './result.js';
 const BUILD = resolve(import.meta.dirname, '../build');
 export const WASM = resolve(BUILD, 'maxbid.wasm');
 export const ZKEY = resolve(BUILD, 'maxbid_final.zkey');
 export const VKEY = resolve(BUILD, 'verification_key.json');
-
-let poseidonP: ReturnType<typeof buildPoseidon> | null = null;
-
-/** Poseidon(auction_id, bid, salt) as a decimal string (BN254 field element). */
-export async function commitment(auctionId: bigint, bid: bigint, salt: bigint): Promise<string> {
-  poseidonP ??= buildPoseidon();
-  const p = await poseidonP;
-  return p.F.toString(p([auctionId, bid, salt]));
-}
 
 export interface Opening {
   bid: bigint;
@@ -60,15 +53,4 @@ export function verificationKey(): object {
 
 export async function verify(publicSignals: string[], proof: object): Promise<boolean> {
   return snarkjs.groth16.verify(verificationKey(), publicSignals, proof);
-}
-
-/** Public signal order: auction_id, reserve, commitments[8], winner, winning_bid. */
-export function readPublic(publicSignals: string[]) {
-  return {
-    auctionId: BigInt(publicSignals[0]),
-    reserve: BigInt(publicSignals[1]),
-    commitments: publicSignals.slice(2, 2 + SLOTS),
-    winner: Number(publicSignals[2 + SLOTS]),
-    winningBid: BigInt(publicSignals[3 + SLOTS]),
-  };
 }

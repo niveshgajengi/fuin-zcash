@@ -25,6 +25,14 @@
     ".": {
       "types": "./dist/maxbid.d.ts",
       "import": "./dist/maxbid.js"
+    },
+    "./result": {
+      "types": "./dist/result.d.ts",
+      "import": "./dist/result.js"
+    },
+    "./poseidon": {
+      "types": "./dist/poseidon.d.ts",
+      "import": "./dist/poseidon.js"
     }
   }
 }
