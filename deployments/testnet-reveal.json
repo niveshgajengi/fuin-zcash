@@ -1,0 +1,302 @@
+{
+  "network": "testnet",
+  "auction": {
+    "name": "fuin-reveal-2026-10-21T18:43",
+    "auctionId": "2582488456264710777",
+    "address": "utest1nf60qztq7tcpqut63kmyx8epl52hrlkwzl57ql8m8rxnjcs6rlsprw3gwn7h4vsma4jsvxl5hnur7wgeddqvgzrslfhy582h8vagnvxf",
+    "uivk": "uivktest13q05lhhc5ha8m7dhcsccm80qlcka82drx4cs4p9whv24w3uvcnevfu0np504u9zngp7ld4f8tmvu9mzzfh54j3w4gpjmnvx2c44tgd7ywpnmrjqdflccgemweunqapxx8r8huh8xph4jv5vhs9ja0eltcw0fhw9weyfulkzjtmcgs8u974a27xl6vd77cpfulah046gjd92d75qsxuec95mjsyh07lzf23v95lwydm6n7kkt60z",
+    "depositZat": "200000",
+    "reserveZat": "50000",
+    "openHeight": 4526425,
+    "closeHeight": 4526455,
+    "revealCloseHeight": 4526479,
+    "disputeBlocks": 60,
+    "revealKey": "60cdf772fe0f683413e1e0c721a5e162e95db5c2aa6027684cf1941af9339220",
+    "seller": "utest137az5fc0a0cmv8yttg8c7e9ztgpn2t63pe7u6jr406evyx09w0my2kzy268gszrg4a9qsc2skq3epu4k7tq7y7gy94634fkv6gppa22h"
+  },
+  "deposits": [
+    {
+      "txid": "26f240bcd25d08769b860211335000f5b7f7a5f0872b76606ac33e85dde36426",
+      "output": "0",
+      "height": 4526425,
+      "valueZat": "200000",
+      "memo": "sba1:4193641125122731518:12303323393454182279474888658038162345729660238105552616241526525076898824138",
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518",
+      "label": "deposit for an earlier, abandoned attempt (mined after its close)"
+    },
+    {
+      "txid": "26f240bcd25d08769b860211335000f5b7f7a5f0872b76606ac33e85dde36426",
+      "output": "1",
+      "height": 4526425,
+      "valueZat": "200000",
+      "memo": "sba1:4193641125122731518:12303323393454182279474888658038162345729660238105552616241526525076898824138",
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518",
+      "label": "deposit for an earlier, abandoned attempt (mined after its close)"
+    },
+    {
+      "txid": "42ed60c8d02d06284009561b1d9a15c126b2c2c7e1fddcb995b70e196648586f",
+      "height": 4526425,
+      "valueZat": "200000",
+      "memo": "sba1:4193641125122731518:21470024192940975222573188868866557386812636643219355254000807050217378385707",
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518",
+      "label": "deposit for an earlier, abandoned attempt (mined after its close)"
+    },
+    {
+      "txid": "597be193b2f14d2b38a80687079d5d80d91e8c0aee4320c76a33591b6312c4cc",
+      "height": 4526425,
+      "valueZat": "200000",
+      "memo": "sba1:4193641125122731518:14706764103638288532874249523270675118640339660248567204655450816661838283563",
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518",
+      "label": "deposit for an earlier, abandoned attempt (mined after its close)"
+    },
+    {
+      "txid": "b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b",
+      "height": 4526435,
+      "valueZat": "200000",
+      "memo": "sba1:2582488456264710777:12572298123202984851826432170336933290100788892735582479991581028692947776206",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder1 sealed bid (via MCP)"
+    },
+    {
+      "txid": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+      "height": 4526435,
+      "valueZat": "200000",
+      "memo": "sba1:2582488456264710777:13738322658336701462505905811146989900704946678987428584585282350396053264744",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder2 sealed bid (via MCP)"
+    },
+    {
+      "txid": "9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c",
+      "output": "0",
+      "height": 4526438,
+      "valueZat": "200000",
+      "memo": "sba1:2582488456264710777:5871320822647107148345986495090733581296821554686403335732366048169591602117",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder3 sealed bid (first payment of a two-payment transaction)"
+    },
+    {
+      "txid": "9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c",
+      "output": "2",
+      "height": 4526438,
+      "valueZat": "200000",
+      "memo": "sba1:2582488456264710777:5871320822647107148345986495090733581296821554686403335732366048169591602117",
+      "status": "duplicate",
+      "reason": "commitment already used by an earlier deposit",
+      "label": "bidder3 second payment of the same commitment"
+    },
+    {
+      "txid": "19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66",
+      "height": 4526439,
+      "valueZat": "200000",
+      "memo": "sba1:2582488456264710777:13705029306053496617668821894770977607069571424770645141772354921433031709235",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder2 second bid, never revealed"
+    }
+  ],
+  "reveals": [
+    {
+      "ref": "332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161",
+      "txid": "332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161",
+      "height": 4526461,
+      "deposit": "b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder1 reveal (via MCP)"
+    },
+    {
+      "ref": "07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553",
+      "txid": "07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553",
+      "height": 4526464,
+      "deposit": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder2 reveal (via MCP)"
+    },
+    {
+      "ref": "804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7",
+      "txid": "804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7",
+      "height": 4526465,
+      "deposit": "9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c:0",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder3 reveal (via MCP)"
+    },
+    {
+      "ref": "ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e",
+      "txid": "ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e",
+      "height": 4526465,
+      "deposit": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+      "status": "wrong_commitment",
+      "reason": "the opening does not hash to deposit eb27d26d5b's commitment",
+      "label": "bidder3's opening pointed at bidder2's deposit"
+    },
+    {
+      "ref": "64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a",
+      "txid": "64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a",
+      "height": 4526489,
+      "deposit": "b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b",
+      "status": "late",
+      "reason": "mined at 4526489, after the reveal window closed at 4526479",
+      "label": "bidder1's reveal re-sent after the window"
+    }
+  ],
+  "outcome": {
+    "winnerSlot": 1,
+    "winningBidZat": "135000",
+    "reserveZat": "50000",
+    "commitments": [
+      "12572298123202984851826432170336933290100788892735582479991581028692947776206",
+      "13738322658336701462505905811146989900704946678987428584585282350396053264744",
+      "5871320822647107148345986495090733581296821554686403335732366048169591602117",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903"
+    ],
+    "proof": {
+      "pi_a": [
+        "15365058677147202570378993529017470700711704655075904572076361681661705832724",
+        "6094576354686102376973756678291372410741849016141286938203816590472413504460",
+        "1"
+      ],
+      "pi_b": [
+        [
+          "5576160836579139012817999656207623614295463838709103055428356182128165836792",
+          "382146019831533135951960636473519852463767990566379945871315362661045222687"
+        ],
+        [
+          "4955390989134659322115702524664692306228633216775947248346562716520281073526",
+          "9644845000827097643068143163262339860143122413618215997612256831796337641857"
+        ],
+        [
+          "1",
+          "0"
+        ]
+      ],
+      "pi_c": [
+        "15079394650450205317899217490493423519839308053631304635677648100735458111501",
+        "5031510401466756110197433152323004590230208278904497881705612633490943518600",
+        "1"
+      ],
+      "protocol": "groth16",
+      "curve": "bn128"
+    },
+    "publicSignals": [
+      "2582488456264710777",
+      "50000",
+      "12572298123202984851826432170336933290100788892735582479991581028692947776206",
+      "13738322658336701462505905811146989900704946678987428584585282350396053264744",
+      "5871320822647107148345986495090733581296821554686403335732366048169591602117",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "19372244072276273545395240868504864396092484472811922761477263268695343012903",
+      "1",
+      "135000"
+    ],
+    "unrevealed": [
+      "19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66"
+    ],
+    "proofVerifies": true,
+    "slotsMatchDeposits": true
+  },
+  "settlement": {
+    "txid": "e84de386e23fb514b7b329873d48a4b9316bc00984101f67b4167a9738746f5d",
+    "height": 4526493,
+    "outputs": [
+      {
+        "amountZat": "135000",
+        "why": "winning bid to the seller",
+        "recipient": "seller"
+      },
+      {
+        "amountZat": "5000",
+        "why": "winner: deposit minus bid and settlement fee",
+        "recipient": "bidder2"
+      },
+      {
+        "amountZat": "200000",
+        "why": "refund (losing bid deposit b7511ee8)",
+        "recipient": "bidder1"
+      },
+      {
+        "amountZat": "200000",
+        "why": "refund (losing bid deposit 9bb4098e…:0)",
+        "recipient": "bidder3"
+      },
+      {
+        "amountZat": "200000",
+        "why": "refund (duplicate deposit 9bb4098e…:2)",
+        "recipient": "bidder3"
+      }
+    ],
+    "viewingKeyChecks": [
+      {
+        "recipient": "seller",
+        "expected": "135000",
+        "seen": [
+          135000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder1",
+        "expected": "200000",
+        "seen": [
+          200000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder2",
+        "expected": "5000",
+        "seen": [
+          5000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder3",
+        "expected": "200000+200000",
+        "seen": [
+          200000,
+          200000
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "ironwoodOnly": true,
+  "blockTimes": {
+    "open": {
+      "hash": "00000a84ccf812800c807da58a5280379be286f8dc404136b2f0576f098c64ed",
+      "height": 4526425,
+      "time": 1792608130
+    },
+    "close": {
+      "hash": "000022d2e2a6df6b6f162977d5d488a8dfab4e763713f6391ed8833bc57c5bb0",
+      "height": 4526455,
+      "time": 1792609023
+    },
+    "revealClose": {
+      "hash": "000021dc649977c4ce8578cde7042ea94b5ff3072bbd5d32cd9933e366fbe10b",
+      "height": 4526479,
+      "time": 1792609488
+    },
+    "settlement": {
+      "hash": "000013dd5409221156b84218ce32612891a368b228d88588582899da0a076f32",
+      "height": 4526493,
+      "time": 1792609808
+    }
+  }
+}

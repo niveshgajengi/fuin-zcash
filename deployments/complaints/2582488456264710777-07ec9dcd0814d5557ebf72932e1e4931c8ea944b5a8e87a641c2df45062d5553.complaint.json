@@ -1,0 +1,9 @@
+{
+  "kind": "fuin-complaint-v1",
+  "auctionId": "2582488456264710777",
+  "deposit": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+  "reveal": "07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553",
+  "revealSecret": "b019275cb3d1c48d0767bb1130a95d1bfd93eda0076c7402666ac84a93fd34ee",
+  "refundViewingKey": "uivktest1tmu0ka520e2px6cpfjls9n7hegkfutkx9apzema3ehyt34h2aw7m0rawz56eh6ue4ndpxxl657d6rlmgs22r6a3wha8rd7mq0n80pklnk3lx08yu9h5qf3qpwqrvut4vnkf38e2f2npn92krhhu8vv4sxl3nhzfcf85804a9m0kqkq5xtagfn57nz0h0qq4s0gz7gjen6gz24pamt2z0plqus5kpex5x8ad6vwpn8ar5sxf4nxr",
+  "signature": "216eeecf04d9c58cba10c9c0b7c0ea6459096f411187094aa4c71cd21ba8df28b479b542107eeba3c0c499d7bc98eaaeb3e01bcadf482cf2cc6784e011fab507"
+}

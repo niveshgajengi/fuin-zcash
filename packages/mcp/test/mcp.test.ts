@@ -118,4 +118,15 @@ describe('sba-mcp', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   }, 120_000);
+
+  it('verify_result holds on the reveal-channel auction: two-payment deposit read per payment, one deposit declared unrevealed', async () => {
+    const c = await connect({ SBA_AUCTION_FILE: resolve(ROOT, 'deployments/testnet-reveal.json') });
+    const r = JSON.parse((await call(c, 'verify_result')).text);
+    const s = JSON.parse((await call(c, 'auction_status')).text);
+    await c.close();
+    expect(r).toMatchObject({ result_holds: true, record_lists_every_chain_deposit: true, winning_bid_zat: '135000', failed: [] });
+    expect(r.unrevealed).toHaveLength(1);
+    const two = s.deposits.filter((d: { output?: string; status: string }) => d.output !== undefined && d.status !== 'memo_mismatch');
+    expect(two.map((d: { status: string }) => d.status)).toEqual(['valid', 'duplicate']);
+  }, 180_000);
 });

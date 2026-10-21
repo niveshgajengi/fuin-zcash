@@ -30,7 +30,7 @@ console.log(`auction ${a.name}: deposit ${a.depositZat} zat, reserve ${a.reserve
 const end = run.settlement.height as number;
 const found = await scan(cfg.uivk, a.openHeight, end);
 const incoming = found.flatMap(asDeposits);
-console.log(`\nblocks ${a.openHeight}-${end} scanned with the auction incoming viewing key: ${found.length} transaction(s) pay the auction, ${incoming.length} payment(s)`);
+console.log(`\nblocks ${a.openHeight}-${end} scanned with the auction incoming viewing key: ${found.length} transaction(s) pay the auction, ${incoming.length} of their payments are deposits`);
 for (const d of incoming) {
   const name = depositRef(d);
   console.log(`  ${name.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`}  block ${d.height}  ${String(d.value).padStart(8)} zat  memo ${d.memo.length > 40 ? d.memo.slice(0, 40) + '…' : d.memo}`);
@@ -58,7 +58,7 @@ if (a.revealKey) {
   console.log(`\nreveals (sealed to the auctioneer's reveal key; this key sees only which deposit each names and when), window ${a.closeHeight + 1}-${a.revealCloseHeight}:`);
   for (const m of revealMsgs) {
     const rec = (run.reveals ?? []).find((r: { ref: string }) => r.ref === depositRef(m));
-    console.log(`  ${depositRef(m).slice(0, 10)}  block ${m.height}  names deposit ${m.memo.split(':')[2]?.slice(0, 10)}  record: ${rec ? rec.status : 'not listed'}`);
+    console.log(`  ${depositRef(m).slice(0, 10)}  block ${m.height}  names deposit ${(() => { const d = m.memo.split(':').slice(2, -1).join(':'); return d.length > 64 ? `${d.slice(0, 10)}:${d.slice(65)}` : d.slice(0, 10); })()}  record: ${rec ? rec.status : 'not listed'}`);
   }
   const r = auditReveals({ auctionId: cfg.auctionId, closeHeight: a.closeHeight, revealCloseHeight: a.revealCloseHeight }, classified, revealMsgs, run.reveals ?? [], run.outcome.unrevealed ?? []);
   for (const c of r.checks) check(c.ok, `${c.name}: ${c.detail}`);
