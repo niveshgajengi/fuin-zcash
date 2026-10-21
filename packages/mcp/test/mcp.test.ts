@@ -30,7 +30,7 @@ afterAll(async () => client?.close());
 
 describe('sba-mcp', () => {
   it('lists its tools', async () => {
-    expect((await client.listTools()).tools.map((t) => t.name).sort()).toEqual(['auction_status', 'bid', 'reveal', 'verify_result']);
+    expect((await client.listTools()).tools.map((t) => t.name).sort()).toEqual(['auction_status', 'bid', 'complain', 'reveal', 'verify_result']);
   });
 
   it('auction_status finds the deposits by scanning the auction blocks with its viewing key', async () => {
@@ -92,6 +92,28 @@ describe('sba-mcp', () => {
       expect(late.text).toMatch(/reveal window closed at block \d+ .* would be late, so nothing was sent/);
       const early = await tryReveal({ revealKey: key, closeHeight: 99_000_000, revealCloseHeight: 99_000_010 });
       expect(early.text).toMatch(/closes after block 99000000 .* would be early, so nothing was sent/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 120_000);
+
+  it('complain refuses outside the dispute window (live chain tip) and on an auction with no dispute window, before zingo-cli runs', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-complain-'));
+    try {
+      const rec = JSON.parse(readFileSync(AUCTION, 'utf8'));
+      const opening = { auctionId: rec.auction.auctionId, bid: '1000000', salt: '7', refundAddress: rec.auction.seller, txid: rec.deposits[0].txid, complaintKey: '11'.repeat(32), complaintSecret: '22'.repeat(32), revealTxid: '44'.repeat(32), revealSecret: '55'.repeat(32) };
+      writeFileSync(join(dir, `${rec.auction.auctionId}-${opening.txid}.json`), JSON.stringify(opening));
+      const file = join(dir, 'auction.json');
+      writeFileSync(file, JSON.stringify({ ...rec, auction: { ...rec.auction, revealKey: '33'.repeat(32), revealCloseHeight: rec.auction.closeHeight + 10, disputeBlocks: 30 } }));
+      const env = (f: string) => ({ SBA_AUCTION_FILE: f, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: dir });
+      const none = await connect(env(AUCTION));
+      expect((await call(none, 'complain')).text).toMatch(/no reveal channel or dispute window; nothing was sent/);
+      await none.close();
+      const closed = await connect(env(file));
+      const r = await call(closed, 'complain');
+      await closed.close();
+      expect(r.isError).toBe(true);
+      expect(r.text).toBe(`the dispute window closed at block ${rec.settlement.height + 30} and the chain is at ${r.text.match(/chain is at (\d+)/)?.[1]}; nothing was sent`);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

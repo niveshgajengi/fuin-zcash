@@ -9,12 +9,12 @@ import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintKeyPair, depositMemo, depositRef, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintAnchor, complaintKeyPair, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
-  auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number };
+  auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
   deposits: { txid: string; output?: string }[];
-  settlement?: { height: number };
+  settlement?: { txid: string; height: number };
   outcome?: { proof: object; publicSignals: string[]; unrevealed?: string[] };
 }
 
@@ -158,6 +158,42 @@ export function createServer(): McpServer {
           sent.push({ deposit: o.txid, reveal_txid: revealTxid });
         }
         return { sent, window_closes_after: p.auction.revealCloseHeight, note: 'each memo is encrypted to the auction reveal key; the bid, salt and refund address are not visible with the auction viewing key' };
+      }),
+  );
+
+  server.registerTool(
+    'complain',
+    {
+      title: 'File a complaint about the settlement',
+      description:
+        "Within the dispute window after the settlement (settlement height + disputeBlocks), files a complaint for each of this bidder's revealed openings: it publishes that reveal's ephemeral secret (which makes this bidder's own bid public), adds the refund address's incoming viewing key from SBA_BIDDER_WALLET so the audit can read what the settlement paid it, signs it with the complaint key inside the reveal, saves it in SBA_BIDDER_DIR, and anchors its SHA-256 on chain with a 1-zat note to the auction address. The audit, given the file, says whether it is upheld. Refuses outside the window, before any wallet call.",
+    },
+    () =>
+      wrap(async () => {
+        const p = published();
+        const cfg = config(p);
+        if (!p.auction.revealKey || typeof p.auction.disputeBlocks !== 'number') throw new Error('this auction has no reveal channel or dispute window; nothing was sent');
+        if (!p.settlement) throw new Error('this auction is not settled yet; nothing was sent');
+        const dir = need('SBA_BIDDER_DIR');
+        const wallet = need('SBA_BIDDER_WALLET');
+        const revealed = (existsSync(dir) ? readdirSync(dir) : [])
+          .filter((f) => f.startsWith(`${cfg.auctionId}-`) && f.endsWith('.json'))
+          .map((f) => JSON.parse(readFileSync(resolve(dir, f), 'utf8')) as Opening)
+          .filter((o) => o.revealTxid && o.revealSecret);
+        if (revealed.length === 0) throw new Error(`no revealed opening for auction ${cfg.auctionId} in SBA_BIDDER_DIR; nothing was sent`);
+        const tip = await chainTip();
+        const last = p.settlement.height + p.auction.disputeBlocks;
+        if (tip + 1 > last) throw new Error(`the dispute window closed at block ${last} and the chain is at ${tip}; nothing was sent`);
+        const refundViewingKey = await uivkOf(await exportUfvk(zingoConfig(), wallet));
+        const filed = [];
+        for (const o of revealed) {
+          const c = signComplaint({ auctionId: cfg.auctionId.toString(), deposit: o.txid, reveal: o.revealTxid!, revealSecret: o.revealSecret!, refundViewingKey }, o.complaintSecret);
+          const file = resolve(dir, `${cfg.auctionId}-${o.revealTxid}.complaint.json`);
+          writeFileSync(file, JSON.stringify(c, null, 2));
+          const [anchorTxid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: REVEAL_ZAT, memo: complaintAnchor(c) }]);
+          filed.push({ deposit: o.txid, complaint_file: file, anchor_txid: anchorTxid });
+        }
+        return { filed, window_closes_after: last, note: 'each complaint makes this bidder\'s own opening public; run the audit with the complaint file for the verdict' };
       }),
   );
 
