@@ -18,6 +18,14 @@ tau 2^14 with a random contribution, then a circuit-specific contribution). The 
 run. Whoever ran the setup could forge proofs; a multi-party ceremony would remove that, and the
 docs say so.
 
-`pnpm test`: 6 tests with real proofs: valid proof verifies and shows no losing bid; tampered
+`src/result.ts` (`checkResult`, browser-safe) ties a proof to an auction's deposits: the circuit takes any
+eight commitments, so a verifying proof alone does not say which deposits it covers. The proven slots
+must be the valid deposits in chain order (minus any declared unrevealed), spare slots must be the empty
+commitment, and the winner must be one of the proven deposits. The audit, the MCP server and the
+dashboard all use it.
+
+`pnpm test`: 10 tests with real proofs. `maxbid.test.ts` (6): valid proof verifies and shows no losing bid; tampered
 winner / winning bid fails verification; no witness for a non-highest winner, a below-reserve bid,
-an altered opening, or a later slot claiming a tie.
+an altered opening, or a later slot claiming a tie. `result.test.ts` (4): the honest result passes; a
+phantom winning bid in a spare slot verifies but is rejected; a left-out deposit fails unless declared
+unrevealed; another auction or reserve fails.

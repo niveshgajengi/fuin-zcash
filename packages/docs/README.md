@@ -17,13 +17,22 @@
    address in a shielded transaction with memo `sba1:<auction_id>:<C>`. Every deposit is the same
    size, so neither the chain nor the auctioneer learns the bid from it.
 3. **Close.** Deposits mined after the close height are late.
-4. **Reveal.** After the close, each bidder privately sends `(b, s, refund address)` to the
-   auctioneer. Knowing an opening of `C` is what authenticates the bidder.
+4. **Reveal.** After the close, each bidder privately gives `(b, s, refund address)` to the
+   auctioneer. Knowing an opening of `C` is what authenticates the bidder. No reveal channel is
+   built: openings are handed over out of band, and in the live run one script played every bidder
+   and the auctioneer.
 5. **Prove.** The auctioneer orders the valid, revealed deposits by height (then txid) and proves
    with `MaxBid(8)` that the bid in slot `w` is the highest (earliest wins ties) and ≥ the reserve.
    Public: auction id, reserve, the commitments, `w`, and the winning bid. Private: every other bid
-   and every salt.
-6. **Settle.** One shielded transaction pays the seller the winning bid. It refunds every other
+   and every salt. Valid deposits with no accepted reveal are left out of the proof and listed in
+   the outcome as `unrevealed`.
+6. **Tie the proof to the chain** (`checkResult`, run by the audit, the MCP server and the
+   dashboard). The circuit accepts any eight commitments, so this check is what makes the proof about
+   *this* auction: slots `0..n-1` are the revealed valid deposits in chain order, slots `n..7` are
+   `Poseidon(auction_id, 0, 0)`, `w < n`, and only valid deposits can be listed as unrevealed. The
+   audit finds the deposits by scanning the auction's blocks (`sba-verify scan`) with its UIVK, so
+   it does not depend on the auctioneer's list.
+7. **Settle.** One shielded transaction pays the seller the winning bid. It refunds every other
    revealed deposit in full: losing bids, duplicates, late and wrong-amount deposits. The winner gets
    its deposit back minus the bid and a fixed settlement-fee budget (60,000 zat).
 
@@ -36,9 +45,11 @@
 | Auctioneer | every bid at reveal time, refund addresses | bids before the close (deposits are equal and memos are hashes) |
 | A bidder | its own deposit and refund (with its own viewing key) | other bids |
 
-The auctioneer is trusted to collect reveals honestly and to settle. If it withheld a reveal, that
-bid could not be in the proof, so the bidder would hold the opening that proves a valid deposit was
-left out. The project does not include a dispute flow for that, and this README does not claim one.
+The auctioneer is trusted to collect reveals honestly and to settle. It cannot put a phantom bid in
+the proof, or leave a deposit out without listing it, without failing the audit. It can still
+claim that a bidder never revealed. That deposit is then publicly listed as `unrevealed`, and the
+bidder holds an opening that hashes to its memo, which is evidence the claim is false. The project
+does not include a dispute flow, and this README does not claim one.
 
 ## Rules enforced by the service
 
@@ -53,6 +64,7 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 | same commitment as an earlier deposit | `duplicate`: refunded if revealed |
 | opening does not hash to any deposit's commitment | `altered`: refused |
 | bid > deposit − fee budget | refused |
+| valid deposit, no accepted reveal | `unrevealed`: left out of the proof, listed in the outcome, not refunded (no refund address) |
 | highest valid bid < reserve | no sale |
 
 ## Trusted setup
