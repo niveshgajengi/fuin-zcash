@@ -214,7 +214,8 @@ export function publicRevealStatus(
 }
 
 /**
- * The auctioneer reads every reveal note from the chain, in chain order, and keeps the openings that
+ * The auctioneer reads every reveal note from the chain, in chain order (height, then txid within a
+ * block), and keeps the openings that
  * hold: in the window, decrypting with its reveal secret, hashing to the named deposit's commitment.
  * The first accepted opening of a commitment counts; the same opening sent again is a no-op
  * (`duplicate`) and a different one is `conflicting`.

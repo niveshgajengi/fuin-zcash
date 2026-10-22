@@ -5,7 +5,8 @@ include "../node_modules/circomlib/circuits/comparators.circom";
 include "../node_modules/circomlib/circuits/bitify.circom";
 
 // MaxBid(N): the bid committed in slot `winner` is the highest of all N committed bids (ties go to
-// the earliest slot, i.e. the earliest deposit) and is at least `reserve`. Only `winning_bid` is
+// the earliest slot; slots are in chain order by height, then by txid within a block, so the lower
+// txid wins a tie in the same block) and is at least `reserve`. Only `winning_bid` is
 // public; every other bid and every salt stays private.
 //
 // commitment_i = Poseidon(auction_id, bid_i, salt_i). Unused slots hold Poseidon(auction_id, 0, 0).

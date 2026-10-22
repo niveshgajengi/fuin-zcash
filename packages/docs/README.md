@@ -32,8 +32,12 @@
    secret (`ingestReveals`); it never reads a bidder's files. A reveal is accepted only if it is
    mined inside the window, decrypts, and its opening hashes to the commitment of the deposit it
    names. Knowing that opening is what authenticates the bidder. See "Why reveal by memo" below.
-5. **Prove.** The auctioneer orders the valid, revealed deposits by height (then txid) and proves
-   with `MaxBid(8)` that the bid in slot `w` is the highest (earliest wins ties) and ≥ the reserve.
+5. **Prove.** The auctioneer orders the valid, revealed deposits by height, then by txid within a
+   block, and proves with `MaxBid(8)` that the bid in slot `w` is the highest (the earlier slot wins
+   ties) and ≥ the reserve. "Earlier" within one block means the lexically lower txid, not the
+   transaction mined first: `sba-verify` does not report a transaction's position in its block. A
+   bidder could grind its txid to win a tie with a bid in the same block, or to be "first" for a
+   duplicate or conflicting decision; equal bids in the same block are the only case it changes.
    Public: auction id, reserve, the commitments, `w`, and the winning bid. Private: every other bid
    and every salt. Valid deposits with no accepted reveal are left out of the proof and listed in
    the outcome as `unrevealed`.

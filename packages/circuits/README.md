@@ -6,7 +6,7 @@ Circom 2.2 / Groth16 (BN254) circuit. Public: `auction_id`, `reserve`, the 8 bid
 1. each private opening hashes to its public commitment: `Poseidon(auction_id, bid, salt)`;
 2. bids are 64-bit;
 3. `winning_bid` is the bid in slot `winner`;
-4. no bid is above `winning_bid`, and earlier slots (earlier deposits) are strictly below it, so ties go to the earliest deposit;
+4. no bid is above `winning_bid`, and earlier slots are strictly below it, so ties go to the earliest slot. Slots follow chain order: block height, then txid within a block (not the transaction's position in the block), so of two equal bids mined in one block the lexically lower txid wins;
 5. `winning_bid >= reserve`.
 
 So anyone can check the declared winner against the public commitments without learning any losing

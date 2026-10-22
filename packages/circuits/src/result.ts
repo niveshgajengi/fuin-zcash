@@ -56,6 +56,8 @@ export interface ResultCheck {
   proven: string[];
 }
 
+// Chain order: height, then the deposit's name (txid) within a block. Not the order of transactions in
+// the block: sba-verify does not report it, so the lexically lower txid is "earlier" in the same block.
 const byChainOrder = (a: ResultDeposit, b: ResultDeposit) =>
   (a.height ?? Infinity) - (b.height ?? Infinity) || a.txid.localeCompare(b.txid);
 

@@ -107,6 +107,22 @@ describe('reveals and settlement', () => {
   });
 });
 
+describe('ties', () => {
+  it('two equal bids in one block: the lexically lower txid takes the earlier slot and wins, whatever order the block holds them in', async () => {
+    // 'f0…' was (say) first in the block and 'a0…' second; the order passed in is the block order.
+    const first = await dep('f0'.padEnd(64, '0'), 10, 1_500_000n, 1n);
+    const second = await dep('a0'.padEnd(64, '0'), 10, 1_500_000n, 2n);
+    const deposits = classifyDeposits(cfg, [first, second]);
+    expect(deposits.map((d) => d.txid.slice(0, 2))).toEqual(['a0', 'f0']);
+    const o = await decide(cfg, deposits, [
+      { bid: 1_500_000n, salt: 1n, refundAddress: 'first-in-block' },
+      { bid: 1_500_000n, salt: 2n, refundAddress: 'second-in-block' },
+    ]);
+    expect(readPublic(o.publicSignals).winner).toBe(0);
+    expect(o.payouts.find((p) => p.memo.includes(':change:'))?.address).toBe('second-in-block');
+  });
+});
+
 describe('capacity: the proof has 8 slots', () => {
   it('nine valid revealed bids: the first 8 in chain order compete, the 9th is over_capacity and refunded; the outcome passes its check', async () => {
     const bids = [1_100_000n, 1_200_000n, 900_000n, 1_300_000n, 1_000_000n, 800_000n, 1_250_000n, 700_000n, 1_900_000n];

@@ -33,7 +33,7 @@ export async function inputs(auctionId: bigint, reserve: bigint, openings: Openi
   };
 }
 
-/** Highest bid, earliest slot on ties: the only winner the circuit accepts. */
+/** Highest bid, earliest slot on ties (slots: height, then txid within a block): the only winner the circuit accepts. */
 export function winnerOf(openings: Opening[]): number {
   let w = 0;
   openings.forEach((o, i) => {
