@@ -29,6 +29,11 @@ if [ "${1:-}" = "stop" ]; then
 fi
 
 [ -f "$run/pids" ] && { echo "stack already running (see $run/pids); ./stack.sh stop first" >&2; exit 1; }
+# Browsers and Node's fetch refuse these ports (the WHATWG "bad ports" list), so the suite could never reach the site.
+case " 4190 5060 5061 6000 6566 6665 6666 6667 6668 6669 6697 10080 " in
+  *" $port "*) echo "port $port is one browsers and Node's fetch block; set FUIN_PORT to another" >&2; exit 1 ;;
+esac
+[ "$port" -ge 1024 ] 2>/dev/null || { echo "FUIN_PORT must be a number from 1024 up (got $port)" >&2; exit 1; }
 if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
   echo "port $port is already in use by another process; set FUIN_PORT to a free port" >&2
   exit 1
