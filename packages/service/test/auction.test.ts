@@ -3,7 +3,8 @@
 import { describe, expect, it } from 'vitest';
 import { commitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
-import { auctionIdFor, checkOutcome, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -160,5 +161,67 @@ describe('multi-payment deposits', () => {
     ]);
     expect(o.winningBid).toBe(1_100_000n);
     expect(o.payouts.map((p) => [p.address, p.amount])).toContainEqual(['r1', cfg.depositZat]);
+  });
+});
+
+describe('auction terms bound to the id', () => {
+  const card = {
+    name: 'terms-unit',
+    address: 'utest1auction',
+    uivk: 'uivktest1auction',
+    depositZat: '2000000',
+    reserveZat: '500000',
+    openHeight: 80,
+    closeHeight: 100,
+    revealCloseHeight: 124,
+    disputeBlocks: 60,
+    revealKey: 'ab'.repeat(32),
+    seller: 'utest1seller',
+  };
+  const id = termsAuctionId(termsOf(card));
+
+  it('the auction id is a hash of every term: change any one after the fact and the record no longer matches its id', () => {
+    expect(id).toBeLessThan(1n << 127n);
+    expect(id).toBeGreaterThan(1n << 64n); // far wider than the legacy 63-bit name hash, so two term sets cannot be ground to one id
+    expect(checkTerms({ ...card, auctionId: id.toString() })).toMatchObject({ status: 'bound', ok: true });
+    const edits: [string, unknown][] = [
+      ['closeHeight', 101],
+      ['revealCloseHeight', 4526463],
+      ['reserveZat', '400000'],
+      ['openHeight', 81],
+      ['disputeBlocks', 1],
+      ['revealKey', 'cd'.repeat(32)],
+      ['seller', 'utest1other'],
+      ['depositZat', '1000000'],
+      ['address', 'utest1elsewhere'],
+      ['uivk', 'uivktest1other'],
+    ];
+    for (const [k, v] of edits) {
+      const r = checkTerms({ ...card, [k]: v, auctionId: id.toString() });
+      expect(r, k).toMatchObject({ status: 'mismatch', ok: false, name: 'terms' });
+      expect(r.detail).toContain(`auction id ${id} is not the hash of these terms`);
+    }
+    // Auctions created before the binding hash only their name: flagged, not passed off as bound.
+    expect(checkTerms({ ...card, auctionId: auctionIdFor(card.name).toString() })).toMatchObject({ status: 'legacy', ok: true, detail: expect.stringMatching(/^legacy: the auction id hashes only its name/) });
+  });
+
+  it('a 127-bit terms id fits the deposit memo, a reveal memo naming a multi-output deposit, and a real MaxBid proof', async () => {
+    const cfgT: AuctionConfig = { ...cfg, auctionId: id };
+    const c = await commitment(id, 1_000_000n, 9n);
+    expect(parseMemo(depositMemo(id, c))).toEqual({ auctionId: id, commitment: c });
+    const keys = revealKeyPair();
+    const sealed = sealReveal(id, keys.public, `${'f'.repeat(64)}:o12`, { bid: 1_000_000n, salt: 9n, refundAddress: 'utest1' + 'x'.repeat(144), complaintKey: complaintKeyPair().public });
+    expect(Buffer.byteLength(sealed.memo)).toBeLessThanOrEqual(512);
+    expect(parseRevealMemo(sealed.memo)?.auctionId).toBe(id);
+    const deposits = classifyDeposits(cfgT, [
+      { txid: 'v1'.padEnd(64, '0'), height: 90, value: cfgT.depositZat, memo: depositMemo(id, c) },
+      { txid: 'v2'.padEnd(64, '0'), height: 91, value: cfgT.depositZat, memo: depositMemo(id, await commitment(id, 1_200_000n, 8n)) },
+    ]);
+    const o = await decide(cfgT, deposits, [
+      { bid: 1_000_000n, salt: 9n, refundAddress: 'r1' },
+      { bid: 1_200_000n, salt: 8n, refundAddress: 'r2' },
+    ]);
+    expect(await verify(o.publicSignals, o.proof)).toBe(true);
+    expect(readPublic(o.publicSignals).auctionId).toBe(id);
   });
 });

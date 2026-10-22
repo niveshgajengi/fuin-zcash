@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
@@ -125,7 +125,7 @@ export function createServer(): McpServer {
     'bid',
     {
       title: 'Place a sealed bid',
-      description: 'Refuses if the auction has closed. Otherwise commits to bid_zat with a fresh random salt and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET. The opening is saved in SBA_BIDDER_DIR for the reveal.',
+      description: "Refuses if the auction has closed, or if its id is not the hash of its published terms (so the close, reveal window and reserve cannot change after the bid). Otherwise commits to bid_zat with a fresh random salt and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET. The opening is saved in SBA_BIDDER_DIR for the reveal.",
       inputSchema: { bid_zat: z.number().int().positive(), refund_address: z.string().startsWith('utest1') },
     },
     ({ bid_zat, refund_address }) =>
@@ -139,6 +139,10 @@ export function createServer(): McpServer {
         const tip = await chainTip();
         // The deposit is mined at tip + 1 at the earliest; after closeHeight it would be late.
         if (tip >= cfg.closeHeight) throw new Error(`the auction closed after block ${cfg.closeHeight} and the chain is at ${tip}; a deposit now would be late, so nothing was sent`);
+        // The deposit memo commits to the auction id; bid only if that id commits to the terms shown here.
+        const terms = checkTerms(p.auction);
+        if (terms.status === 'legacy') throw new Error("this auction's id hashes only its name, so its close, reveal window and reserve could be changed after you bid; nothing was sent");
+        if (!terms.ok) throw new Error(`${terms.detail}; nothing was sent`);
         const salt = BigInt('0x' + randomBytes(31).toString('hex'));
         const c = await commitment(cfg.auctionId, BigInt(bid_zat), salt);
         const complaint = complaintKeyPair();

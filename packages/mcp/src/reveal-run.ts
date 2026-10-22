@@ -24,7 +24,6 @@ import {
   address,
   asDeposits,
   asMessages,
-  auctionIdFor,
   blockTime,
   chainTip,
   checkOutcome,
@@ -42,6 +41,8 @@ import {
   revealKeyPair,
   scan,
   sealReveal,
+  termsAuctionId,
+  termsOf,
   uivkOf,
   zingoConfig,
   type AuctionConfig,
@@ -172,9 +173,8 @@ async function main() {
     const name = `fuin-reveal-${new Date().toISOString().slice(0, 16)}`;
     const keys = revealKeyPair();
     state.revealSecret = keys.secret;
-    state.card = {
+    const terms = {
       name,
-      auctionId: auctionIdFor(name).toString(),
       address: state.addrs.auction,
       uivk: state.uivks.auction,
       depositZat: DEPOSIT.toString(),
@@ -186,6 +186,8 @@ async function main() {
       revealKey: keys.public,
       seller: state.addrs.seller,
     };
+    // The id is a hash of every term, so no term can change after the bids (Sale 002 predates this: its id hashes the name).
+    state.card = { ...terms, auctionId: termsAuctionId(termsOf(terms)).toString() };
     save();
     say(`auction ${name} id ${state.card.auctionId}: deposit ${DEPOSIT} zat, reserve ${RESERVE} zat, open ${t}, close after ${state.card.closeHeight}, reveals until ${state.card.revealCloseHeight}`);
   }

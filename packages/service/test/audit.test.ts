@@ -40,6 +40,8 @@ async function withRecord(rec: object, ...complaints: string[]) {
 describe('audit (live testnet)', () => {
   it('the published auction passes: the chain scan finds exactly the 7 recorded deposits', async () => {
     const r = await audit(RECORD);
+    // Sale 001's id hashes only its name: the audit says its terms are read from the record.
+    expect(r.out).toContain('! terms: legacy: the auction id hashes only its name');
     expect(r.out).toMatch(/7 transaction\(s\) pay the auction/);
     expect(r.out).toMatch(/all checks pass/);
     expect(r.code).toBe(0);
@@ -82,6 +84,7 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
   it('passes: the two-payment transaction reads as two deposits and the reveal log matches the reveal notes on chain', async () => {
     const rec = rec2();
     const r = await audit(RECORD2);
+    expect(r.out).toContain('! terms: legacy: the auction id hashes only its name');
     const multi = rec.deposits.filter((d: { output?: string; status: string }) => d.output !== undefined && d.status !== 'memo_mismatch');
     expect(multi.map((d: { status: string }) => d.status).sort()).toEqual(['duplicate', 'valid']);
     for (const d of multi) expect(r.out).toContain(`${d.txid.slice(0, 10)}:${d.output} ${d.status}`);
@@ -91,6 +94,13 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     expect(r.out).toMatch(/note: deposit \w+ is unrevealed and no reveal note names it/);
     expect(r.out).toMatch(/all checks pass/);
     expect(r.code).toBe(0);
+  }, 300_000);
+
+  it('a record whose auction id matches neither its terms nor its name fails the terms check', async () => {
+    const rec = rec2();
+    const r = await withRecord({ ...rec, auction: { ...rec.auction, name: `${rec.auction.name}-renamed` } });
+    expect(r.out).toContain(`✗ terms: the auction id ${rec.auction.auctionId} is not the hash of these terms`);
+    expect(r.code).toBe(1);
   }, 300_000);
 
   it('fails when the record hides a reveal note or calls the late reveal tampered', async () => {

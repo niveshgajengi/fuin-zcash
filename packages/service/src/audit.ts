@@ -12,7 +12,7 @@
 // not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, memoText, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
+import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, checkTerms, memoText, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
 
 const cwd = process.env.INIT_CWD ?? process.cwd();
 const file = process.argv[2] ? resolve(cwd, process.argv[2]) : resolve(import.meta.dirname, '../../../deployments/testnet.json');
@@ -31,6 +31,10 @@ const check = (ok: boolean, line: string) => {
 };
 
 console.log(`auction ${a.name}: deposit ${a.depositZat} zat, reserve ${a.reserveZat} zat, open at block ${a.openHeight}, close after block ${a.closeHeight}`);
+// Are the heights, reserve and windows below the ones the bids were placed under? Only if the id hashes them.
+const terms = checkTerms(a);
+if (terms.status === 'legacy') console.log(`! terms: ${terms.detail}`);
+else check(terms.ok, `terms: ${terms.detail}`);
 // The settlement's height comes from the chain, not the record: it ends the deposit scan and starts the
 // dispute window, so a record that understates it could stop the scan before a deposit it leaves out.
 const [settle] = await decrypt(cfg.uivk, [run.settlement.txid]);

@@ -119,7 +119,7 @@ export interface RevealMemo {
 }
 
 export function parseRevealMemo(memo: string): RevealMemo | null {
-  const m = memo.match(/^sba1r:(\d{1,20}):([0-9a-f]{64}(?::[os]?\d{1,4})?):([A-Za-z0-9_-]+)$/);
+  const m = memo.match(/^sba1r:(\d{1,40}):([0-9a-f]{64}(?::[os]?\d{1,4})?):([A-Za-z0-9_-]+)$/);
   if (!m) return null;
   const box = Buffer.from(m[3], 'base64url');
   if (box.length !== 32 + PLAIN_BYTES + 16) return null;

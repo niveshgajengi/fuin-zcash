@@ -31,9 +31,68 @@ export interface AuctionConfig {
   sellerAddress: string;
 }
 
-/** 63-bit id from sha256(name), so it fits the circuit field and a memo comfortably. */
+/**
+ * Legacy id: 63 bits of sha256(name). Sale 001 and Sale 002 use it. It binds only the name, so the
+ * heights, reserve and windows in their records are not bound to the bids (`checkTerms` says so).
+ */
 export function auctionIdFor(name: string): bigint {
   return BigInt('0x' + createHash('sha256').update(`sba-auction:${name}`).digest('hex').slice(0, 16)) >> 1n;
+}
+
+/** Everything an auction card promises bidders. */
+export interface AuctionTerms {
+  name: string;
+  address: string;
+  uivk: string;
+  depositZat: string;
+  reserveZat: string;
+  openHeight: number;
+  closeHeight: number;
+  revealCloseHeight: number | null;
+  disputeBlocks: number | null;
+  revealKey: string | null;
+  seller: string;
+}
+
+/** The terms of a published card (record.auction), with absent reveal-channel fields as null. */
+export function termsOf(card: { name: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; revealCloseHeight?: number; disputeBlocks?: number; revealKey?: string; seller: string }): AuctionTerms {
+  if (typeof card.openHeight !== 'number') throw new Error('the card has no openHeight');
+  return {
+    name: card.name,
+    address: card.address,
+    uivk: card.uivk,
+    depositZat: String(card.depositZat),
+    reserveZat: String(card.reserveZat),
+    openHeight: card.openHeight,
+    closeHeight: card.closeHeight,
+    revealCloseHeight: card.revealCloseHeight ?? null,
+    disputeBlocks: card.disputeBlocks ?? null,
+    revealKey: card.revealKey ?? null,
+    seller: card.seller,
+  };
+}
+
+const TERM_ORDER: (keyof AuctionTerms)[] = ['name', 'address', 'uivk', 'depositZat', 'reserveZat', 'openHeight', 'closeHeight', 'revealCloseHeight', 'disputeBlocks', 'revealKey', 'seller'];
+
+/**
+ * The id of an auction whose terms are bound to its bids: 127 bits of sha256 over a canonical
+ * encoding of every term. Each deposit memo and the proof's public auction id carry it, so a record
+ * whose close, reveal window, reserve or open height was changed after the bids no longer hashes to
+ * the id on chain. 127 bits (not 63) so nobody can grind two term sets to one id.
+ */
+export function termsAuctionId(t: AuctionTerms): bigint {
+  const canonical = JSON.stringify(['fuin-terms-v1', ...TERM_ORDER.map((k) => t[k])]);
+  return BigInt('0x' + createHash('sha256').update(canonical).digest('hex').slice(0, 32)) >> 1n;
+}
+
+/** Does the card's auction id commit to its terms? `legacy`: it hashes only the name (Sales 001 and 002). */
+export function checkTerms(card: Parameters<typeof termsOf>[0] & { auctionId: string }): { name: 'terms'; ok: boolean; status: 'bound' | 'legacy' | 'mismatch'; detail: string } {
+  const id = BigInt(card.auctionId);
+  const want = termsAuctionId(termsOf(card));
+  if (id === want) return { name: 'terms', ok: true, status: 'bound', detail: `the auction id is the hash of every term (${TERM_ORDER.join(', ')}), so none of them can change after the bids` };
+  if (id === auctionIdFor(card.name))
+    return { name: 'terms', ok: true, status: 'legacy', detail: 'legacy: the auction id hashes only its name, so the open, close and reveal heights, the reserve, the deposit and the dispute window are read from the record and are not bound to the bids' };
+  return { name: 'terms', ok: false, status: 'mismatch', detail: `the auction id ${id} is not the hash of these terms (that would be ${want}) nor of the name alone: a term was changed after the id was fixed` };
 }
 
 export function depositMemo(auctionId: bigint, commitmentDec: string): string {
@@ -41,7 +100,7 @@ export function depositMemo(auctionId: bigint, commitmentDec: string): string {
 }
 
 export function parseMemo(memo: string): { auctionId: bigint; commitment: string } | null {
-  const m = memo.trim().match(/^sba1:(\d{1,20}):(\d{1,80})$/);
+  const m = memo.trim().match(/^sba1:(\d{1,40}):(\d{1,80})$/);
   return m ? { auctionId: BigInt(m[1]), commitment: m[2] } : null;
 }
 
@@ -58,7 +117,7 @@ export function payoutMemo(auctionId: bigint, kind: PayoutKind, deposit?: string
   return `${MEMO_PREFIX}:${auctionId}:${kind}:${deposit}`;
 }
 export function parsePayoutMemo(memo: string): { auctionId: bigint; kind: PayoutKind | 'legacy'; deposit: string | null } | null {
-  const m = memo.trim().match(/^sba1:(\d{1,20}):(?:(seller|settlement)|(change|refund):([0-9a-f]{64}(?::[os]?\d{1,4})?))$/);
+  const m = memo.trim().match(/^sba1:(\d{1,40}):(?:(seller|settlement)|(change|refund):([0-9a-f]{64}(?::[os]?\d{1,4})?))$/);
   if (!m) return null;
   if (m[2]) return { auctionId: BigInt(m[1]), kind: m[2] === 'seller' ? 'seller' : 'legacy', deposit: null };
   return { auctionId: BigInt(m[1]), kind: m[3] as PayoutKind, deposit: m[4] };

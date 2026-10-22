@@ -3,8 +3,13 @@
 ## Roles
 
 - **Auctioneer:** holds the auction wallet (a shielded Zcash testnet address), publishes the auction
-  card (id, address, incoming viewing key, deposit size, reserve, close height, reveal key, reveal
-  window, dispute window), reads reveals from the chain, proves the result and settles.
+  card (id, address, incoming viewing key, deposit size, reserve, open and close heights, reveal key,
+  reveal window, dispute window, seller), reads reveals from the chain, proves the result and settles.
+  The id is a hash of every term on the card (`termsAuctionId`, 127 bits of SHA-256), and every
+  deposit memo and the proof carry it, so no term can change after the bids: the audit recomputes it
+  (`checkTerms`) and fails on a mismatch, and MCP `bid` refuses to send to a card whose id does not
+  match. Sale 001 and Sale 002 predate this: their ids hash only the name (`legacy`), so their heights,
+  reserve and windows are read from the record, and the audit says so.
 - **Bidders:** each has a shielded wallet.
 - **Seller:** receives the winning bid.
 - **Anyone:** can audit with the auction's incoming viewing key (UIVK) and the published proof.
@@ -120,8 +125,11 @@ anchored on chain.
 | A bidder | its own deposit and refund (with its own viewing key) | other bids |
 
 The auctioneer is trusted to settle and learns every bid at the reveal. It cannot put a phantom bid
-in the proof, leave a deposit out without listing it, hide a reveal note, or call an in-window reveal
-late, without failing the audit. If it rejects a valid reveal as tampered (only it can decrypt), or
+in the proof, or leave a deposit or a reveal note out of its record, without failing the audit: the
+audit scans up to the settlement's height as mined, read from the chain, not from the record. On an
+auction whose id binds its terms it also cannot move the close or the reveal window, so it cannot call
+an in-window reveal late. On the two legacy sales (ids that hash only the name) it could: their
+windows come from the record, which the audit flags as `legacy`. If it rejects a valid reveal as tampered (only it can decrypt), or
 underpays a refund, the bidder's complaint shows it, and the audit names the failure. It can still
 refuse to settle at all; Zcash has no contract that could force it.
 

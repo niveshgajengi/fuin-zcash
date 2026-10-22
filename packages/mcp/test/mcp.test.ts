@@ -7,6 +7,7 @@ import { resolve } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { termsAuctionId, termsOf } from '@sba/service';
 
 const ROOT = resolve(__dirname, '../../..');
 const AUCTION = resolve(ROOT, 'deployments/testnet.json');
@@ -67,6 +68,30 @@ describe('sba-mcp', () => {
     expect(closed.isError).toBe(true);
     expect(closed.text).toMatch(/closed after block 4522278 .* nothing was sent/);
   }, 60_000);
+
+  it('bid recomputes the auction id from the published terms before sending: a term changed after the id was fixed, or a legacy name-only id, is refused before zingo-cli runs', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-terms-'));
+    try {
+      const rec = JSON.parse(readFileSync(resolve(ROOT, 'deployments/testnet-reveal.json'), 'utf8'));
+      const open = { ...rec.auction, closeHeight: 99_000_000, revealCloseHeight: 99_000_024 };
+      const bound = { ...open, auctionId: termsAuctionId(termsOf(open)).toString() };
+      const tryBid = async (auction: object) => {
+        const file = join(dir, 'auction.json');
+        writeFileSync(file, JSON.stringify({ ...rec, auction, settlement: undefined, outcome: undefined }));
+        const c = await connect({ SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: join(dir, 'openings') });
+        const r = await call(c, 'bid', { bid_zat: 100_000, refund_address: rec.auction.seller });
+        await c.close();
+        return r;
+      };
+      const moved = await tryBid({ ...bound, revealCloseHeight: 99_000_030 });
+      expect(moved.isError).toBe(true);
+      expect(moved.text).toBe(`the auction id ${bound.auctionId} is not the hash of these terms (that would be ${termsAuctionId(termsOf({ ...open, revealCloseHeight: 99_000_030 }))}) nor of the name alone: a term was changed after the id was fixed; nothing was sent`);
+      const legacy = await tryBid(open);
+      expect(legacy.text).toMatch(/^this auction's id hashes only its name, so its close, reveal window and reserve could be changed after you bid; nothing was sent$/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 120_000);
 
   it('reveal refuses outside the reveal window (live chain tip) and on an auction with no channel, before zingo-cli runs', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'fuin-reveal-'));

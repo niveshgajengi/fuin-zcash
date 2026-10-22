@@ -8,7 +8,6 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { commitment, readPublic } from '@sba/circuits';
 import {
-  auctionIdFor,
   blockTime,
   chainTip,
   checkOutcome,
@@ -20,6 +19,8 @@ import {
   exportUfvk,
   ironwoodOnly,
   quicksend,
+  termsAuctionId,
+  termsOf,
   uivkOf,
   valueTransfers,
   zingoConfig,
@@ -98,9 +99,8 @@ async function main() {
   if (!state.auction) {
     const name = `sba-testnet-${new Date().toISOString().slice(0, 16)}`;
     const t = await tip();
-    state.auction = {
+    const fields = {
       name,
-      auctionId: auctionIdFor(name).toString(),
       address: await address(cfgZ, w('auction')),
       uivk: state.uivks.auction,
       depositZat: DEPOSIT.toString(),
@@ -109,6 +109,8 @@ async function main() {
       closeHeight: t + 20,
       sellerAddress: await address(cfgZ, w('seller')),
     };
+    // The id is a hash of every term (Sale 001 predates this: its id hashes only the name).
+    state.auction = { ...fields, auctionId: termsAuctionId(termsOf({ ...fields, seller: fields.sellerAddress })).toString() };
     say(`auction ${name} id ${state.auction.auctionId}: deposit ${DEPOSIT} zat, reserve ${RESERVE} zat, closes after block ${state.auction.closeHeight} (tip ${t})`);
   }
   const a = state.auction;
