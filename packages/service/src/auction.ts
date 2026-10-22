@@ -16,7 +16,7 @@
 // Zcash has no contracts, so the rejections below are enforced by this service; anyone can check
 // them with the auction's incoming viewing key (sba-verify) and the published proof.
 import { createHash } from 'node:crypto';
-import { checkResult, commitment, emptyCommitment, inputs, prove, SLOTS, verify, winnerOf, type Check, type Opening } from '@sba/circuits';
+import { checkResult, commitment, emptyCommitment, inputs, isCanonicalCommitment, prove, SLOTS, verify, winnerOf, type Check, type Opening } from '@sba/circuits';
 
 export const MEMO_PREFIX = 'sba1';
 export const SETTLEMENT_FEE_BUDGET_ZAT = 60_000n;
@@ -106,9 +106,14 @@ export function depositMemo(auctionId: bigint, commitmentDec: string): string {
   return `${MEMO_PREFIX}:${auctionId}:${commitmentDec}`;
 }
 
+/**
+ * A deposit memo `sba1:<auction>:<commitment>`. The commitment must be canonical (no leading zero,
+ * below the BN254 modulus): `0<c>` or `c + p` would hash-compare as a different commitment, slip past
+ * duplicate detection and make a valid-looking deposit nobody can open.
+ */
 export function parseMemo(memo: string): { auctionId: bigint; commitment: string } | null {
   const m = memo.trim().match(/^sba1:(\d{1,40}):(\d{1,80})$/);
-  return m ? { auctionId: BigInt(m[1]), commitment: m[2] } : null;
+  return m && isCanonicalCommitment(m[2]) ? { auctionId: BigInt(m[1]), commitment: m[2] } : null;
 }
 
 /**
@@ -170,7 +175,13 @@ export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]
     .map((d): ClassifiedDeposit => {
       const parsed = parseMemo(d.memo);
       if (!parsed || parsed.auctionId !== cfg.auctionId) {
-        return { ...d, status: 'memo_mismatch', commitment: null, reason: parsed ? `memo is for auction ${parsed.auctionId}` : 'memo is not sba1:<auction>:<commitment>' };
+        const nonCanonical = !parsed && /^sba1:\d{1,40}:\d{1,80}$/.test(d.memo.trim());
+        return {
+          ...d,
+          status: 'memo_mismatch',
+          commitment: null,
+          reason: parsed ? `memo is for auction ${parsed.auctionId}` : nonCanonical ? 'the commitment is not a canonical field element (a leading zero, or not below the BN254 modulus)' : 'memo is not sba1:<auction>:<commitment>',
+        };
       }
       if (d.height === null) return { ...d, status: 'pending', commitment: parsed.commitment, reason: 'not mined yet' };
       if (d.height > cfg.closeHeight) return { ...d, status: 'late', commitment: parsed.commitment, reason: `mined at ${d.height}, after close ${cfg.closeHeight}` };

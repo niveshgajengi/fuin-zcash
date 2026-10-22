@@ -162,7 +162,7 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 
 | Rule | Status |
 |---|---|
-| memo is not `sba1:<this auction>:<commitment>` | `memo_mismatch`: not a bid; it stays in the auction wallet (no reveal can claim it, and nothing the auctioneer decides makes a payment one) |
+| memo is not `sba1:<this auction>:<commitment>`, or the commitment is not canonical (a leading zero, or not below the BN254 modulus, which would let one commitment pose as two) | `memo_mismatch`: not a bid; it stays in the auction wallet (no reveal can claim it, and nothing the auctioneer decides makes a payment one) |
 | mined after the close height | `late`: refunded at settlement if revealed, minus its own 5,000 zat output fee (as are wrong-amount, duplicate and over-capacity deposits; Sales 001 and 002 refunded them in full) |
 | amount ≠ deposit | `wrong_amount`: refunded if revealed |
 | same commitment as an earlier deposit | `duplicate`: refunded if revealed |

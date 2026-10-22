@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import * as snarkjs from 'snarkjs';
-import { checkResult, type ResultCheck } from '@sba/circuits/result';
+import { checkResult, isCanonicalCommitment, type ResultCheck } from '@sba/circuits/result';
 import { emptyCommitment } from '@sba/circuits/poseidon';
 import run1 from '@deployments/testnet.json';
 import run2 from '@deployments/testnet-reveal.json';
@@ -51,7 +51,11 @@ const zat = (z: string | number) => Number(z).toLocaleString('en-US');
 const short = (s: string, a = 8) => (s.length > a + 1 ? `${s.slice(0, a)}…` : s);
 const shortRef = (s: string) => (s.length > 64 ? `${s.slice(0, 8)}…${s.slice(64)}` : short(s));
 const utc = (t: number) => new Date(t * 1000).toISOString().slice(11, 19);
-const commitmentOf = (d: Deposit) => d.memo.split(':')[2] ?? null;
+// Only a canonical commitment (no leading zero, below the field modulus) is a bid, as in the service's parseMemo.
+const commitmentOf = (d: Deposit) => {
+  const c = d.memo.split(':')[2];
+  return c !== undefined && isCanonicalCommitment(c) ? c : null;
+};
 const pad = (n: number) => String(n).padStart(2, '0');
 const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
 

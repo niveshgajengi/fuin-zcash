@@ -6,7 +6,7 @@ import { commitment } from './poseidon.js';
 import { SLOTS } from './result.js';
 
 export { commitment, emptyCommitment } from './poseidon.js';
-export { checkResult, readPublic, SLOTS, type Check, type ResultCheck, type ResultDeposit, type ResultInput } from './result.js';
+export { BN254_FIELD, checkResult, isCanonicalCommitment, readPublic, SLOTS, type Check, type ResultCheck, type ResultDeposit, type ResultInput } from './result.js';
 const BUILD = resolve(import.meta.dirname, '../build');
 export const WASM = resolve(BUILD, 'maxbid.wasm');
 export const ZKEY = resolve(BUILD, 'maxbid_final.zkey');

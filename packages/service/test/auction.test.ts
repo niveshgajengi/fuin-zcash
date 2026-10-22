@@ -1,7 +1,7 @@
 // The auction rules, with real Poseidon commitments and real Groth16 proofs. No chain access here:
 // the same functions classify the live testnet deposits in testnet-run.ts.
 import { describe, expect, it } from 'vitest';
-import { checkResult, commitment, emptyCommitment, inputs, prove, readPublic, verify } from '@sba/circuits';
+import { BN254_FIELD, checkResult, commitment, emptyCommitment, inputs, prove, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
 import { auctionIdFor, checkOutcome, checkAffordable, checkSellerPayout, sellerOwed, zip317Fee, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
@@ -28,6 +28,27 @@ describe('memo format', () => {
     expect(parseMemo(depositMemo(42n, '123'))).toEqual({ auctionId: 42n, commitment: '123' });
     expect(parseMemo('hello auction')).toBeNull();
     expect(parseMemo('sba1:42:123:extra')).toBeNull();
+  });
+
+  it('accepts only canonical commitments: a leading zero or a value at or above the field modulus is not a bid, so it cannot pose as a second valid deposit', async () => {
+    const c = await commitment(cfg.auctionId, 1_000_000n, 9n);
+    expect(parseMemo(`sba1:42:0${c}`)).toBeNull();
+    expect(parseMemo(`sba1:42:${BN254_FIELD + BigInt(c)}`)).toBeNull();
+    expect(parseMemo(`sba1:42:${BN254_FIELD}`)).toBeNull();
+    expect(parseMemo(`sba1:42:${BN254_FIELD - 1n}`)).toEqual({ auctionId: 42n, commitment: String(BN254_FIELD - 1n) });
+    expect(parseMemo('sba1:42:0')).toEqual({ auctionId: 42n, commitment: '0' });
+    // The judge's probe: the same commitment with a leading zero used to classify as a second valid deposit.
+    const deposits = classifyDeposits(cfg, [
+      { txid: 'c1', height: 10, value: cfg.depositZat, memo: depositMemo(cfg.auctionId, c) },
+      { txid: 'c2', height: 11, value: cfg.depositZat, memo: `sba1:${cfg.auctionId}:0${c}` },
+      { txid: 'c3', height: 12, value: cfg.depositZat, memo: `sba1:${cfg.auctionId}:${BN254_FIELD + BigInt(c)}` },
+    ]);
+    expect(deposits.map((d) => [d.ref, d.status, d.commitment])).toEqual([
+      ['c1', 'valid', c],
+      ['c2', 'memo_mismatch', null],
+      ['c3', 'memo_mismatch', null],
+    ]);
+    expect(deposits[1].reason).toBe('the commitment is not a canonical field element (a leading zero, or not below the BN254 modulus)');
   });
 });
 

@@ -11,6 +11,17 @@
 
 export const SLOTS = 8;
 
+/** The BN254 scalar field modulus: Poseidon commitments are field elements below it. */
+export const BN254_FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+
+/**
+ * Is `s` a commitment in its one canonical decimal form: no leading zero, below the field modulus?
+ * Only then does "same string" mean "same commitment", which duplicate detection and the slot check rely on.
+ */
+export function isCanonicalCommitment(s: string): boolean {
+  return /^(0|[1-9]\d{0,76})$/.test(s) && BigInt(s) < BN254_FIELD;
+}
+
 /** Public signal order: auction_id, reserve, commitments[8], winner, winning_bid. */
 export function readPublic(publicSignals: string[]) {
   return {
