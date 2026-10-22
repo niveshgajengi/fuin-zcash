@@ -196,6 +196,8 @@ console.log(
     ? `\n${failures} check(s) FAILED`
     : sellerChecked
       ? '\nall checks pass'
-      : `\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout${refundsChecked ? " (the complaints' refunds were checked)" : ', and a complaint with a refund key to check a refund'}`,
+      : refundsChecked
+        ? "\nchain checks pass; payments partly checked: the complaints' refunds were checked, the seller's payout needs the seller's incoming viewing key (SBA_SELLER_UIVK)"
+        : "\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund",
 );
 process.exit(failures ? 1 : 0);
