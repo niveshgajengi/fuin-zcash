@@ -9,8 +9,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositForCommitment, revealKeyPair, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
+import { commitment, SLOTS } from '@sba/circuits';
+import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositForCommitment, openSlots, revealKeyPair, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
@@ -141,7 +141,7 @@ export function createServer(): McpServer {
     'bid',
     {
       title: 'Place a sealed bid',
-      description: "Refuses if the auction has closed, or if its id is not the hash of its published terms (so the close, reveal window and reserve cannot change after the bid). Also refuses a refund address longer than a reveal can carry (150 characters: an Orchard-only unified address). Otherwise commits to bid_zat with a fresh random salt, saves the opening in SBA_BIDDER_DIR (mode 0600) before anything is sent, and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET.",
+      description: "Refuses if the auction has closed, or if its id is not the hash of its published terms (so the close, reveal window and reserve cannot change after the bid). Also refuses once 8 valid bids are on chain (the proof has 8 slots) and a refund address longer than a reveal can carry (150 characters: an Orchard-only unified address). Otherwise commits to bid_zat with a fresh random salt, saves the opening in SBA_BIDDER_DIR (mode 0600) before anything is sent, and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET.",
       inputSchema: { bid_zat: z.number().int().positive(), refund_address: z.string().startsWith('utest1').describe('a unified address of at most 150 characters (Orchard-only) that receives the refund or the winner change') },
     },
     ({ bid_zat, refund_address }) =>
@@ -160,6 +160,9 @@ export function createServer(): McpServer {
         const terms = checkTerms(p.auction);
         if (terms.status === 'legacy') throw new Error("this auction's id hashes only its name, so its close, reveal window and reserve could be changed after you bid; nothing was sent");
         if (!terms.ok) throw new Error(`${terms.detail}; nothing was sent`);
+        // The proof has 8 slots: once 8 valid bids are on chain a new deposit cannot win (it is over_capacity).
+        const { classified: onChain } = await depositsOnChain(p);
+        if (openSlots(onChain) === 0) throw new Error(`the auction already has ${SLOTS} valid bids on chain (the proof has ${SLOTS} slots), so a new deposit could not win: it would be over_capacity, refunded only if revealed; nothing was sent`);
         const salt = BigInt('0x' + randomBytes(31).toString('hex'));
         const c = await commitment(cfg.auctionId, BigInt(bid_zat), salt);
         const complaint = complaintKeyPair();

@@ -1,10 +1,10 @@
 // The auction rules, with real Poseidon commitments and real Groth16 proofs. No chain access here:
 // the same functions classify the live testnet deposits in testnet-run.ts.
 import { describe, expect, it } from 'vitest';
-import { commitment, readPublic, verify } from '@sba/circuits';
+import { checkResult, commitment, emptyCommitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, openSlots, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -104,6 +104,27 @@ describe('reveals and settlement', () => {
   it('refuses to sell below the reserve', async () => {
     const deposits = classifyDeposits(cfg, [await dep('z', 10, 400_000n, 5n)]);
     await expect(decide(cfg, deposits, [{ bid: 400_000n, salt: 5n, refundAddress: 'r' }])).rejects.toThrow(/below the reserve/);
+  });
+});
+
+describe('capacity: the proof has 8 slots', () => {
+  it('nine valid revealed bids: the first 8 in chain order compete, the 9th is over_capacity and refunded; the outcome passes its check', async () => {
+    const bids = [1_100_000n, 1_200_000n, 900_000n, 1_300_000n, 1_000_000n, 800_000n, 1_250_000n, 700_000n, 1_900_000n];
+    const deposits = classifyDeposits(cfg, await Promise.all(bids.map((b, i) => dep(`k${i}`, 10 + i, b, BigInt(100 + i)))));
+    expect(deposits.map((d) => d.status)).toEqual([...Array(8).fill('valid'), 'over_capacity']);
+    expect(deposits[8].reason).toBe('the auction already had 8 valid bids (the proof has 8 slots): refunded if revealed, cannot win');
+    expect(openSlots(deposits)).toBe(0);
+    expect(openSlots(deposits.slice(0, 5))).toBe(3);
+    const o = await decide(cfg, deposits, bids.map((b, i) => ({ bid: b, salt: BigInt(100 + i), refundAddress: `r${i}` })));
+    // 1,900,000 would be the highest, but it arrived after the eighth valid bid: 1,300,000 wins.
+    expect(o.winningBid).toBe(1_300_000n);
+    expect(await verify(o.publicSignals, o.proof)).toBe(true);
+    expect(o.payouts.find((p) => p.address === 'r8')).toMatchObject({ amount: cfg.depositZat, why: 'refund (over_capacity deposit k8)' });
+    expect(await checkOutcome(cfg, deposits, o)).toMatchObject({ ok: true, winnerTxid: 'k3' });
+    // A record that does not apply the cap (the 9th called valid) fails the slot check.
+    const uncapped = deposits.map((d) => ({ ...d, txid: d.ref, status: 'valid' }));
+    const r = checkResult({ auctionId: cfg.auctionId, reserve: cfg.reserveZat, deposits: uncapped, unrevealed: [], publicSignals: o.publicSignals, emptyCommitment: await emptyCommitment(cfg.auctionId) });
+    expect(r.checks.find((c) => c.name === 'slots')).toMatchObject({ ok: false, detail: expect.stringMatching(/9 revealed valid deposits, the circuit has 8 slots/) });
   });
 });
 

@@ -144,6 +144,7 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 | mined after the close height | `late`: refunded at settlement if revealed |
 | amount ≠ deposit | `wrong_amount`: refunded if revealed |
 | same commitment as an earlier deposit | `duplicate`: refunded if revealed |
+| a valid deposit after the first 8 valid ones in chain order (the proof has 8 slots) | `over_capacity`: cannot win, refunded if revealed; MCP `bid` refuses to send one |
 | opening does not hash to any deposit's commitment | `altered`: refused |
 | bid > deposit − fee budget | refused |
 | valid deposit, no accepted reveal | `unrevealed`: left out of the proof, listed in the outcome, not refunded (no refund address) |

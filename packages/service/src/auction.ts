@@ -133,7 +133,7 @@ export interface IncomingDeposit {
   memo: string;
 }
 
-export type DepositStatus = 'valid' | 'late' | 'pending' | 'wrong_amount' | 'memo_mismatch' | 'duplicate';
+export type DepositStatus = 'valid' | 'late' | 'pending' | 'wrong_amount' | 'memo_mismatch' | 'duplicate' | 'over_capacity';
 
 /** A deposit's name: its txid, or `txid:<output>` when its transaction pays the auction more than once. */
 export const depositRef = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
@@ -146,12 +146,15 @@ export interface ClassifiedDeposit extends IncomingDeposit {
 }
 
 /**
- * Classifies deposits in chain order (height, then name). Only `valid` deposits can win; the first
- * deposit with a given commitment is the bid and later copies are duplicates. Each payment is its
- * own deposit, including a second payment in the same transaction.
+ * Classifies deposits in chain order (height, then name: within one block, the lexically lower txid
+ * comes first, not the transaction mined first). Only `valid` deposits can win; the first deposit
+ * with a given commitment is the bid and later copies are duplicates. The proof has SLOTS (8) slots,
+ * so only the first 8 valid deposits compete; a later one is `over_capacity` (refunded if revealed).
+ * Each payment is its own deposit, including a second payment in the same transaction.
  */
 export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]): ClassifiedDeposit[] {
   const seen = new Set<string>();
+  let valid = 0;
   return deposits
     .map((d) => ({ ...d, ref: depositRef(d) }))
     .sort((a, b) => (a.height ?? Infinity) - (b.height ?? Infinity) || a.ref.localeCompare(b.ref))
@@ -165,8 +168,15 @@ export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]
       if (d.value !== cfg.depositZat) return { ...d, status: 'wrong_amount', commitment: parsed.commitment, reason: `${d.value} zat, deposit is ${cfg.depositZat}` };
       if (seen.has(parsed.commitment)) return { ...d, status: 'duplicate', commitment: parsed.commitment, reason: 'commitment already used by an earlier deposit' };
       seen.add(parsed.commitment);
+      if (valid >= SLOTS) return { ...d, status: 'over_capacity', commitment: parsed.commitment, reason: `the auction already had ${SLOTS} valid bids (the proof has ${SLOTS} slots): refunded if revealed, cannot win` };
+      valid++;
       return { ...d, status: 'valid', commitment: parsed.commitment };
     });
+}
+
+/** How many more valid bids the auction takes before new ones are `over_capacity`. */
+export function openSlots(deposits: ClassifiedDeposit[]): number {
+  return Math.max(0, SLOTS - deposits.filter((d) => d.status === 'valid').length);
 }
 
 /** The deposit carrying `commitment` (the valid one if there is one, else the first in chain order), or null. */
