@@ -12,7 +12,7 @@
 // not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, checkTerms, memoText, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
+import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, checkTerms, memoText, parsePayoutMemo, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
 
 const cwd = process.env.INIT_CWD ?? process.cwd();
 const file = process.argv[2] ? resolve(cwd, process.argv[2]) : resolve(import.meta.dirname, '../../../deployments/testnet.json');
@@ -95,7 +95,12 @@ check(txs.every(ironwoodOnly), `all ${txs.length} transactions have only an Iron
 check(settle.outputs.length === 0, 'the auction key sees no outputs of the settlement (refunds are only visible to their recipients)');
 if (process.env.SBA_AUDIT_UIVK) {
   const [mine] = await decrypt(process.env.SBA_AUDIT_UIVK, [run.settlement.txid]);
-  console.log(`\nwith the given recipient key, the settlement pays: ${mine.outputs.map((o) => `${o.value} zat`).join(' + ') || 'nothing'}`);
+  // Settlement memos name what each output pays (seller, change, refund or forfeit of a deposit); legacy ones say `settlement`.
+  const what = (memo: string) => {
+    const t = parsePayoutMemo(memo);
+    return t && t.auctionId === cfg.auctionId ? ` (${t.kind}${t.deposit ? ` of ${t.deposit.slice(0, 10)}` : ''})` : '';
+  };
+  console.log(`\nwith the given recipient key, the settlement pays: ${mine.outputs.map((o) => `${o.value} zat${what(memoText(o.memo))}`).join(' + ') || 'nothing'}`);
 }
 if (complaintFiles.length) {
   console.log('\ncomplaints:');

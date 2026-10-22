@@ -44,8 +44,12 @@
    audit finds the deposits by scanning the auction's blocks (`sba-verify scan`) with its UIVK, so
    it does not depend on the auctioneer's list.
 7. **Settle.** One shielded transaction pays the seller the winning bid. It refunds every other
-   revealed deposit in full: losing bids, duplicates, late and wrong-amount deposits. The winner gets
-   its deposit back minus the bid and a fixed settlement-fee budget (60,000 zat).
+   revealed deposit in full: losing bids, duplicates, late, wrong-amount and over-capacity deposits.
+   The winner gets its deposit back minus the bid and a fixed settlement-fee budget (60,000 zat).
+   Every unrevealed deposit goes to the seller (minus its 5,000 zat output fee). Each output's memo
+   names what it pays: `sba1:<id>:seller`, `:change:<deposit>`, `:refund:<deposit>` or
+   `:forfeit:<deposit>`, so a recipient, and a complaint, can tell its outputs apart. Sales 001 and
+   002 used `sba1:<id>:settlement` on every output.
 8. **Dispute.** Until `disputeBlocks` after the settlement, a bidder whose valid reveal was ignored,
    or who was paid less than it is owed, files a complaint (below). The audit checks it against
    the chain and names the failure.
@@ -140,14 +144,14 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 
 | Rule | Status |
 |---|---|
-| memo is not `sba1:<this auction>:<commitment>` | `memo_mismatch`: not a bid, not refunded (no reveal can claim it) |
+| memo is not `sba1:<this auction>:<commitment>` | `memo_mismatch`: not a bid; it stays in the auction wallet (no reveal can claim it, and nothing the auctioneer decides makes a payment one) |
 | mined after the close height | `late`: refunded at settlement if revealed |
 | amount ≠ deposit | `wrong_amount`: refunded if revealed |
 | same commitment as an earlier deposit | `duplicate`: refunded if revealed |
 | a valid deposit after the first 8 valid ones in chain order (the proof has 8 slots) | `over_capacity`: cannot win, refunded if revealed; MCP `bid` refuses to send one |
 | opening does not hash to any deposit's commitment | `altered`: refused |
 | bid > deposit − fee budget | refused |
-| valid deposit, no accepted reveal | `unrevealed`: left out of the proof, listed in the outcome, not refunded (no refund address) |
+| valid deposit, no accepted reveal | `unrevealed`: left out of the proof, listed in the outcome. It has no refund address, so the settlement **forfeits it to the seller** (memo `sba1:<id>:forfeit:<deposit>`, minus its 5,000 zat output fee), as it does any other unrevealed deposit. The auctioneer keeps nothing when a reveal fails, so it gains nothing by making one fail. Sales 001 and 002 predate this rule: Sale 002's unrevealed deposit stayed in the auction wallet |
 | reveal memo is not `sba1r:<auction>:<deposit>:<sealed>` | `malformed` |
 | reveal for another auction | `other_auction` |
 | reveal mined at or before the close / after `revealCloseHeight` / not mined | `early` / `late` / `pending` |

@@ -17,6 +17,8 @@ import { checkResult, commitment, emptyCommitment, inputs, prove, SLOTS, verify,
 
 export const MEMO_PREFIX = 'sba1';
 export const SETTLEMENT_FEE_BUDGET_ZAT = 60_000n;
+/** A forfeited deposit pays the marginal ZIP-317 fee of its own settlement output. */
+export const FORFEIT_OUTPUT_FEE_ZAT = 5_000n;
 
 export interface AuctionConfig {
   name: string;
@@ -107,17 +109,18 @@ export function parseMemo(memo: string): { auctionId: bigint; commitment: string
 /**
  * What a settlement output pays, named in its memo so its recipient (and a complaint) can tell which
  * deposit each output settles: `sba1:<auction>:seller`, `sba1:<auction>:change:<deposit>` (the
- * winner's change), `sba1:<auction>:refund:<deposit>`. Settlements before these memos used
+ * winner's change), `sba1:<auction>:refund:<deposit>`, `sba1:<auction>:forfeit:<deposit>` (an
+ * unrevealed deposit, paid to the seller). Settlements before these memos used
  * `sba1:<auction>:settlement` for every output (`legacy`).
  */
-export type PayoutKind = 'seller' | 'change' | 'refund';
+export type PayoutKind = 'seller' | 'change' | 'refund' | 'forfeit';
 export function payoutMemo(auctionId: bigint, kind: PayoutKind, deposit?: string): string {
   if (kind === 'seller') return `${MEMO_PREFIX}:${auctionId}:seller`;
   if (!deposit) throw new Error(`a ${kind} output names the deposit it pays`);
   return `${MEMO_PREFIX}:${auctionId}:${kind}:${deposit}`;
 }
 export function parsePayoutMemo(memo: string): { auctionId: bigint; kind: PayoutKind | 'legacy'; deposit: string | null } | null {
-  const m = memo.trim().match(/^sba1:(\d{1,40}):(?:(seller|settlement)|(change|refund):([0-9a-f]{64}(?::[os]?\d{1,4})?))$/);
+  const m = memo.trim().match(/^sba1:(\d{1,40}):(?:(seller|settlement)|(change|refund|forfeit):([0-9a-f]{64}(?::[os]?\d{1,4})?))$/);
   if (!m) return null;
   if (m[2]) return { auctionId: BigInt(m[1]), kind: m[2] === 'seller' ? 'seller' : 'legacy', deposit: null };
   return { auctionId: BigInt(m[1]), kind: m[3] as PayoutKind, deposit: m[4] };
@@ -205,6 +208,8 @@ export async function checkReveal(cfg: AuctionConfig, deposits: ClassifiedDeposi
   return { ok: true, commitment: c, deposits: mine };
 }
 
+const shortRef = (ref: string) => (ref.length > 64 ? `${ref.slice(0, 8)}…${ref.slice(64)}` : ref.slice(0, 8));
+
 export interface Outcome {
   winnerCommitment: string;
   winningBid: bigint;
@@ -249,8 +254,9 @@ export async function checkOutcome(
 
 /**
  * Picks the winner among valid, revealed deposits (MaxBid proof over them in deposit order) and
- * builds the settlement payouts: seller, winner change, and full refunds for every other revealed
- * deposit (losers, duplicates, late and wrong-amount deposits).
+ * builds the settlement payouts: seller, winner change, full refunds for every other revealed
+ * deposit (losers, duplicates, late, wrong-amount and over-capacity deposits), and every unrevealed
+ * deposit forfeited to the seller.
  */
 export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], reveals: Reveal[]): Promise<Outcome> {
   const byCommitment = new Map<string, Reveal>();
@@ -280,7 +286,14 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     const r = byCommitment.get(d.commitment);
     if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
-    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.ref.length > 64 ? `${d.ref.slice(0, 8)}…${d.ref.slice(64)}` : d.ref.slice(0, 8)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
+    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${shortRef(d.ref)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
+  }
+  // A deposit nobody revealed has no refund address. It goes to the seller, not to the auctioneer, so
+  // the auctioneer gains nothing by making a reveal fail. (Memo mismatches are not bids: they stay.)
+  for (const d of deposits) {
+    if (d.commitment === null || d.status === 'pending' || byCommitment.has(d.commitment)) continue;
+    const amount = d.value - FORFEIT_OUTPUT_FEE_ZAT;
+    if (amount > 0n) payouts.push({ address: cfg.sellerAddress, amount, why: `forfeit (unrevealed ${d.status === 'valid' ? 'bid' : d.status} deposit ${shortRef(d.ref)}) to the seller, minus its ${FORFEIT_OUTPUT_FEE_ZAT} zat output fee`, memo: payoutMemo(cfg.auctionId, 'forfeit', d.ref) });
   }
   return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
 }

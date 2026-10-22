@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { checkResult, commitment, emptyCommitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, openSlots, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, openSlots, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -141,6 +141,11 @@ describe('unrevealed bids', () => {
     ]);
     expect(o.unrevealed).toEqual(['u2']);
     expect(o.winningBid).toBe(1_200_000n);
+    // The unrevealed deposit is forfeited to the seller, not kept by the auctioneer, so a failed reveal earns the auctioneer nothing.
+    expect(o.payouts.filter((p) => p.memo.includes(':forfeit:'))).toEqual([
+      { address: 'utest1seller', amount: cfg.depositZat - FORFEIT_OUTPUT_FEE_ZAT, why: 'forfeit (unrevealed bid deposit u2) to the seller, minus its 5000 zat output fee', memo: `sba1:${cfg.auctionId}:forfeit:u2` },
+    ]);
+    expect(o.payouts.reduce((n, p) => n + p.amount, 0n)).toBe(3n * cfg.depositZat - SETTLEMENT_FEE_BUDGET_ZAT - FORFEIT_OUTPUT_FEE_ZAT);
     const published = await checkOutcome(cfg, deposits, o);
     expect(published).toMatchObject({ ok: true, winnerTxid: 'u1' });
     // An auctioneer that leaves the deposit out without saying so is caught.
