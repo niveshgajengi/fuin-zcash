@@ -45,6 +45,25 @@ export function parseMemo(memo: string): { auctionId: bigint; commitment: string
   return m ? { auctionId: BigInt(m[1]), commitment: m[2] } : null;
 }
 
+/**
+ * What a settlement output pays, named in its memo so its recipient (and a complaint) can tell which
+ * deposit each output settles: `sba1:<auction>:seller`, `sba1:<auction>:change:<deposit>` (the
+ * winner's change), `sba1:<auction>:refund:<deposit>`. Settlements before these memos used
+ * `sba1:<auction>:settlement` for every output (`legacy`).
+ */
+export type PayoutKind = 'seller' | 'change' | 'refund';
+export function payoutMemo(auctionId: bigint, kind: PayoutKind, deposit?: string): string {
+  if (kind === 'seller') return `${MEMO_PREFIX}:${auctionId}:seller`;
+  if (!deposit) throw new Error(`a ${kind} output names the deposit it pays`);
+  return `${MEMO_PREFIX}:${auctionId}:${kind}:${deposit}`;
+}
+export function parsePayoutMemo(memo: string): { auctionId: bigint; kind: PayoutKind | 'legacy'; deposit: string | null } | null {
+  const m = memo.trim().match(/^sba1:(\d{1,20}):(?:(seller|settlement)|(change|refund):([0-9a-f]{64}(?::[os]?\d{1,4})?))$/);
+  if (!m) return null;
+  if (m[2]) return { auctionId: BigInt(m[1]), kind: m[2] === 'seller' ? 'seller' : 'legacy', deposit: null };
+  return { auctionId: BigInt(m[1]), kind: m[3] as PayoutKind, deposit: m[4] };
+}
+
 /** One payment to the auction as it sees it (from sba-verify). */
 export interface IncomingDeposit {
   txid: string;
@@ -120,7 +139,8 @@ export interface Outcome {
   publicSignals: string[];
   /** Valid deposits with no accepted reveal: left out of the proof, published so it is visible. */
   unrevealed: string[];
-  payouts: { address: string; amount: bigint; why: string }[];
+  /** Each output of the settlement; `memo` names what it pays (see `payoutMemo`). */
+  payouts: { address: string; amount: bigint; why: string; memo: string }[];
 }
 
 export interface OutcomeCheck {
@@ -178,15 +198,15 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
 
   const winner = valid[w];
   const winnerReveal = byCommitment.get(winner.commitment!)!;
-  const payouts: Outcome['payouts'] = [{ address: cfg.sellerAddress, amount: openings[w].bid, why: 'winning bid to the seller' }];
+  const payouts: Outcome['payouts'] = [{ address: cfg.sellerAddress, amount: openings[w].bid, why: 'winning bid to the seller', memo: payoutMemo(cfg.auctionId, 'seller') }];
   const winnerChange = cfg.depositZat - openings[w].bid - SETTLEMENT_FEE_BUDGET_ZAT;
-  if (winnerChange > 0n) payouts.push({ address: winnerReveal.refundAddress, amount: winnerChange, why: 'winner: deposit minus bid and settlement fee' });
+  if (winnerChange > 0n) payouts.push({ address: winnerReveal.refundAddress, amount: winnerChange, why: 'winner: deposit minus bid and settlement fee', memo: payoutMemo(cfg.auctionId, 'change', winner.ref) });
   for (const d of deposits) {
     if (d === winner || d.commitment === null) continue;
     const r = byCommitment.get(d.commitment);
     if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
-    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.ref.length > 64 ? `${d.ref.slice(0, 8)}…${d.ref.slice(64)}` : d.ref.slice(0, 8)})` });
+    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${d.ref.length > 64 ? `${d.ref.slice(0, 8)}…${d.ref.slice(64)}` : d.ref.slice(0, 8)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
   }
   return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
 }

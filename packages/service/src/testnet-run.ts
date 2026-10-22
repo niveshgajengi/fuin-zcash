@@ -190,7 +190,7 @@ async function main() {
     const o = await decide(cfg, classified, reveals);
     say(`winner: commitment ${o.winnerCommitment.slice(0, 12)}…, bid ${o.winningBid} zat; MaxBid proof verifies`);
     state.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed };
-    const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: `sba1:${a.auctionId}:settlement` })));
+    const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: p.memo })));
     state.settlement = { txids, payouts: o.payouts.map((p) => ({ ...p, amount: p.amount.toString() })) };
     say(`settlement tx ${txids[0]}: ${o.payouts.length} outputs`);
   }

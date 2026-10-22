@@ -12,10 +12,12 @@
 // The audit checks a complaint against the chain: the reveal note, its height against the reveal
 // window, the deposit's commitment, the record's treatment of that reveal, the outcome's unrevealed
 // list, and what the settlement paid the refund address (read with the refund address's own viewing
-// key, after checking that key owns that address).
+// key, after checking that key owns that address). Settlement memos name the deposit each output pays
+// (`sba1:<id>:refund:<deposit>`), so only outputs for this opening's deposits count; a legacy
+// settlement (`sba1:<id>:settlement` on every output) is checked per refund key across complaints.
 import { createHash, sign as edSign, verify as edVerify } from 'node:crypto';
 import { commitment } from '@sba/circuits';
-import { depositRef, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
+import { depositRef, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
 import { edPrivate, edPublic, openRevealWithEsk, parseRevealMemo, publicRevealStatus, type RevealLogEntry, type RevealMessage, type RevealWindow, type SealedOpening } from './reveal.js';
 
 export const COMPLAINT_PREFIX = 'sba1d';
@@ -61,7 +63,24 @@ export interface ComplaintContext {
   /** What the published record says; `settlement.height` is the height the settlement was mined at, read from the chain. */
   record: { reveals: RevealLogEntry[]; unrevealed: string[]; winnerDeposit: string | null; winningBid: bigint; settlement: { txid: string; height: number } };
   /** What the settlement paid the refund address, read with `refundViewingKey`; null when no key was given. */
-  refund: { keyOwnsAddress: boolean; receivedZat: bigint } | null;
+  refund: RefundView | null;
+}
+
+/** Every settlement output the refund viewing key decrypts, with its memo. */
+export interface RefundView {
+  keyOwnsAddress: boolean;
+  outputs: { valueZat: bigint; memo: string }[];
+}
+
+/**
+ * How the payment was checked. `tagged`: the settlement's memos name the deposit each output pays, so
+ * only outputs for this opening's deposits count. `legacy`: its memos are all `sba1:<id>:settlement`,
+ * so the key's total is compared with what every complaint using that key is owed (`checkSharedRefundKeys`).
+ */
+export interface PaymentCheck {
+  kind: 'tagged' | 'legacy';
+  receivedZat: bigint;
+  owed: { deposit: string; zat: bigint; part: string }[];
 }
 
 export interface ComplaintResult {
@@ -71,6 +90,10 @@ export interface ComplaintResult {
   /** The opening the complaint made public, when it opened the reveal. */
   opening: SealedOpening | null;
   owedZat: bigint | null;
+  /** Set when the payment was read with an owning refund key. */
+  payment?: PaymentCheck;
+  /** The settlement the payment was read from. */
+  settlementTxid?: string;
 }
 
 const short = (ref: string) => (ref.length > 64 ? `${ref.slice(0, 10)}…${ref.slice(64)}` : ref.slice(0, 10));
@@ -134,25 +157,67 @@ export async function checkComplaint(c: Complaint, ctx: ComplaintContext): Promi
   for (const d of mine) if (d.status === 'valid' && ctx.record.unrevealed.includes(d.ref)) findings.push(`deposit ${short(d.ref)} was revealed by ${at}, inside the window, but the outcome declares it unrevealed`);
 
   // What the settlement owes this opening: the winner's change, or every deposit with this commitment back.
-  let owed = 0n;
-  const parts: string[] = [];
+  const owedBy: PaymentCheck['owed'] = [];
   for (const d of mine) {
     if (d.ref === ctx.record.winnerDeposit) {
       const change = cfg.depositZat - ctx.record.winningBid - SETTLEMENT_FEE_BUDGET_ZAT;
-      if (change > 0n) {
-        owed += change;
-        parts.push(`${change} winner change for ${short(d.ref)}`);
-      }
-    } else {
-      owed += d.value;
-      parts.push(`${d.value} refund of ${short(d.ref)}`);
-    }
+      if (change > 0n) owedBy.push({ deposit: d.ref, zat: change, part: `${change} winner change for ${short(d.ref)}` });
+    } else owedBy.push({ deposit: d.ref, zat: d.value, part: `${d.value} refund of ${short(d.ref)}` });
   }
+  const owed = owedBy.reduce((n, x) => n + x.zat, 0n);
+  const parts = owedBy.map((x) => x.part);
+  const settlementTag = ctx.record.settlement.txid.slice(0, 10);
   const notes: string[] = [];
+  let payment: PaymentCheck | undefined;
   if (!ctx.refund) notes.push('payment not checked: the complaint gives no refund viewing key');
   else if (!ctx.refund.keyOwnsAddress) notes.push('payment not checked: the refund viewing key does not own the refund address in the reveal');
-  else if (ctx.refund.receivedZat < owed) findings.push(`the refund address received ${ctx.refund.receivedZat} zat in settlement ${ctx.record.settlement.txid.slice(0, 10)}, owed ${owed} (${parts.join(' + ')})`);
-  else notes.push(`paid in full: the refund address received ${ctx.refund.receivedZat} zat in settlement ${ctx.record.settlement.txid.slice(0, 10)}, owed ${owed}`);
+  else {
+    // Only outputs of this auction's settlement count; a tagged one counts only if it names one of this opening's deposits.
+    const outs = ctx.refund.outputs.map((o) => ({ ...o, tag: parsePayoutMemo(o.memo) })).filter((o) => o.tag && o.tag.auctionId === cfg.auctionId);
+    const legacy = outs.length > 0 && outs.every((o) => o.tag!.kind === 'legacy');
+    if (legacy) {
+      const total = outs.reduce((n, o) => n + o.valueZat, 0n);
+      payment = { kind: 'legacy', receivedZat: total, owed: owedBy };
+      if (total < owed) findings.push(`the refund address received ${total} zat in settlement ${settlementTag}, owed ${owed} (${parts.join(' + ')})`);
+      else notes.push(`legacy settlement memos do not say which deposit an output pays: the refund key received ${total} zat in settlement ${settlementTag}, this opening is owed ${owed}; the audit sums every complaint with this key`);
+    } else {
+      const refs = new Set(mine.map((d) => d.ref));
+      const forMine = outs.filter((o) => (o.tag!.kind === 'refund' || o.tag!.kind === 'change') && refs.has(o.tag!.deposit!));
+      const received = forMine.reduce((n, o) => n + o.valueZat, 0n);
+      const other = ctx.refund.outputs.reduce((n, o) => n + o.valueZat, 0n) - received;
+      payment = { kind: 'tagged', receivedZat: received, owed: owedBy };
+      const shortfall = owedBy.filter((x) => forMine.filter((o) => o.tag!.deposit === x.deposit).reduce((n, o) => n + o.valueZat, 0n) < x.zat);
+      if (received < owed || shortfall.length)
+        findings.push(`the refund address received ${received} zat in settlement ${settlementTag}, owed ${owed} (${parts.join(' + ')})${other > 0n ? `; it also received ${other} zat for other deposits, which do not count` : ''}`);
+      else notes.push(`paid in full: the refund address received ${received} zat in settlement ${settlementTag}, owed ${owed}${other > 0n ? ` (and ${other} zat for other deposits)` : ''}`);
+    }
+  }
 
-  return findings.length ? result('upheld', [...findings, ...notes], owed) : result('unfounded', [`${at} was honoured`, ...notes], owed);
+  const done = (v: Verdict, reasons: string[]): ComplaintResult => ({ ...result(v, reasons, owed), ...(payment ? { payment, settlementTxid: ctx.record.settlement.txid } : {}) });
+  return findings.length ? done('upheld', [...findings, ...notes]) : done('unfounded', [`${at} was honoured`, ...notes]);
+}
+
+/**
+ * Legacy settlements (every memo `sba1:<id>:settlement`) do not say which deposit an output pays, so
+ * one paid deposit could hide an unpaid one on the same refund address. This sums what every
+ * complaint using the same refund key is owed (each deposit once) and compares it with what that key
+ * received in the settlement, once per key.
+ */
+export function checkSharedRefundKeys(items: { name: string; key: string | null; result: ComplaintResult }[], settlementTxid: string): { names: string[]; ok: boolean; line: string }[] {
+  const byKey = new Map<string, { names: string[]; received: bigint; owed: Map<string, { zat: bigint; part: string }> }>();
+  for (const { name, key, result } of items) {
+    if (!key || result.verdict === 'rejected' || result.payment?.kind !== 'legacy') continue;
+    const g = byKey.get(key) ?? { names: [] as string[], received: result.payment.receivedZat, owed: new Map<string, { zat: bigint; part: string }>() };
+    g.names.push(name);
+    for (const o of result.payment.owed) g.owed.set(o.deposit, { zat: o.zat, part: o.part });
+    byKey.set(key, g);
+  }
+  return [...byKey.values()].map((g) => {
+    const owed = [...g.owed.values()].reduce((n, o) => n + o.zat, 0n);
+    const across = `${g.names.length > 1 ? 'complaints' : 'complaint'} ${g.names.join(', ')}`;
+    const at = `settlement ${settlementTxid.slice(0, 10)}`;
+    return g.received < owed
+      ? { names: g.names, ok: false, line: `the refund address received ${g.received} zat in ${at}, owed ${owed} (${[...g.owed.values()].map((o) => o.part).join(' + ')}) across ${across}` }
+      : { names: g.names, ok: true, line: `paid in full: the refund address received ${g.received} zat in ${at}, owed ${owed} across ${across} (legacy settlement memos: summed per refund key)` };
+  });
 }

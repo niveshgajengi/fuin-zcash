@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { commitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
-import { auctionIdFor, checkOutcome, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, classifyDeposits, decide, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -80,6 +80,11 @@ describe('reveals and settlement', () => {
       ['b3', cfg.depositZat],
       ['b1', cfg.depositZat],
     ]);
+    // Each output's memo names what it pays, so a recipient (and a complaint) can tell its outputs apart.
+    expect(o.payouts.map((p) => p.memo)).toEqual([`sba1:${cfg.auctionId}:seller`, `sba1:${cfg.auctionId}:change:t2`, `sba1:${cfg.auctionId}:refund:t1`, `sba1:${cfg.auctionId}:refund:t3`, `sba1:${cfg.auctionId}:refund:t4`]);
+    expect(parsePayoutMemo(o.payouts[2].memo)).toBeNull(); // 't1' is not a txid: parsing accepts only real deposit names
+    expect(parsePayoutMemo(`sba1:${cfg.auctionId}:refund:${'a'.repeat(64)}:2`)).toEqual({ auctionId: cfg.auctionId, kind: 'refund', deposit: `${'a'.repeat(64)}:2` });
+    expect(parsePayoutMemo(`sba1:${cfg.auctionId}:settlement`)).toEqual({ auctionId: cfg.auctionId, kind: 'legacy', deposit: null });
   });
 
   it('refuses to sell below the reserve', async () => {

@@ -294,7 +294,7 @@ async function main() {
     say(`winner: bid ${o.winningBid} zat; unrevealed: ${o.unrevealed.join(', ')}; MaxBid proof verifies`);
     state.steps.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed };
     save();
-    const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: `sba1:${card.auctionId}:settlement` })));
+    const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: p.memo })));
     state.steps.settlement = { txids, payouts: o.payouts.map((p) => ({ ...p, amount: p.amount.toString() })) };
     save();
     say(`settlement tx ${txids[0]}: ${o.payouts.length} outputs`);

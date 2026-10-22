@@ -12,7 +12,7 @@
 // not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
+import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, memoText, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
 
 const cwd = process.env.INIT_CWD ?? process.cwd();
 const file = process.argv[2] ? resolve(cwd, process.argv[2]) : resolve(import.meta.dirname, '../../../deployments/testnet.json');
@@ -104,6 +104,7 @@ if (complaintFiles.length) {
     const anchors = to >= from ? (await scan(cfg.uivk, from, to)).flatMap((t) => asMessages(t, `${COMPLAINT_PREFIX}:`)) : [];
     console.log(`  dispute window ${from}-${end + a.disputeBlocks}; blocks ${from}-${to} scanned: ${anchors.length} complaint anchor(s)`);
     const outcomeCheck = await checkOutcome(cfg, classified, run.outcome);
+    const results: Parameters<typeof checkSharedRefundKeys>[0] = [];
     for (const f of complaintFiles) {
       const c = JSON.parse(readFileSync(f, 'utf8')) as Complaint;
       let refund = null;
@@ -120,7 +121,7 @@ if (complaintFiles.length) {
         if (address) {
           const keyOwnsAddress = await owns(c.refundViewingKey, address);
           const [mine] = keyOwnsAddress ? await decrypt(c.refundViewingKey, [run.settlement.txid]) : [{ outputs: [] }];
-          refund = { keyOwnsAddress, receivedZat: mine.outputs.reduce((n: bigint, o: { value: number }) => n + BigInt(o.value), 0n) };
+          refund = { keyOwnsAddress, outputs: mine.outputs.map((o) => ({ valueZat: BigInt(o.value), memo: memoText(o.memo) })) };
         }
       }
       const r = await checkComplaint(c, {
@@ -131,9 +132,15 @@ if (complaintFiles.length) {
         record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end } },
         refund,
       });
-      const name = f.split('/').pop();
+      const name = f.split('/').pop()!;
+      results.push({ name, key: c.refundViewingKey, result: r });
       if (r.verdict === 'upheld') check(false, `complaint ${name} UPHELD: ${r.reasons.join('; ')}`);
       else console.log(`  complaint ${name} ${r.verdict}: ${r.reasons.join('; ')}`);
+    }
+    // Legacy settlement memos do not name deposits: compare each refund key's total with everything its complaints are owed.
+    for (const g of checkSharedRefundKeys(results, run.settlement.txid)) {
+      if (g.ok) console.log(`  refund key of ${g.names.join(', ')}: ${g.line}`);
+      else check(false, `refund key of ${g.names.join(', ')} UPHELD: ${g.line}`);
     }
   }
 }

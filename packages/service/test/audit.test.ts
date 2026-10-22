@@ -109,7 +109,9 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     const [file] = readdirSync(COMPLAINTS).filter((f) => f.endsWith('.complaint.json')).map((f) => join(COMPLAINTS, f));
     const honest = await audit(RECORD2, file);
     expect(honest.out).toContain(`✓ settlement ${rec.settlement.txid.slice(0, 10)} is mined at block ${rec.settlement.height}, as the record says, after the reveal window (block ${rec.auction.revealCloseHeight})`);
-    expect(honest.out).toMatch(/complaint \S+ unfounded: reveal \w+ \(block \d+\) was honoured; paid in full: the refund address received 5000 zat in settlement \w+, owed 5000/);
+    // Sale 002's settlement predates memos that name each deposit (all say `settlement`), so the payment is summed per refund key.
+    expect(honest.out).toMatch(/complaint \S+ unfounded: reveal \w+ \(block \d+\) was honoured; legacy settlement memos do not say which deposit an output pays: the refund key received 5000 zat in settlement \w+, this opening is owed 5000/);
+    expect(honest.out).toContain(`refund key of ${file.split('/').pop()}: paid in full: the refund address received 5000 zat in settlement ${rec.settlement.txid.slice(0, 10)}, owed 5000 across complaint ${file.split('/').pop()}`);
     expect(honest.code).toBe(0);
     // A record that names as its settlement a transaction mined before the reveal window closed (bidder1's deposit) fails on the chain height alone.
     const early = rec.deposits.find((d: { label: string | null }) => d.label?.startsWith('bidder1 sealed bid'));
