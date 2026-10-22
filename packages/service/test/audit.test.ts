@@ -26,6 +26,17 @@ async function audit(file: string, ...complaints: string[]): Promise<{ code: num
   }
 }
 
+async function withRecord(rec: object, ...complaints: string[]) {
+  const dir = mkdtempSync(join(tmpdir(), 'fuin-audit-'));
+  try {
+    const file = join(dir, 'record.json');
+    writeFileSync(file, JSON.stringify(rec));
+    return await audit(file, ...complaints);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 describe('audit (live testnet)', () => {
   it('the published auction passes: the chain scan finds exactly the 7 recorded deposits', async () => {
     const r = await audit(RECORD);
@@ -49,20 +60,24 @@ describe('audit (live testnet)', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   }, 300_000);
+
+  it('a record that understates the settlement height, so the scan stops before the late deposit it hides, fails: the height comes from the chain', async () => {
+    const rec = JSON.parse(readFileSync(RECORD, 'utf8'));
+    const late = rec.deposits.find((d: { status: string }) => d.status === 'late');
+    rec.deposits = rec.deposits.filter((d: { txid: string }) => d.txid !== late.txid);
+    rec.settlement = { ...rec.settlement, height: late.height - 4 };
+    const r = await withRecord(rec);
+    expect(r.out).toContain(`✗ settlement ${rec.settlement.txid.slice(0, 10)} is mined at block 4522291; the record says ${late.height - 4}`);
+    // The scan runs to the chain's settlement height, so the hidden deposit is found anyway.
+    expect(r.out).toMatch(/blocks 4522258-4522291 scanned/);
+    expect(r.out).toContain(`NOT LISTED: ${late.txid}`);
+    expect(r.out).not.toMatch(/all checks pass/);
+    expect(r.code).toBe(1);
+  }, 300_000);
 });
 
 describe('audit of the reveal-channel auction (live testnet)', () => {
   const rec2 = () => JSON.parse(readFileSync(RECORD2, 'utf8'));
-  const withRecord = async (rec: object, ...complaints: string[]) => {
-    const dir = mkdtempSync(join(tmpdir(), 'fuin-audit2-'));
-    try {
-      const file = join(dir, 'record.json');
-      writeFileSync(file, JSON.stringify(rec));
-      return await audit(file, ...complaints);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  };
 
   it('passes: the two-payment transaction reads as two deposits and the reveal log matches the reveal notes on chain', async () => {
     const rec = rec2();
@@ -93,12 +108,19 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     const rec = rec2();
     const [file] = readdirSync(COMPLAINTS).filter((f) => f.endsWith('.complaint.json')).map((f) => join(COMPLAINTS, f));
     const honest = await audit(RECORD2, file);
+    expect(honest.out).toContain(`✓ settlement ${rec.settlement.txid.slice(0, 10)} is mined at block ${rec.settlement.height}, as the record says, after the reveal window (block ${rec.auction.revealCloseHeight})`);
     expect(honest.out).toMatch(/complaint \S+ unfounded: reveal \w+ \(block \d+\) was honoured; paid in full: the refund address received 5000 zat in settlement \w+, owed 5000/);
     expect(honest.code).toBe(0);
-    // An auctioneer whose record names as its settlement a transaction that never paid this bidder (bidder1's deposit).
-    const other = rec.deposits.find((d: { label: string | null }) => d.label?.startsWith('bidder1 sealed bid')).txid as string;
-    const lying = await withRecord({ ...rec, settlement: { ...rec.settlement, txid: other } }, file);
-    expect(lying.out).toContain(`✗ complaint ${file.split('/').pop()} UPHELD: the refund address received 0 zat in settlement ${other.slice(0, 10)}, owed 5000 (5000 winner change for`);
+    // A record that names as its settlement a transaction mined before the reveal window closed (bidder1's deposit) fails on the chain height alone.
+    const early = rec.deposits.find((d: { label: string | null }) => d.label?.startsWith('bidder1 sealed bid'));
+    const before = await withRecord({ ...rec, settlement: { ...rec.settlement, txid: early.txid } }, file);
+    expect(before.out).toContain(`✗ settlement ${early.txid.slice(0, 10)} is mined at block ${early.height}; the record says ${rec.settlement.height}, NOT after the reveal window (block ${rec.auction.revealCloseHeight})`);
+    expect(before.code).toBe(1);
+    // One that names a transaction mined after the window, at the height it gives (the late reveal note), passes that check; the complaint shows it never paid this bidder.
+    const other = rec.reveals.find((v: { status: string }) => v.status === 'late');
+    const lying = await withRecord({ ...rec, settlement: { ...rec.settlement, txid: other.txid, height: other.height } }, file);
+    expect(lying.out).toContain(`✓ settlement ${other.txid.slice(0, 10)} is mined at block ${other.height}, as the record says`);
+    expect(lying.out).toContain(`✗ complaint ${file.split('/').pop()} UPHELD: the refund address received 0 zat in settlement ${other.txid.slice(0, 10)}, owed 5000 (5000 winner change for`);
     expect(lying.code).toBe(1);
-  }, 600_000);
+  }, 900_000);
 });

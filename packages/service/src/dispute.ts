@@ -58,7 +58,7 @@ export interface ComplaintContext {
   reveals: RevealMessage[];
   /** Every complaint anchor note (sba1d), from the chain scan after the settlement. */
   anchors: RevealMessage[];
-  /** What the published record says. */
+  /** What the published record says; `settlement.height` is the height the settlement was mined at, read from the chain. */
   record: { reveals: RevealLogEntry[]; unrevealed: string[]; winnerDeposit: string | null; winningBid: bigint; settlement: { txid: string; height: number } };
   /** What the settlement paid the refund address, read with `refundViewingKey`; null when no key was given. */
   refund: { keyOwnsAddress: boolean; receivedZat: bigint } | null;

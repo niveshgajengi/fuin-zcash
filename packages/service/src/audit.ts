@@ -2,8 +2,9 @@
 //   pnpm --filter @sba/service run audit [deployments/testnet.json] [complaint.json ...]
 // ("run" is needed: plain `pnpm audit` is pnpm's own dependency audit.) Relative paths are read from
 // the directory pnpm was started in (INIT_CWD), not from packages/service.
-// Scans every block from the auction's open height to its settlement with the auction's incoming
-// viewing key, so the deposit list comes from the chain, not from the auctioneer. Then re-applies
+// Reads the settlement's block height from the chain (it must match the record and come after the
+// close or reveal window), then scans every block from the auction's open height to that height with
+// the auction's incoming viewing key, so the deposit list comes from the chain, not from the auctioneer. Then re-applies
 // the rules, verifies the MaxBid proof and checks that it is about exactly those deposits.
 // Optional: SBA_AUDIT_UIVK=<a recipient's incoming viewing key> also shows what that key decrypts
 // in the settlement. Complaint files (from a bidder's dispute) are checked against the chain: an
@@ -30,7 +31,18 @@ const check = (ok: boolean, line: string) => {
 };
 
 console.log(`auction ${a.name}: deposit ${a.depositZat} zat, reserve ${a.reserveZat} zat, open at block ${a.openHeight}, close after block ${a.closeHeight}`);
-const end = run.settlement.height as number;
+// The settlement's height comes from the chain, not the record: it ends the deposit scan and starts the
+// dispute window, so a record that understates it could stop the scan before a deposit it leaves out.
+const [settle] = await decrypt(cfg.uivk, [run.settlement.txid]);
+const lastWindow = typeof a.revealCloseHeight === 'number' ? a.revealCloseHeight : a.closeHeight;
+const settledAt = settle.height;
+check(
+  settledAt !== null && settledAt === run.settlement.height && settledAt > lastWindow,
+  settledAt === null
+    ? `settlement ${run.settlement.txid.slice(0, 10)} is not mined`
+    : `settlement ${run.settlement.txid.slice(0, 10)} is mined at block ${settledAt}${settledAt === run.settlement.height ? ', as the record says' : `; the record says ${run.settlement.height}`}, ${settledAt > lastWindow ? 'after' : 'NOT after'} the ${typeof a.revealCloseHeight === 'number' ? 'reveal window' : 'close'} (block ${lastWindow})`,
+);
+const end = settledAt ?? (await chainTip());
 const found = await scan(cfg.uivk, a.openHeight, end);
 const incoming = found.flatMap(asDeposits);
 console.log(`\nblocks ${a.openHeight}-${end} scanned with the auction incoming viewing key: ${found.length} transaction(s) pay the auction, ${incoming.length} of their payments are deposits`);
@@ -74,7 +86,6 @@ console.log('\nthe result:');
 const outcome = await checkOutcome(cfg, classified, run.outcome);
 for (const c of outcome.checks) check(c.ok, `${c.name}: ${c.detail}`);
 if (outcome.winnerTxid) console.log(`  winner: deposit ${outcome.winnerTxid.slice(0, 10)}, winning bid ${outcome.winningBid} zat (the only bid made public)`);
-const [settle] = await decrypt(cfg.uivk, [run.settlement.txid]);
 const txs = [...found, settle];
 check(txs.every(ironwoodOnly), `all ${txs.length} transactions have only an Ironwood bundle (no transparent part)`);
 check(settle.outputs.length === 0, 'the auction key sees no outputs of the settlement (refunds are only visible to their recipients)');
@@ -87,10 +98,11 @@ if (complaintFiles.length) {
   if (!a.revealKey || typeof a.disputeBlocks !== 'number') {
     check(false, 'this auction has no reveal channel or dispute window, so complaints cannot be checked');
   } else {
-    const from = run.settlement.height + 1;
-    const to = Math.min(run.settlement.height + a.disputeBlocks, await chainTip());
+    // The window starts after the settlement as mined (chain height), whatever the record says.
+    const from = end + 1;
+    const to = Math.min(end + a.disputeBlocks, await chainTip());
     const anchors = to >= from ? (await scan(cfg.uivk, from, to)).flatMap((t) => asMessages(t, `${COMPLAINT_PREFIX}:`)) : [];
-    console.log(`  dispute window ${from}-${run.settlement.height + a.disputeBlocks}; blocks ${from}-${to} scanned: ${anchors.length} complaint anchor(s)`);
+    console.log(`  dispute window ${from}-${end + a.disputeBlocks}; blocks ${from}-${to} scanned: ${anchors.length} complaint anchor(s)`);
     const outcomeCheck = await checkOutcome(cfg, classified, run.outcome);
     for (const f of complaintFiles) {
       const c = JSON.parse(readFileSync(f, 'utf8')) as Complaint;
@@ -116,7 +128,7 @@ if (complaintFiles.length) {
         deposits: classified,
         reveals: revealMsgs,
         anchors,
-        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: run.settlement.height } },
+        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end } },
         refund,
       });
       const name = f.split('/').pop();
