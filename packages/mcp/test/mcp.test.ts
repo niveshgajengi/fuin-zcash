@@ -119,6 +119,31 @@ describe('sba-mcp', () => {
     }
   }, 120_000);
 
+  it('complain publishes no viewing key unless asked, and then only a separate refund wallet\'s: it refuses the bidding wallet before any wallet call', async () => {
+    const tools = (await client.listTools()).tools;
+    const complain = tools.find((t) => t.name === 'complain')!;
+    expect(complain.description).toMatch(/publishes no viewing key/);
+    expect(complain.description).toMatch(/every incoming payment to that wallet, past and future/);
+    expect(Object.keys((complain.inputSchema as { properties?: object }).properties ?? {})).toEqual(['include_refund_key']);
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-refundkey-'));
+    try {
+      const rec = JSON.parse(readFileSync(AUCTION, 'utf8'));
+      const file = join(dir, 'auction.json');
+      writeFileSync(file, JSON.stringify({ ...rec, auction: { ...rec.auction, revealKey: '33'.repeat(32), revealCloseHeight: rec.auction.closeHeight + 10, disputeBlocks: 30 } }));
+      const env = { SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: join(dir, 'bidder-wallet'), SBA_BIDDER_DIR: dir };
+      const noRefundWallet = await connect(env);
+      expect((await call(noRefundWallet, 'complain', { include_refund_key: true })).text).toBe('Setup required: SBA_REFUND_WALLET (a wallet that receives only this auction\'s refunds; its incoming viewing key is published with the complaint)');
+      await noRefundWallet.close();
+      const same = await connect({ ...env, SBA_REFUND_WALLET: join(dir, 'bidder-wallet/') });
+      const r = await call(same, 'complain', { include_refund_key: true });
+      await same.close();
+      expect(r.isError).toBe(true);
+      expect(r.text).toBe('SBA_REFUND_WALLET is the bidding wallet: its incoming viewing key would publish every payment the bidder ever receives; use a wallet that receives only refunds; nothing was sent');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+
   it('verify_result reads the settlement height from the chain: a record that understates it, so the scan misses a deposit it leaves out, does not hold', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'fuin-height-'));
     try {

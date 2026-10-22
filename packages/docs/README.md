@@ -76,8 +76,15 @@ every auditor.
 ## Disputes
 
 A complaint (`checkComplaint`, MCP tool `complain`) is a JSON file holding the auction id, the
-deposit, the reveal note, the reveal's ephemeral secret, optionally the incoming viewing key of the
-refund address, and an Ed25519 signature by the complaint key the bidder put inside that reveal.
+deposit, the reveal note, the reveal's ephemeral secret, optionally a refund viewing key, and an
+Ed25519 signature by the complaint key the bidder put inside that reveal.
+
+The refund viewing key is opt-in (`complain({ include_refund_key: true })`). It is the incoming
+viewing key of a whole wallet, not of one address: anyone holding it reads every payment that wallet
+ever receives, past and future. So the MCP server takes it only from `SBA_REFUND_WALLET`, a separate
+wallet that should receive nothing but this auction's refunds, and refuses when that is the bidding
+wallet. Without it the audit still checks that the complaint is authentic, anchored in the window and
+whether the reveal was honoured; it just does not check the payment.
 The auctioneer saw only the public half of that key, so it cannot forge a complaint. The
 complaint's SHA-256 is anchored on chain by a 1-zat note to the auction address with memo
 `sba1d:<auction_id>:<digest>`, mined within `disputeBlocks` after the settlement.
@@ -96,6 +103,11 @@ which is owed its change (deposit − bid − fee budget).
 Filing a complaint publishes the bidder's own opening, including its bid. That is the price of
 proving censorship, and the bidder chooses to pay it.
 
+Sale 002's one complaint (bidder2, the winner) was filed before the key was opt-in: it carries the
+incoming viewing key of bidder2's whole demo wallet, which was also used in Sale 001. Anyone can read
+every testnet payment to that wallet with it. That file stays as it is, because its digest is the one
+anchored on chain.
+
 ## What each party learns
 
 | Party | Learns | Does not learn |
@@ -103,7 +115,8 @@ proving censorship, and the bidder chooses to pay it.
 | Public chain | that shielded transactions happened | amounts, memos, addresses (Ironwood-only, no transparent part) |
 | Anyone with the auction UIVK | each deposit's amount (all equal) and commitment memo; which deposit each reveal note names and its block; the winning bid via the proof | any losing bid, any salt, any refund address, who the bidders are |
 | Auctioneer | every bid at reveal time, refund addresses | bids before the close (deposits are equal and memos are hashes); a bidder's complaint key secret |
-| Everyone, after a complaint | that bidder's opening (it published its reveal secret) | anyone else's |
+| Everyone, after a complaint | that bidder's opening: its bid, salt and refund address (it published its reveal secret) | anyone else's |
+| Everyone, after a complaint with a refund key | every incoming payment to that refund wallet, past and future (the key is the wallet's incoming viewing key) | payments to the bidder's other wallets |
 | A bidder | its own deposit and refund (with its own viewing key) | other bids |
 
 The auctioneer is trusted to settle and learns every bid at the reveal. It cannot put a phantom bid

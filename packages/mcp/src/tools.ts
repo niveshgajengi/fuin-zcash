@@ -2,7 +2,8 @@
 // deposit; its openings (bid, salt) stay in SBA_BIDDER_DIR and are never returned in full.
 //
 // Env: SBA_AUCTION_FILE (published auction JSON, e.g. deployments/testnet.json), SBA_BIDDER_WALLET
-// (zingo-cli data dir; needed for `bid`), SBA_BIDDER_DIR (where openings are kept).
+// (zingo-cli data dir; needed for `bid`), SBA_BIDDER_DIR (where openings are kept), SBA_REFUND_WALLET
+// (optional: a refunds-only wallet whose viewing key `complain` may publish; never the bidding wallet).
 import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -186,9 +187,10 @@ export function createServer(): McpServer {
     {
       title: 'File a complaint about the settlement',
       description:
-        "Within the dispute window after the settlement (its height as mined, read from the chain, + disputeBlocks), files a complaint for each of this bidder's revealed openings: it publishes that reveal's ephemeral secret (which makes this bidder's own bid public), adds the refund address's incoming viewing key from SBA_BIDDER_WALLET so the audit can read what the settlement paid it, signs it with the complaint key inside the reveal, saves it in SBA_BIDDER_DIR, and anchors its SHA-256 on chain with a 1-zat note to the auction address. The audit, given the file, says whether it is upheld. Refuses outside the window, before any wallet call.",
+        "Within the dispute window after the settlement (its height as mined, read from the chain, + disputeBlocks), files a complaint for each of this bidder's revealed openings: it publishes that reveal's ephemeral secret (which makes this bidder's own bid, salt and refund address public), signs it with the complaint key inside the reveal, saves it in SBA_BIDDER_DIR, and anchors its SHA-256 on chain with a 1-zat note to the auction address. The audit, given the file, says whether it is upheld. By default the complaint publishes no viewing key, so the audit checks the reveal and the record but not the payment. With include_refund_key it adds the incoming viewing key of SBA_REFUND_WALLET (a separate wallet that should receive only refunds; the bidding wallet is refused) so the audit can read what the settlement paid: that key makes every incoming payment to that wallet, past and future, readable by anyone. Refuses outside the window, before any wallet call.",
+      inputSchema: { include_refund_key: z.boolean().optional() },
     },
-    () =>
+    ({ include_refund_key }) =>
       wrap(async () => {
         const p = published();
         const cfg = config(p);
@@ -196,6 +198,13 @@ export function createServer(): McpServer {
         if (!p.settlement) throw new Error('this auction is not settled yet; nothing was sent');
         const dir = need('SBA_BIDDER_DIR');
         const wallet = need('SBA_BIDDER_WALLET');
+        // A wallet's incoming viewing key covers every payment it ever receives, so only a refunds-only wallet's key may be published.
+        let refundWallet: string | null = null;
+        if (include_refund_key) {
+          refundWallet = process.env.SBA_REFUND_WALLET ?? null;
+          if (!refundWallet) throw new Error("Setup required: SBA_REFUND_WALLET (a wallet that receives only this auction's refunds; its incoming viewing key is published with the complaint)");
+          if (resolve(refundWallet) === resolve(wallet)) throw new Error('SBA_REFUND_WALLET is the bidding wallet: its incoming viewing key would publish every payment the bidder ever receives; use a wallet that receives only refunds; nothing was sent');
+        }
         const revealed = (existsSync(dir) ? readdirSync(dir) : [])
           .filter((f) => f.startsWith(`${cfg.auctionId}-`) && f.endsWith('.json'))
           .map((f) => JSON.parse(readFileSync(resolve(dir, f), 'utf8')) as Opening)
@@ -207,7 +216,7 @@ export function createServer(): McpServer {
         const tip = await chainTip();
         const last = settled.height + p.auction.disputeBlocks;
         if (tip + 1 > last) throw new Error(`the dispute window closed at block ${last} and the chain is at ${tip}; nothing was sent`);
-        const refundViewingKey = await uivkOf(await exportUfvk(zingoConfig(), wallet));
+        const refundViewingKey = refundWallet ? await uivkOf(await exportUfvk(zingoConfig(), refundWallet)) : null;
         const filed = [];
         for (const o of revealed) {
           const c = signComplaint({ auctionId: cfg.auctionId.toString(), deposit: o.txid, reveal: o.revealTxid!, revealSecret: o.revealSecret!, refundViewingKey }, o.complaintSecret);
@@ -216,7 +225,12 @@ export function createServer(): McpServer {
           const [anchorTxid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: REVEAL_ZAT, memo: complaintAnchor(c) }]);
           filed.push({ deposit: o.txid, complaint_file: file, anchor_txid: anchorTxid });
         }
-        return { filed, window_closes_after: last, note: 'each complaint makes this bidder\'s own opening public; run the audit with the complaint file for the verdict' };
+        return {
+          filed,
+          window_closes_after: last,
+          refund_key_published: refundViewingKey !== null,
+          note: `each complaint makes this bidder's own opening public${refundViewingKey ? ", and the refund wallet's incoming viewing key (every payment to that wallet)" : '; no viewing key was published, so the audit cannot check the payment'}; run the audit with the complaint file for the verdict`,
+        };
       }),
   );
 
