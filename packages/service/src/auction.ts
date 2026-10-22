@@ -415,3 +415,47 @@ function noSalePayouts(cfg: AuctionConfig, deposits: ClassifiedDeposit[], byComm
   payouts.push(...forfeits(cfg, deposits, byCommitment, (d) => noSaleAmount(d, settled.length)));
   return payouts;
 }
+
+/**
+ * What the seller is owed by a settlement: the winning bid (`seller` output, none with no sale) and,
+ * under the current rules, one `forfeit:<deposit>` output per settled deposit nobody revealed. Legacy
+ * sales (Sales 001 and 002, before forfeits and tagged memos) owe the winning bid only.
+ */
+export function sellerOwed(
+  deposits: ClassifiedDeposit[],
+  o: { winningBid: bigint; noSale: boolean; revealedCommitments: Set<string>; legacy: boolean },
+): { seller: bigint; forfeits: { deposit: string; zat: bigint }[] } {
+  const seller = o.noSale ? 0n : o.winningBid;
+  if (o.legacy) return { seller, forfeits: [] };
+  const settled = settledDeposits(deposits);
+  const forfeits = settled
+    .filter((d) => !o.revealedCommitments.has(d.commitment!))
+    .map((d) => ({ deposit: d.ref, zat: o.noSale ? noSaleAmount(d, settled.length) : d.value - FORFEIT_OUTPUT_FEE_ZAT }))
+    .filter((f) => f.zat > 0n);
+  return { seller, forfeits };
+}
+
+/**
+ * Checks what the seller's incoming viewing key decrypts in the settlement against `sellerOwed`.
+ * Tagged memos: the `seller` output must equal the winning bid and each forfeit must be paid under its
+ * own memo. Legacy memos (`sba1:<id>:settlement`) name nothing, so their total must equal what is owed.
+ */
+export function checkSellerPayout(auctionId: bigint, outputs: { valueZat: bigint; memo: string }[], owed: ReturnType<typeof sellerOwed>): { ok: boolean; lines: { ok: boolean; line: string }[] } {
+  const mine = outputs.map((o) => ({ ...o, tag: parsePayoutMemo(o.memo) })).filter((o) => o.tag && o.tag.auctionId === auctionId);
+  const total = (xs: { valueZat: bigint }[]) => xs.reduce((n, x) => n + x.valueZat, 0n);
+  const owedTotal = owed.seller + owed.forfeits.reduce((n, f) => n + f.zat, 0n);
+  const lines: { ok: boolean; line: string }[] = [];
+  if (mine.length > 0 && mine.every((o) => o.tag!.kind === 'legacy')) {
+    const got = total(mine);
+    lines.push({ ok: got === owedTotal, line: `seller received ${got} zat, owed ${owedTotal} (legacy settlement memos: compared in total)` });
+  } else {
+    const sellerGot = total(mine.filter((o) => o.tag!.kind === 'seller'));
+    if (owed.seller > 0n || sellerGot > 0n) lines.push({ ok: sellerGot === owed.seller, line: `seller received ${sellerGot} zat, owed ${owed.seller} (the winning bid)` });
+    for (const f of owed.forfeits) {
+      const got = total(mine.filter((o) => o.tag!.kind === 'forfeit' && o.tag!.deposit === f.deposit));
+      lines.push({ ok: got === f.zat, line: `forfeit of ${f.deposit.slice(0, 10)}: seller received ${got} zat, owed ${f.zat}` });
+    }
+    if (lines.length === 0) lines.push({ ok: true, line: 'the seller is owed nothing and received nothing' });
+  }
+  return { ok: lines.every((l) => l.ok), lines };
+}

@@ -6,13 +6,16 @@
 // close or reveal window), then scans every block from the auction's open height to that height with
 // the auction's incoming viewing key, so the deposit list comes from the chain, not from the auctioneer. Then re-applies
 // the rules, verifies the MaxBid proof and checks that it is about exactly those deposits.
-// Optional: SBA_AUDIT_UIVK=<a recipient's incoming viewing key> also shows what that key decrypts
+// Payments: the auction's key sees no settlement output, so the payouts are checked only with a
+// recipient's key. SBA_SELLER_UIVK=<the seller's incoming viewing key> checks the seller got the
+// winning bid and every forfeit; without it the run ends "chain checks pass; payments not checked",
+// never "all checks pass". SBA_AUDIT_UIVK=<any recipient's key> only prints what that key decrypts
 // in the settlement. Complaint files (from a bidder's dispute) are checked against the chain: an
 // upheld complaint is a failure that names what the auctioneer did wrong. Exit 1 if anything does
 // not match.
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSharedRefundKeys, checkTerms, memoText, parsePayoutMemo, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
+import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, checkSellerPayout, checkSharedRefundKeys, checkTerms, sellerOwed, memoText, parsePayoutMemo, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
 
 const cwd = process.env.INIT_CWD ?? process.cwd();
 const file = process.argv[2] ? resolve(cwd, process.argv[2]) : resolve(import.meta.dirname, '../../../deployments/testnet.json');
@@ -120,6 +123,21 @@ if (process.env.SBA_AUDIT_UIVK) {
   };
   console.log(`\nwith the given recipient key, the settlement pays: ${mine.outputs.map((o) => `${o.value} zat${what(memoText(o.memo))}`).join(' + ') || 'nothing'}`);
 }
+let sellerChecked = false;
+if (process.env.SBA_SELLER_UIVK) {
+  const [mine] = await decrypt(process.env.SBA_SELLER_UIVK, [run.settlement.txid]);
+  // A deposit counts as revealed when the record accepted a reveal of its commitment (the reveal log is checked above).
+  const accepted = new Set((run.reveals ?? []).filter((r: { status: string }) => r.status === 'accepted').map((r: { deposit: string }) => r.deposit));
+  const revealedCommitments = new Set(classified.filter((d) => accepted.has(d.ref) && d.commitment).map((d) => d.commitment!));
+  const owed = sellerOwed(
+    classified.filter((d) => d.height !== null && d.height <= scannedTo),
+    { winningBid: outcome.winningBid, noSale: !!outcome.noSale, revealedCommitments, legacy: terms.status === 'legacy' || !a.revealKey },
+  );
+  const r = checkSellerPayout(cfg.auctionId, mine.outputs.map((o) => ({ valueZat: BigInt(o.value), memo: memoText(o.memo) })), owed);
+  console.log(`\nthe seller's payout, read with the seller's viewing key (SBA_SELLER_UIVK)${terms.status === 'legacy' ? '; legacy sale: forfeits to the seller came later, so only the winning bid is owed' : ''}:`);
+  for (const l of r.lines) check(l.ok, l.line);
+  sellerChecked = true;
+}
 if (complaintFiles.length) {
   console.log('\ncomplaints:');
   if (!a.revealKey || typeof a.disputeBlocks !== 'number') {
@@ -171,5 +189,13 @@ if (complaintFiles.length) {
     }
   }
 }
-console.log(failures ? `\n${failures} check(s) FAILED` : '\nall checks pass');
+// "all checks pass" only when the payments were checked too; the chain alone cannot show what the settlement paid.
+const refundsChecked = complaintFiles.length > 0 && complaintFiles.some((f) => JSON.parse(readFileSync(f, 'utf8')).refundViewingKey);
+console.log(
+  failures
+    ? `\n${failures} check(s) FAILED`
+    : sellerChecked
+      ? '\nall checks pass'
+      : `\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout${refundsChecked ? " (the complaints' refunds were checked)" : ', and a complaint with a refund key to check a refund'}`,
+);
 process.exit(failures ? 1 : 0);

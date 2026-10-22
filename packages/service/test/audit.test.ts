@@ -2,7 +2,7 @@
 // scanning the auction's blocks with the published viewing key, so a deposit the auctioneer leaves
 // out of its record is caught. No deposit is sent by these tests.
 import { execFile } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { promisify } from 'node:util';
@@ -16,9 +16,14 @@ const COMPLAINTS = resolve(ROOT, 'deployments/complaints');
 const TSX = resolve(__dirname, '../node_modules/.bin/tsx');
 const AUDIT = resolve(__dirname, '../src/audit.ts');
 
+// The seller's incoming viewing key, from the gitignored demo state (local runs only; never printed).
+const STATE = resolve(ROOT, '.demo/reveal-run-state.json');
+const sellerUivk: string | undefined = existsSync(STATE) ? JSON.parse(readFileSync(STATE, 'utf8')).uivks?.seller : undefined;
+let env: Record<string, string> = {};
+
 async function audit(file: string, ...complaints: string[]): Promise<{ code: number; out: string }> {
   try {
-    const { stdout } = await run(TSX, [AUDIT, file, ...complaints], { timeout: 300_000, maxBuffer: 8 * 1024 * 1024 });
+    const { stdout } = await run(TSX, [AUDIT, file, ...complaints], { timeout: 1_000_000, maxBuffer: 8 * 1024 * 1024, env: { ...process.env, ...env } });
     return { code: 0, out: stdout };
   } catch (e) {
     const err = e as { code?: number; stdout?: string; stderr?: string };
@@ -43,7 +48,9 @@ describe('audit (live testnet)', () => {
     // Sale 001's id hashes only its name: the audit says its terms are read from the record.
     expect(r.out).toContain('! terms: legacy: the auction id hashes only its name');
     expect(r.out).toMatch(/7 transaction\(s\) pay the auction/);
-    expect(r.out).toMatch(/all checks pass/);
+    // The chain cannot show what the settlement paid: without a recipient key the run says so.
+    expect(r.out).toContain("\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund");
+    expect(r.out).not.toMatch(/all checks pass/);
     expect(r.code).toBe(0);
   }, 300_000);
 
@@ -92,7 +99,7 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     expect(r.out).toMatch(/✓ reveals_listed: 5 reveal note\(s\) on chain, 5 in the record/);
     expect(r.out).toMatch(/✓ reveal_status/);
     expect(r.out).toMatch(/note: deposit \w+ is unrevealed and no reveal note names it/);
-    expect(r.out).toMatch(/all checks pass/);
+    expect(r.out).toMatch(/chain checks pass; payments not checked/);
     expect(r.code).toBe(0);
   }, 300_000);
 
@@ -112,6 +119,36 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     const relabelled = await withRecord({ ...rec, reveals: rec.reveals.map((v: { status: string }) => (v.status === 'late' ? { ...v, status: 'tampered' } : v)) });
     expect(relabelled.out).toMatch(/✗ reveal_status: \w+ is late \(mined at \d+, after the reveal window closed at \d+\) but the record says tampered/);
     expect(relabelled.code).toBe(1);
+  }, 600_000);
+
+  it('a record naming an unrelated transaction as its settlement, with no complaint and no seller key, no longer ends "all checks pass": payments not checked', async () => {
+    const rec = rec2();
+    // A public testnet transaction from another project (zec-null-402 pass 2), mined after the window, that does not pay the auction:
+    // every chain check passes on it, which is why the chain alone cannot say the settlement paid anyone.
+    const unrelated = { txid: '90f70d6a79edafb8ec5fb4f0c845aab0af9b56a90b3d51d01800c11783c6c9d4', height: 4529569 };
+    const r = await withRecord({ ...rec, settlement: { ...rec.settlement, ...unrelated } });
+    expect(r.out).toContain(`✓ settlement 90f70d6a79 is mined at block 4529569, as the record says, after the reveal window (block ${rec.auction.revealCloseHeight})`);
+    expect(r.out).toContain('✓ the auction key sees no outputs of the settlement');
+    expect(r.out).not.toMatch(/all checks pass/);
+    expect(r.out).toContain("\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout");
+    expect(r.code).toBe(0);
+  }, 1_200_000); // scans about 3,100 blocks (to the unrelated transaction's height): several minutes
+
+  it.skipIf(!sellerUivk)("with the seller's viewing key (local demo state): the real settlement paid the winning bid; a swapped settlement fails 'seller received 0 zat, owed 135000'", async () => {
+    const rec = rec2();
+    env = { SBA_SELLER_UIVK: sellerUivk! };
+    try {
+      const honest = await audit(RECORD2);
+      expect(honest.out).toContain('✓ seller received 135000 zat, owed 135000 (legacy settlement memos: compared in total)');
+      expect(honest.out).toMatch(/\nall checks pass\n/);
+      expect(honest.code).toBe(0);
+      const other = rec.reveals.find((v: { status: string }) => v.status === 'late');
+      const swapped = await withRecord({ ...rec, settlement: { ...rec.settlement, txid: other.txid, height: other.height } });
+      expect(swapped.out).toContain('✗ seller received 0 zat, owed 135000 (the winning bid)');
+      expect(swapped.code).toBe(1);
+    } finally {
+      env = {};
+    }
   }, 600_000);
 
   it("a note mined after the auctioneer's scan (scannedTo) is reported, not failed: anyone can pay the auction between the scan and the settlement", async () => {

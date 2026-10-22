@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { checkResult, commitment, emptyCommitment, inputs, prove, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkSellerPayout, sellerOwed, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -357,5 +357,31 @@ describe('auction terms bound to the id', () => {
     ]);
     expect(await verify(o.publicSignals, o.proof)).toBe(true);
     expect(readPublic(o.publicSignals).auctionId).toBe(id);
+  });
+});
+
+describe("the seller's payout (what SBA_SELLER_UIVK lets the audit check)", () => {
+  it('owed: the winning bid plus one forfeit per unrevealed deposit; a missing or short output fails, a legacy sale owes the bid only', async () => {
+    const deposits = classifyDeposits(cfg, [await dep('f1', 10, 1_200_000n, 1n), await dep('f2', 11, 900_000n, 2n), { txid: 'mm', height: 12, value: cfg.depositZat, memo: 'not a bid' }]);
+    const revealedCommitments = new Set([deposits[0].commitment!]);
+    const owed = sellerOwed(deposits, { winningBid: 1_200_000n, noSale: false, revealedCommitments, legacy: false });
+    expect(owed).toEqual({ seller: 1_200_000n, forfeits: [{ deposit: 'f2', zat: cfg.depositZat - OUTPUT_FEE_ZAT }] });
+    const id = cfg.auctionId;
+    const paid = [{ valueZat: 1_200_000n, memo: `sba1:${id}:seller` }];
+    // Payout memos name real deposits (64-hex txids), so the payment checks use real-shaped names.
+    const T = (c: string) => c.repeat(64);
+    const real = classifyDeposits(cfg, [{ ...(await dep(T('a'), 10, 1_200_000n, 1n)) }, { ...(await dep(T('b'), 11, 900_000n, 2n)) }]);
+    const owedReal = sellerOwed(real, { winningBid: 1_200_000n, noSale: false, revealedCommitments: new Set([real[0].commitment!]), legacy: false });
+    const ok = checkSellerPayout(id, [paid[0], { valueZat: cfg.depositZat - OUTPUT_FEE_ZAT, memo: `sba1:${id}:forfeit:${T('b')}` }], owedReal);
+    expect(ok).toEqual({ ok: true, lines: [{ ok: true, line: 'seller received 1200000 zat, owed 1200000 (the winning bid)' }, { ok: true, line: `forfeit of bbbbbbbbbb: seller received ${cfg.depositZat - OUTPUT_FEE_ZAT} zat, owed ${cfg.depositZat - OUTPUT_FEE_ZAT}` }] });
+    // Never paid (another transaction named as the settlement): nothing decrypts.
+    expect(checkSellerPayout(id, [], owedReal)).toMatchObject({ ok: false, lines: [{ ok: false, line: 'seller received 0 zat, owed 1200000 (the winning bid)' }, { ok: false }] });
+    // The forfeit kept by the auctioneer.
+    expect(checkSellerPayout(id, [paid[0]], owedReal).lines[1]).toEqual({ ok: false, line: 'forfeit of bbbbbbbbbb: seller received 0 zat, owed 1995000' });
+    // Legacy memos are compared in total; a legacy sale owes only the winning bid.
+    const legacy = sellerOwed(real, { winningBid: 135_000n, noSale: false, revealedCommitments: new Set(), legacy: true });
+    expect(checkSellerPayout(id, [{ valueZat: 135_000n, memo: `sba1:${id}:settlement` }], legacy)).toEqual({ ok: true, lines: [{ ok: true, line: 'seller received 135000 zat, owed 135000 (legacy settlement memos: compared in total)' }] });
+    // With no sale the seller is owed only the forfeits.
+    expect(sellerOwed(real, { winningBid: 0n, noSale: true, revealedCommitments: new Set([real[0].commitment!]), legacy: false })).toEqual({ seller: 0n, forfeits: [{ deposit: T('b'), zat: cfg.depositZat - OUTPUT_FEE_ZAT }] });
   });
 });
