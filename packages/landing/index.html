@@ -394,13 +394,13 @@
             </div>
             <div class="prov-side">
               <p><b>Check it without trusting anyone's list.</b> The audit scans blocks 4,522,258 to 4,522,291 with the auction's incoming viewing key, re-applies the rules to what the chain shows, verifies the proof and ties it to those deposits.</p>
-              <pre class="term" aria-label="Audit output, recorded 21 Oct 2026"><span class="c">$ pnpm --filter @sba/service audit</span>
-<span class="d">[ 2 lines omitted ]</span>
-blocks 4522258-4522291 scanned with the auction incoming viewing key: 7 transaction(s) pay the auction
+              <pre class="term" aria-label="Audit output, recorded 22 Oct 2026"><span class="c">$ pnpm --filter @sba/service run audit</span>
+<span class="d">[ 6 lines omitted ]</span>
+blocks 4522258-4522291 scanned with the auction incoming viewing key: 7 transaction(s) pay the auction, 7 of their payments are deposits
 <span class="d">[ 7 deposit lines omitted ]</span>
 ✓ every deposit on chain is in the published list
 ✓ every listed deposit is on chain in the window
-<span class="d">[ 11 lines omitted: the 7 rule checks ]</span>
+<span class="d">[ 13 lines omitted: the 7 rule checks and the reveal line ]</span>
 ✓ proof: the Groth16 proof verifies with the MaxBid verification key
 <span class="d">[ 2 lines omitted ]</span>
 ✓ slots: slots 0-2 are the 3 revealed valid deposits in chain order; slots 3-7 are empty
@@ -410,7 +410,7 @@ blocks 4522258-4522291 scanned with the auction incoming viewing key: 7 transact
 <span class="d">[ 1 line omitted ]</span>
 
 all checks pass</pre>
-              <p style="margin-top:14px">Lines copied unchanged from a real run on 21 Oct 2026; omitted lines are marked. <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>.</p>
+              <p style="margin-top:14px">Lines copied unchanged from a real run on 22 Oct 2026; omitted lines are marked. <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>.</p>
             </div>
           </div>
         </div>
