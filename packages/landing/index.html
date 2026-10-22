@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fuin · Sale 002, sealed bids on Zcash</title>
-    <meta name="description" content="Fuin runs sealed-bid auctions on Zcash. Every bid is an equal shielded deposit with a commitment in its memo, and a Groth16 proof opens only the winning bid. Sale 002, bid and revealed by three MCP agents, settled on Zcash testnet." />
+    <meta name="description" content="Fuin runs sealed-bid auctions on Zcash. Every bid is an equal shielded deposit with a commitment in its memo, and a Groth16 proof opens only the winning bid. Sale 002 was bid and revealed through MCP by three separate sba-mcp bidder processes, each driven by the reveal-run script, and settled on Zcash testnet." />
     <meta name="theme-color" content="#fbe9ec" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233a0a14'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ff5a5f'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='none' stroke='%233a0a14' stroke-width='1.6'/%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -252,7 +252,7 @@
       <div class="wrap">
         <div class="mast-top eyebrow">
           <span>Sale 002 · Zcash testnet</span>
-          <span class="hide-sm">Sealed bids · reveals by shielded memo · agent bidders over MCP</span>
+          <span class="hide-sm">Sealed bids · reveals by shielded memo · bidder tools over MCP</span>
           <span>Settled 21 Oct 2026</span>
         </div>
         <div class="mast-main">
@@ -274,8 +274,8 @@
         <div class="wrap cover-grid">
           <div>
             <div class="lotno"><b>SALE 002</b><span class="eyebrow">fuin-reveal-2026-10-21T18:43</span></div>
-            <h1 id="title">Three agents bid. One envelope opens.</h1>
-            <p class="lede">Every bid is the <b>same shielded Zcash deposit</b>, with a commitment to the bid in its memo. Each bidder was its own <b>MCP agent</b> with its own wallet, and revealed through the chain in a sealed memo. A zero-knowledge proof opens <b>only the winning bid</b>; the losing bids are never published. Only the auctioneer reads them.</p>
+            <h1 id="title">Three sealed bids. One envelope opens.</h1>
+            <p class="lede">Every bid is the <b>same shielded Zcash deposit</b>, with a commitment to the bid in its memo. Each bidder was a separate <b><code>sba-mcp</code> server process</b> with only its own wallet, driven over MCP by the <code>reveal-run</code> script (no language model chose a bid), and revealed through the chain in a sealed memo. A zero-knowledge proof opens <b>only the winning bid</b>; a losing bid is never published unless its bidder files a complaint, which publishes its own bid. Only the auctioneer reads them.</p>
             <dl class="facts">
               <div><dt>Deposit per bid</dt><i></i><dd>0.002 TAZ</dd></div>
               <div><dt>Reserve</dt><i></i><dd>0.0005 TAZ</dd></div>
@@ -406,8 +406,8 @@
       <section class="sec" id="reveals" aria-labelledby="reveals-title">
         <div class="wrap">
           <div class="sec-head">
-            <span class="eyebrow">Reveals and agents</span>
-            <div><h2 id="reveals-title">Opened by sealed memo, sent by agents</h2><p>After the close, each bidder sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the auction's reveal key. The public key sees which deposit a note opens and when, never what it says.</p></div>
+            <span class="eyebrow">Reveals and MCP bidders</span>
+            <div><h2 id="reveals-title">Opened by sealed memo, sent through MCP</h2><p>After the close, each bidder sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the auction's reveal key. The public key sees which deposit a note opens and when, never what it says.</p></div>
           </div>
           <div class="prov">
             <div class="ledger" role="table" aria-label="Reveal notes on chain">
@@ -419,8 +419,8 @@
               <div class="rv"><span class="rv-b">4,526,489</span><span class="rv-n"><a href="https://testnet.zcashexplorer.app/transactions/64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a">64de2707… ↗</a><small>bidder1's reveal re-sent after the window</small></span><span class="rv-d">opens b7511ee8…</span><span class="st st-bad">late</span></div>
             </div>
             <div class="prov-side">
-              <p><b>Agent bidding via MCP.</b> Each bidder was its own <code>sba-mcp</code> process, with only its own wallet and openings folder. It called <code>bid</code>, then <code>reveal</code>, through the MCP tools. The auctioneer never read a bidder's files: it learned every opening by scanning the chain and decrypting the reveal notes.</p>
-              <p><b>What the tools refuse.</b> <code>bid</code> refuses a closed auction, a card whose id does not hash its terms, a ninth valid bid and a refund address too long to reveal, and saves the opening before it sends. <code>reveal</code> refuses outside the window. <code>verify_result</code> re-checks the proof against the deposits on chain.</p>
+              <p><b>Bidding through MCP.</b> Each bidder was its own <code>sba-mcp</code> server process, with only its own wallet and openings folder. The <code>reveal-run</code> script drove each one over MCP: it called <code>bid</code>, then <code>reveal</code>, with amounts the script sets. No language model chose a bid. The auctioneer never read a bidder's files: it learned every opening by scanning the chain and decrypting the reveal notes.</p>
+              <p><b>What the tools refuse.</b> <code>bid</code> refuses a closed auction, a card whose id does not hash its terms and a refund address too long to reveal, warns when 8 valid deposits are already on chain, and saves the opening before it sends. <code>reveal</code> refuses outside the window. <code>verify_result</code> re-checks the proof against the deposits on chain.</p>
               <p><b>The dispute.</b> The winner, bidder2, filed a complaint with <code>complain</code>, anchored at <a href="https://testnet.zcashexplorer.app/transactions/f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb">f17193d5… ↗</a> (block 4,526,500). The audit calls it unfounded: its reveal was honoured and it was paid in full, 5,000 of 5,000 zat. It also carries the incoming viewing key of bidder2's whole demo wallet. Complaints now publish no key unless the bidder opts in with a refunds-only wallet.</p>
             </div>
           </div>
@@ -437,11 +437,12 @@
             <li><p><b>Bound terms.</b> The auction id is a hash of every term on the card: close, reveal window, reserve, deposit, keys and seller. Every deposit memo and the proof carry it, so no term can change after the bids. Sales 001 and 002 predate this; the audit flags them as legacy.</p></li>
             <li><p><b>Commit.</b> A bidder picks a bid and a random 248-bit salt and computes <code>Poseidon(auction, bid, salt)</code>.</p></li>
             <li><p><b>Deposit.</b> It sends exactly the auction's deposit to the auction address, shielded, with memo <code>sba1:&lt;auction&gt;:&lt;commitment&gt;</code>. All deposits are equal, so the amount says nothing.</p></li>
-            <li><p><b>Close.</b> Deposits mined after the close height are late. A copied commitment is a duplicate; a wrong amount or a non-bid memo is not a bid. Only the first 8 valid deposits compete (the proof has 8 slots); later ones are refunded if revealed.</p></li>
+            <li><p><b>Close.</b> Deposits mined after the close height are late. A copied commitment is a duplicate; a wrong amount or a non-bid memo is not a bid. Only the first 8 revealed valid deposits compete (the proof has 8 slots); a deposit nobody reveals takes no slot, and later revealed ones are refunded.</p></li>
             <li><p><b>Reveal.</b> After the close, each bidder sends a 1-zat shielded note to the auction address. Its memo is the bid, salt and refund address sealed to the auction's reveal key, so the public viewing key shows only which deposit it opens and when. A reveal outside the window, one that does not decrypt, or one whose opening does not match the deposit it names is refused.</p></li>
             <li><p><b>Prove.</b> The <code>MaxBid(8)</code> Groth16 proof shows the opened slot holds the highest bid and meets the reserve. Slots run in chain order, so the earlier deposit wins a tie; within one block that is the lower txid. Every other bid stays private.</p></li>
-            <li><p><b>Tie it to the chain.</b> The proof's slots must be the valid deposits in chain order, any unused slot must be empty, and the winner must be a real deposit. A valid deposit left out has to be listed as unrevealed.</p></li>
-            <li><p><b>Settle.</b> One shielded transaction pays the seller the winning bid and refunds every other revealed deposit in full. The winner gets its deposit back minus the bid and a 60,000 zat fee budget. An unrevealed deposit goes to the seller, not the auctioneer.</p></li>
+            <li><p><b>Tie it to the chain.</b> The proof's slots must be the first 8 revealed valid deposits in chain order, any unused slot must be empty, and the winner must be a real deposit. A valid deposit left out has to be listed as unrevealed.</p></li>
+            <li><p><b>Settle.</b> One shielded transaction pays the seller the winning bid and refunds every losing bid in full; any other revealed deposit (late, duplicate, wrong amount, over capacity) comes back minus its own 5,000 zat output fee. The winner gets its deposit back minus the bid and a 60,000 zat fee budget. An unrevealed deposit goes to the seller, not the auctioneer.</p></li>
+            <li><p><b>No sale.</b> If nothing valid is revealed, or the highest revealed bid is below the reserve, there is no sale: every revealed deposit is refunded minus its output fee and unrevealed ones go to the seller. A proof with reserve 0 shows the highest bid, and the audit checks it is below the reserve.</p></li>
             <li><p><b>Dispute.</b> For a set number of blocks after the settlement, a bidder whose valid reveal was ignored, or who was underpaid, can file a signed complaint anchored on chain. The audit checks it against the chain and names the failure. Filing one makes that bidder's own bid public.</p></li>
           </ol>
         </div>
@@ -501,8 +502,8 @@ complaints:
   complaint 2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json unfounded: reveal 07ec9dcd08 (block 4526464) was honoured; legacy settlement memos do not say which deposit an output pays: the refund key received 5000 zat in settlement e84de386e2, this opening is owed 5000; the audit sums every complaint with this key
   refund key of 2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json: paid in full: the refund address received 5000 zat in settlement e84de386e2, owed 5000 across complaint 2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json (legacy settlement memos: summed per refund key)
 
-all checks pass</pre>
-              <p style="margin-top:14px">Lines copied unchanged from a real run on 22 Oct 2026; omitted lines are marked. <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>.</p>
+chain checks pass; payments partly checked: the complaints' refunds were checked, the seller's payout needs the seller's incoming viewing key (SBA_SELLER_UIVK)</pre>
+              <p style="margin-top:14px">Lines copied unchanged from a real run on 23 Oct 2026; omitted lines are marked. <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Protocol and threat model</a>.</p>
             </div>
           </div>
         </div>
@@ -613,10 +614,12 @@ all checks pass</pre>
             <div><h2 id="report-title">What Fuin does not do</h2><p>Read this before you bid.</p></div>
           </div>
           <div class="report">
-            <div><h3>The auctioneer learns every bid</h3><p>It decrypts each opening at the reveal and is trusted to settle. It cannot prove a winner the bids do not support, or leave a deposit or a reveal note out of its record without failing the audit. Both sales here predate bound terms, so their close and reveal window come from the record: an auctioneer could have moved them. Nothing forces it to settle.</p></div>
+            <div><h3>The auctioneer learns every bid</h3><p>It decrypts each opening at the reveal and is trusted to settle. It cannot prove a winner the bids do not support, or leave a deposit or a reveal note out of its record without failing the audit. The converse needs care: anyone can pay the auction address after the auctioneer's scan, so a record says how far it scanned and the audit reports later notes, which are late and cannot change the outcome, instead of failing. Both sales here predate bound terms, so their close and reveal window come from the record: an auctioneer could have moved them. Nothing forces it to settle.</p></div>
             <div><h3>Reveals cost a transaction</h3><p>Each bidder sends one more shielded note (about 10,000 zat in fees), and the public key shows which deposits were revealed and when. Sale 001 predates the reveal channel: one script held every opening.</p></div>
             <div><h3>Complaints publish</h3><p>Filing one makes that bidder's bid public. Adding a refund key makes every payment to that refund wallet readable: Sale 002's complaint carries the winner's whole demo-wallet key.</p></div>
-            <div><h3>Single-party trusted setup</h3><p>Whoever ran the Groth16 setup could forge proofs. A multi-party ceremony would remove that trust.</p></div>
+            <div><h3>Single-party trusted setup</h3><p>Whoever ran the Groth16 setup could forge proofs. A multi-party ceremony with outside contributors would remove that trust; none has been run.</p></div>
+            <div><h3>The audit trusts its lightwalletd</h3><p>The completeness check reads blocks and heights from one lightwalletd (testnet.zec.rocks by default). A server that hid a transaction would mislead it; run the audit against a second server, or your own node, to compare.</p></div>
+            <div><h3>Payments need a recipient key</h3><p>The auction's key sees none of the settlement's outputs. Without the seller's viewing key, or a complaint carrying a refund key, the audit ends <i>chain checks pass; payments not checked</i>, not <i>all checks pass</i>.</p></div>
             <div><h3>Ties go to the lower txid</h3><p>Within one block the earlier slot is the lexically lower txid, not the transaction mined first, so a bidder could grind its txid to win a same-block tie.</p></div>
             <div><h3>Testnet only, and not the first</h3><p>Sealed-bid auctions with zero-knowledge proofs have prior art; what Fuin adds is listed above.</p></div>
           </div>

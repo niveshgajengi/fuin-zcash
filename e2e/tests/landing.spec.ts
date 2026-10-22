@@ -59,12 +59,13 @@ async function ledgerMatches(page: Page, ledger: string, rec: typeof sale1) {
 }
 
 test.describe('landing', () => {
-  test('the cover is Sale 002, bid by MCP agents, with the record’s numbers; no horizontal scroll', async ({ page }, info) => {
+  test('the cover is Sale 002, bid through MCP by script-driven sba-mcp processes, with the record’s numbers; no horizontal scroll', async ({ page }, info) => {
     await page.goto(LANDING);
     await expect(page).toHaveTitle('Fuin · Sale 002, sealed bids on Zcash');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Three agents bid. One envelope opens.');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Three sealed bids. One envelope opens.');
     await expect(page.locator('.cover .lotno')).toContainText(`SALE 002${sale2.auction.name}`);
-    await expect(page.locator('.cover .lede')).toContainText('Each bidder was its own MCP agent with its own wallet');
+    await expect(page.locator('.cover .lede')).toContainText('Each bidder was a separate sba-mcp server process with only its own wallet, driven over MCP by the reveal-run script (no language model chose a bid)');
+    await expect(page.locator('.cover .lede')).toContainText('a losing bid is never published unless its bidder files a complaint, which publishes its own bid');
     await expect(page.locator('.cover .lede')).toContainText('Only the auctioneer reads them.');
     const facts = page.locator('.cover .facts');
     await expect(facts).toContainText(tazOf(sale2.auction.depositZat));
@@ -185,7 +186,7 @@ test.describe('landing', () => {
     await page.locator('#lots').screenshot({ path: info.outputPath(`landing-lots-${info.project.name}.png`) });
   });
 
-  test('reveals and agents: every reveal note with its block, deposit and status; MCP tools; the anchored complaint', async ({ page }, info) => {
+  test('reveals and MCP bidders: every reveal note with its block, deposit and status; MCP tools; the anchored complaint', async ({ page }, info) => {
     await page.goto(LANDING + '#reveals');
     const sec = page.locator('#reveals');
     const rows = sec.getByRole('table', { name: 'Reveal notes on chain' }).locator('.rv');
@@ -205,6 +206,7 @@ test.describe('landing', () => {
     await expect(sec.getByRole('link', { name: `${c.anchor.txid.slice(0, 8)}… ↗` })).toHaveAttribute('href', EXPLORER + c.anchor.txid);
     await expect(sec).toContainText(`block ${fmt(c.anchor.height)}`);
     await expect(sec).toContainText("whole demo wallet");
+    await expect(sec).toContainText('The reveal-run script drove each one over MCP');
     await noHorizontalScroll(page);
     await sec.screenshot({ path: info.outputPath(`landing-reveals-${info.project.name}.png`) });
   });
@@ -216,7 +218,8 @@ test.describe('landing', () => {
     await expect(head.getByRole('link')).toHaveAttribute('href', EXPLORER + sale2.settlement.txid);
     await ledgerMatches(page, '#provenance .ledger', sale2);
     const term = page.getByLabel(/Audit output/);
-    await expect(term).toContainText('all checks pass');
+    await expect(term).toContainText('chain checks pass; payments partly checked');
+    await expect(term).not.toContainText('all checks pass');
     await expect(term).toContainText(`winning bid ${sale2.outcome.winningBidZat} zat`);
     await expect(term).toContainText('! terms: legacy');
     await expect(page.getByRole('link', { name: 'Protocol and threat model' })).toHaveAttribute('href', `${REPO}/tree/main/packages/docs`);
@@ -240,17 +243,21 @@ test.describe('landing', () => {
   test('conditions of sale and condition report: bound terms, reveal channel, capacity, ties by txid, forfeits to the seller, disputes', async ({ page }) => {
     await page.goto(LANDING + '#conditions');
     const conds = page.locator('#conditions');
-    await expect(conds.locator('.conds li')).toHaveCount(9);
+    await expect(conds.locator('.conds li')).toHaveCount(10);
     for (const text of [
       'The auction id is a hash of every term on the card',
       "sealed to the auction's reveal key",
-      'Only the first 8 valid deposits compete',
+      'Only the first 8 revealed valid deposits compete',
+      'a deposit nobody reveals takes no slot',
+      'minus its own 5,000 zat output fee',
+      'If nothing valid is revealed, or the highest revealed bid is below the reserve, there is no sale',
       'within one block that is the lower txid',
       'An unrevealed deposit goes to the seller, not the auctioneer',
       'signed complaint anchored on chain',
     ])
       await expect(conds).toContainText(text);
-    await expect(page.locator('#report h3')).toHaveText(['The auctioneer learns every bid', 'Reveals cost a transaction', 'Complaints publish', 'Single-party trusted setup', 'Ties go to the lower txid', 'Testnet only, and not the first']);
+    await expect(page.locator('#report h3')).toHaveText(['The auctioneer learns every bid', 'Reveals cost a transaction', 'Complaints publish', 'Single-party trusted setup', 'The audit trusts its lightwalletd', 'Payments need a recipient key', 'Ties go to the lower txid', 'Testnet only, and not the first']);
+    await expect(page.locator('#report')).toContainText('anyone can pay the auction address after the auctioneer');
     await expect(page.locator('#report')).toContainText('Both sales here predate bound terms');
   });
 
@@ -331,6 +338,15 @@ test.describe('landing', () => {
     }
   });
 
+  test('no overclaimed agents: every use of "agent" on the page names the scripted MCP driver', async ({ page }) => {
+    await page.goto(LANDING);
+    const text = await page.locator('body').innerText();
+    expect(text).not.toMatch(/\bagents? bid|MCP agents?\b|independent agents?/i);
+    const html = await page.content();
+    expect(html).not.toContain('three MCP agents');
+    expect(text).toContain('No language model chose a bid.');
+  });
+
   test('footer links point at the repository, record, docs, tests and the saleroom', async ({ page }) => {
     await page.goto(LANDING);
     const foot = page.getByRole('contentinfo').getByRole('navigation', { name: 'Links' });
@@ -353,7 +369,7 @@ test.describe('landing', () => {
     const { stdout } = await promisify(execFile)('pnpm', cmd.split(' ').slice(2), { cwd: root, timeout: 280_000, maxBuffer: 8 << 20 });
     const live = stdout.split('\n');
     for (const l of shown) expect(live, `landing line not in the live audit: ${l}`).toContain(l);
-    expect(live).toContain('all checks pass');
+    expect(live).toContain("chain checks pass; payments partly checked: the complaints' refunds were checked, the seller's payout needs the seller's incoming viewing key (SBA_SELLER_UIVK)");
   });
 
   test('audit without the verifier binary says "Setup required" and fails (no fake pass)', async () => {

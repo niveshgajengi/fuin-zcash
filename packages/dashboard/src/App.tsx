@@ -532,7 +532,7 @@ function RevealChannel({ sale }: { sale: Sale }) {
         </div>
       </div>
       <p className="block-sub">
-        <code>{sale.r.auction.name}</code>. Three agent bidders, each its own <code>sba-mcp</code> process with only its own wallet, bid and revealed through the MCP tools. After the
+        <code>{sale.r.auction.name}</code>. Three bidders, each its own <code>sba-mcp</code> server process with only its own wallet, bid and revealed through the MCP tools, driven by the <code>reveal-run</code> script (no language model chose a bid). After the
         close, each sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the auction&apos;s reveal key. The public viewing key sees only which
         deposit a reveal names and when. The auctioneer read the openings from the chain, never from the bidders. Hammer price {taz(sale.r.outcome.winningBidZat)}.
       </p>
@@ -655,7 +655,7 @@ export function App() {
                 </h1>
                 <p className="sale-lede">
                   {sale.id === '002'
-                    ? `${proven.length} revealed sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit, placed by three agents through their own sba-mcp servers. The proof opened the highest one; the other ${proven.length - 1} are never published.`
+                    ? `${proven.length} revealed sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit, placed through three separate sba-mcp servers driven by the reveal-run script. The proof opened the highest one; the other ${proven.length - 1} are never published.`
                     : `${proven.length} sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit. The proof opened the highest one; the other ${proven.length - 1} are never published.`}
                 </p>
               </div>

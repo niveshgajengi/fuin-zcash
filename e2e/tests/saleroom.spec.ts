@@ -67,7 +67,7 @@ test.describe('saleroom', () => {
       await expect(page.locator('.sale-meta')).toContainText(`SALE ${s.id}`);
       await expect(page.locator('.sale-meta code')).toHaveText(s.rec.auction.name);
       await expect(page.locator('.sale-lede')).toContainText(`${proven.length} ${s.id === '002' ? 'revealed sealed bids' : 'sealed bids'}, each an equal ${taz(s.rec.auction.depositZat)}`);
-      if (s.id === '002') await expect(page.locator('.sale-lede')).toContainText('three agents through their own sba-mcp servers');
+      if (s.id === '002') await expect(page.locator('.sale-lede')).toContainText('placed through three separate sba-mcp servers driven by the reveal-run script');
       const tl = page.getByRole('list', { name: 'Auction timeline' }).locator('li');
       const bt = s.rec.blockTimes as { open: { height: number; time: number }; close: { height: number; time: number }; revealClose?: { height: number; time: number }; settlement: { height: number; time: number } };
       const rows = [['Open', bt.open], ['Close', bt.close], ...(bt.revealClose ? [['Reveals close', bt.revealClose]] : []), ['Hammer', bt.settlement]] as [string, { height: number; time: number }][];
@@ -199,7 +199,7 @@ test.describe('saleroom', () => {
     const sec = page.locator('section[aria-labelledby=sale2-title]');
     await expect(sec.getByRole('heading', { name: 'Bids opened by sealed memo' })).toBeVisible();
     await expect(sec.locator('.block-sub code').first()).toHaveText(sale2.auction.name);
-    await expect(sec).toContainText('Three agent bidders, each its own sba-mcp process with only its own wallet, bid and revealed through the MCP tools.');
+    await expect(sec).toContainText('Three bidders, each its own sba-mcp server process with only its own wallet, bid and revealed through the MCP tools, driven by the reveal-run script (no language model chose a bid).');
     await expect(sec).toContainText(`Hammer price ${taz(sale2.outcome.winningBidZat)}`);
     const rows = sec.getByRole('table', { name: 'Reveal notes on chain' }).locator('.reveal-row:not(.ledger-head)');
     await expect(rows).toHaveCount(sale2.reveals.length);
@@ -248,7 +248,9 @@ test.describe('saleroom', () => {
     expect(m, verdict).not.toBeNull();
     expect(stdout).toContain(`${m[1]}: ${m[2]}`);
     expect(stdout).toContain(m[3]);
-    expect(stdout).toContain('all checks pass');
+    // The complaint's refund key checks its refund; the seller's payout needs the seller's key, so the run does not claim "all checks pass".
+    expect(stdout).toContain("\nchain checks pass; payments partly checked: the complaints' refunds were checked, the seller's payout needs the seller's incoming viewing key (SBA_SELLER_UIVK)");
+    expect(stdout).not.toContain('all checks pass');
     await card.screenshot({ path: info.outputPath(`saleroom-complaint-${info.project.name}.png`) });
   });
 
