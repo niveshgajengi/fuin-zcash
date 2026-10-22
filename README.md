@@ -131,6 +131,7 @@ pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
 pnpm test                      # verifier 6 (Rust) + circuits 10 + service 28 + mcp 8 = 52 (service audit and mcp read live testnet)
 pnpm --filter @sba/dashboard dev
+pnpm test:e2e                  # Playwright in Google Chrome over the landing and the saleroom (46 tests; see TESTING.md)
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
 pnpm --filter @sba/mcp reveal-run
 # re-check a published auction from the chain with only its incoming viewing key (and any complaint files)

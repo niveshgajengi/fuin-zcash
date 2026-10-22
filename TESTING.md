@@ -64,3 +64,18 @@ In the dashboard, all four in-tab checks pass on the record (vk sha256 matches, 
 slots are exactly the deposits, winner is a deposit). "Claim 1 zat more" fails the proof check.
 "Slip in a phantom bid" fails both the proof and the slot check. The lot filters work. There were no
 console errors. Screenshots: `grokbot/shots/fuin/`.
+
+## End-to-end in Google Chrome (`pnpm test:e2e`)
+
+`e2e/` is a Playwright suite run in the installed Google Chrome (`channel: 'chrome'`) at 1280×800 and
+375×812, with video, trace and screenshots. `e2e/stack.sh` builds the saleroom, serves it (`vite
+preview`, 127.0.0.1:4178) and the landing (127.0.0.1:4180), and stops both by PID afterwards. Every test
+fails on a console error, an uncaught exception or a failed same-origin request.
+
+| Spec | Tests per viewport | What it covers |
+|---|---|---|
+| `landing.spec.ts` | 12 | record numbers, clock, envelope reveal and reduced motion, anchors and skip link, lot cards vs `testnet.json`, provenance ledger, conditions, controls labelled log, footer, the audit log on the page vs a live `run audit`, Setup required without `sba-verify` |
+| `saleroom.spec.ts` | 11 | header, timeline and clock, verify (vk hash, proof, slots, winner), both tamper buttons, filters, lot cards, provenance, Sale 002 reveal notes, viewing-key disclosure, controls labelled log, reduced motion, missing or altered verification key |
+
+Run on 22 Oct 2026: desktop 23 passed, mobile 23 passed, 0 failed (46 in 1.2 min). The landing's
+audit-log test re-reads Sale 001 from live testnet through lightwalletd each run.
