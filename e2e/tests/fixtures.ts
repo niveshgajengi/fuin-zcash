@@ -4,7 +4,7 @@ import { test as base, expect, type Page } from '@playwright/test';
 
 export const LANDING = process.env.FUIN_LANDING ?? 'http://127.0.0.1:4180/';
 export const SALEROOM = process.env.FUIN_SALEROOM ?? 'http://127.0.0.1:4178/';
-const root = resolve(import.meta.dirname, '../..');
+export const root = resolve(import.meta.dirname, '../..');
 export const sale1 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet.json'), 'utf8'));
 export const sale2 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet-reveal.json'), 'utf8'));
 export const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';

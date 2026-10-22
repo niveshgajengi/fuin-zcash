@@ -1,7 +1,8 @@
 import { execFile } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
-import { EXPLORER, LANDING, REPO, expect, fmt, inView, isMobile, noHorizontalScroll, sale1, test } from './fixtures';
+import { EXPLORER, LANDING, REPO, expect, fmt, inView, isMobile, noHorizontalScroll, root, sale1, test } from './fixtures';
 
 const valid = sale1.deposits.filter((d: { status: string }) => d.status === 'valid');
 const winner = valid[sale1.outcome.winnerSlot];
@@ -186,6 +187,49 @@ test.describe('landing', () => {
       }
     }
     if (!isMobile(info.project.name)) expect(names).toContain('Provenance');
+  });
+
+  test('the saleroom has a route from the landing: a section that says how to run it locally', async ({ page }, info) => {
+    await page.goto(LANDING);
+    // desktop: the masthead; phone (masthead keeps only "Code"): the colophon
+    const link = isMobile(info.project.name)
+      ? page.getByRole('contentinfo').getByRole('navigation', { name: 'Links' }).getByRole('link', { name: 'Saleroom' })
+      : page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Saleroom', exact: true });
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/#saleroom$/);
+    await inView(page, '#saleroom h2');
+    const sec = page.locator('#saleroom');
+    await expect(sec.getByRole('heading', { level: 2 })).toHaveText('Check the result in your own browser');
+    await expect(sec).toContainText('The saleroom has no hosted address: it runs on your machine.');
+    await expect(sec.locator('pre.term')).toHaveText('$ pnpm install\n$ pnpm --filter @sba/dashboard dev\n  then open http://localhost:5178');
+    // the command is real: that package, a plain `vite` dev script, and the port its config pins
+    const pkg = JSON.parse(readFileSync(resolve(root, 'packages/dashboard/package.json'), 'utf8'));
+    expect(pkg.name).toBe('@sba/dashboard');
+    expect(pkg.scripts.dev).toBe('vite');
+    expect(readFileSync(resolve(root, 'packages/dashboard/vite.config.ts'), 'utf8')).toContain('port: 5178, strictPort: true');
+    await sec.screenshot({ path: info.outputPath(`landing-saleroom-${info.project.name}.png`) });
+    await noHorizontalScroll(page);
+  });
+
+  test('masthead between the phone and desktop layouts: no horizontal scroll and no nav label broken across lines', async ({ page }) => {
+    await page.goto(LANDING);
+    await page.evaluate(() => document.fonts.ready);
+    for (const width of [641, 672, 700, 768, 820, 900, 901, 1040]) {
+      await page.setViewportSize({ width, height: 800 });
+      await noHorizontalScroll(page);
+      const nav = page.getByRole('navigation', { name: 'Sections' });
+      const broken = await nav.locator('a').evaluateAll((links) =>
+        links.filter((a) => getComputedStyle(a).display !== 'none' && a.getClientRects().length > 1).map((a) => a.textContent?.trim()),
+      );
+      expect(broken, `nav labels on two lines at ${width}px`).toEqual([]);
+      // Every visible label sits on one line: as tall as the shortest label.
+      const heights = await nav.locator('a:not(.btn)').evaluateAll((links) => links.filter((a) => getComputedStyle(a).display !== 'none').map((a) => Math.round(a.getBoundingClientRect().height)));
+      expect(Math.max(...heights), `a nav label wraps at ${width}px`).toBe(Math.min(...heights));
+      // The Saleroom link is in the masthead only when there is room for it; the colophon always has it.
+      await expect(nav.getByRole('link', { name: 'Saleroom', exact: true })).toBeVisible({ visible: width > 900 });
+      await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Saleroom' })).toHaveAttribute('href', '#saleroom');
+    }
   });
 
   test('footer links point at the repository, record, docs and tests', async ({ page }) => {
