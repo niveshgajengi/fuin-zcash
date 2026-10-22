@@ -1,5 +1,7 @@
 // Audit a published auction from the chain, with only public information:
-//   pnpm --filter @sba/service audit [deployments/testnet.json] [complaint.json ...]
+//   pnpm --filter @sba/service run audit [deployments/testnet.json] [complaint.json ...]
+// ("run" is needed: plain `pnpm audit` is pnpm's own dependency audit.) Relative paths are read from
+// the directory pnpm was started in (INIT_CWD), not from packages/service.
 // Scans every block from the auction's open height to its settlement with the auction's incoming
 // viewing key, so the deposit list comes from the chain, not from the auctioneer. Then re-applies
 // the rules, verifies the MaxBid proof and checks that it is about exactly those deposits.
@@ -11,8 +13,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { asDeposits, asMessages, auditReveals, chainTip, checkComplaint, checkOutcome, classifyDeposits, COMPLAINT_PREFIX, decrypt, depositRef, ironwoodOnly, openRevealWithEsk, owns, parseRevealMemo, REVEAL_PREFIX, scan, type AuctionConfig, type Complaint } from './index.js';
 
-const file = resolve(process.argv[2] ?? resolve(import.meta.dirname, '../../../deployments/testnet.json'));
-const complaintFiles = process.argv.slice(3);
+const cwd = process.env.INIT_CWD ?? process.cwd();
+const file = process.argv[2] ? resolve(cwd, process.argv[2]) : resolve(import.meta.dirname, '../../../deployments/testnet.json');
+const complaintFiles = process.argv.slice(3).map((f) => resolve(cwd, f));
 const run = JSON.parse(readFileSync(file, 'utf8'));
 const a = run.auction;
 if (typeof a.openHeight !== 'number') {
