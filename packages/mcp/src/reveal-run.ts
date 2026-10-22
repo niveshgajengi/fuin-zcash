@@ -284,8 +284,16 @@ async function main() {
   await waitFor(`late reveal ${late.txid.slice(0, 10)} mined`, mined(card.uivk, late.txid));
 
   // 6. The auctioneer: everything it knows comes from scanning the chain and its reveal secret.
-  const tipNow = await chainTip();
-  const found = await scan(card.uivk, card.openHeight, tipNow);
+  // lightwalletd can serve a mined transaction before its compact block, so scan until the late reveal is in it.
+  let tipNow = await chainTip();
+  let found = await scan(card.uivk, card.openHeight, tipNow);
+  for (let i = 0; !found.some((t) => t.txid === late.txid); i++) {
+    if (i >= 20) throw new Error(`the scan to block ${tipNow} still does not show the late reveal ${late.txid}`);
+    console.log(`  … the scan to block ${tipNow} does not show the late reveal yet; rescanning in 30 s`);
+    await sleep(30);
+    tipNow = await chainTip();
+    found = await scan(card.uivk, card.openHeight, tipNow);
+  }
   const deposits = classifyDeposits(cfg, found.flatMap(asDeposits));
   const messages = found.flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:`));
   const { reveals, log } = await ingestReveals(cfg, state.revealSecret!, deposits, messages);
