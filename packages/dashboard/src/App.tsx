@@ -244,7 +244,8 @@ function Verify() {
       set('slots', slotsOk ? 'ok' : 'bad', [by('auction'), by('unrevealed'), by('slots')].filter((c) => !slotsOk ? !c.ok : c.name === 'slots').map((c) => c.detail).join('; '));
       set('winner', by('winner').ok ? 'ok' : 'bad', by('winner').detail);
     } catch (e) {
-      setSteps((s) => s.map((x) => (x.state === 'run' || x.state === 'wait' ? { ...x, state: 'error', detail: (e as Error).message } : x)));
+      // The step that was running failed; the ones after it never ran, so they say that instead of repeating its error.
+      setSteps((s) => s.map((x) => (x.state === 'run' ? { ...x, state: 'error', detail: (e as Error).message } : x.state === 'wait' ? { ...x, state: 'error', detail: 'not run: an earlier check could not finish' } : x)));
     } finally {
       setBusy(false);
     }
