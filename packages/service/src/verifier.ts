@@ -32,17 +32,32 @@ export async function decrypt(uivk: string, txids: string[]): Promise<DecryptedT
   }
 }
 
+/** sba-verify scans at most this many blocks per call (MAX_SCAN_BLOCKS in packages/verifier/src/main.rs). */
+export const MAX_SCAN_BLOCKS = 5000;
+
+/** Splits from..=to into consecutive windows of at most `max` blocks, with no gap or overlap. */
+export function scanWindows(from: number, to: number, max = MAX_SCAN_BLOCKS): [number, number][] {
+  const out: [number, number][] = [];
+  for (let a = from; a <= to; a += max) out.push([a, Math.min(a + max - 1, to)]);
+  return out;
+}
+
 /**
  * Every transaction mined in blocks from..=to with an output `uivk` decrypts. An auditor uses this to
- * find all deposits to an auction instead of trusting the auctioneer's list.
+ * find all deposits to an auction instead of trusting the auctioneer's list. Ranges longer than
+ * MAX_SCAN_BLOCKS are scanned in windows and joined, so an auction open for days can still be audited.
  */
 export async function scan(uivk: string, from: number, to: number): Promise<DecryptedTx[]> {
-  try {
-    const { stdout } = await run(verifierBin(), ['scan', String(from), String(to)], { env: { ...process.env, SBA_UIVK: uivk }, timeout: 600_000, maxBuffer: 16 * 1024 * 1024 });
-    return stdout.trim().split('\n').filter(Boolean).map((l) => JSON.parse(l) as DecryptedTx);
-  } catch (e) {
-    throw new Error(`sba-verify scan failed: ${((e as { stderr?: string }).stderr ?? (e as Error).message).trim()}`);
+  const found: DecryptedTx[] = [];
+  for (const [a, b] of scanWindows(from, to)) {
+    try {
+      const { stdout } = await run(verifierBin(), ['scan', String(a), String(b)], { env: { ...process.env, SBA_UIVK: uivk }, timeout: 600_000, maxBuffer: 16 * 1024 * 1024 });
+      found.push(...stdout.trim().split('\n').filter(Boolean).map((l) => JSON.parse(l) as DecryptedTx));
+    } catch (e) {
+      throw new Error(`sba-verify scan ${a}-${b} failed: ${((e as { stderr?: string }).stderr ?? (e as Error).message).trim()}`);
+    }
   }
+  return found;
 }
 
 /** The chain tip height, from lightwalletd. */
