@@ -47,7 +47,7 @@
       .word b { font-weight: 600; font-size: 30px; letter-spacing: -0.05em; }
       .word span { font: 400 13px var(--mono); color: var(--muted); }
       .mast nav { display: flex; gap: 26px; align-items: center; }
-      .mast nav a { text-decoration: none; font-size: 15px; }
+      .mast nav a { text-decoration: none; font-size: 15px; white-space: nowrap; }
       .mast nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
       .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 4px; font: 500 15px/1 var(--sans); text-decoration: none; border: 0; cursor: pointer; white-space: nowrap; }
       .btn-ox { background: var(--ox); color: #fff; }
@@ -182,6 +182,9 @@
         .sec-head { grid-template-columns: 1fr; gap: 8px; }
         .conds, .report { columns: 1; grid-template-columns: 1fr; }
       }
+      @media (max-width: 900px) {
+        .mast nav .hide-md { display: none; }
+      }
       @media (max-width: 640px) {
         .wrap { padding: 0 16px; }
         body { font-size: 16px; }
@@ -232,7 +235,8 @@
             <a class="hide-sm" href="#lots">The lots</a>
             <a class="hide-sm" href="#conditions">Conditions</a>
             <a class="hide-sm" href="#provenance">Provenance</a>
-            <a class="hide-sm" href="#report">Condition report</a>
+            <a class="hide-sm hide-md" href="#report">Condition report</a>
+            <a class="hide-sm hide-md" href="#saleroom">Saleroom</a>
             <a class="btn btn-ox" href="https://github.com/nickthelegend/zec-sealed-bid-auction">Code</a>
           </nav>
         </div>
@@ -416,6 +420,18 @@ all checks pass</pre>
         </div>
       </section>
 
+      <section class="sec" id="saleroom" aria-labelledby="room-title">
+        <div class="wrap">
+          <div class="sec-head">
+            <span class="eyebrow">The saleroom</span>
+            <div><h2 id="room-title">Check the result in your own browser</h2><p>The saleroom has no hosted address: it runs on your machine. It re-checks the hammer in the tab (the verification key's hash, the Groth16 proof and the result rules), with two tamper buttons, and shows Sale 002's reveal notes.</p></div>
+          </div>
+          <pre class="term" aria-label="Run the saleroom locally"><span class="c">$ pnpm install</span>
+<span class="c">$ pnpm --filter @sba/dashboard dev</span>
+<span class="d">  then open http://localhost:5178</span></pre>
+        </div>
+      </section>
+
       <section class="sec" id="report" aria-labelledby="report-title">
         <div class="wrap">
           <div class="sec-head">
@@ -443,6 +459,7 @@ all checks pass</pre>
           <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/blob/main/deployments/testnet.json">Live record</a>
           <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/tree/main/packages/docs">Docs</a>
           <a href="https://github.com/nickthelegend/zec-sealed-bid-auction/blob/main/TESTING.md">Tests</a>
+          <a href="#saleroom">Saleroom</a>
         </nav>
       </div>
     </footer>
