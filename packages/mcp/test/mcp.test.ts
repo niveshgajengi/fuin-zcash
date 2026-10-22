@@ -276,6 +276,14 @@ describe('sba-mcp', () => {
     }
   }, 180_000);
 
+  it('verify_result holds on Sale 003 (bound terms, forfeit, scannedTo): nothing after the record, one deposit unrevealed', async () => {
+    const c = await connect({ SBA_AUCTION_FILE: resolve(ROOT, 'deployments/testnet-sale003.json') });
+    const r = JSON.parse((await call(c, 'verify_result')).text);
+    await c.close();
+    expect(r).toMatchObject({ result_holds: true, record_lists_every_chain_deposit: true, winning_bid_zat: '135000', no_sale: null, failed: [], deposits_after_the_record: [] });
+    expect(r.unrevealed).toHaveLength(1);
+  }, 180_000);
+
   it('verify_result holds on the reveal-channel auction: two-payment deposit read per payment, one deposit declared unrevealed', async () => {
     const c = await connect({ SBA_AUCTION_FILE: resolve(ROOT, 'deployments/testnet-reveal.json') });
     const r = JSON.parse((await call(c, 'verify_result')).text);

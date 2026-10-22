@@ -12,6 +12,7 @@ const run = promisify(execFile);
 const ROOT = resolve(__dirname, '../../..');
 const RECORD = resolve(ROOT, 'deployments/testnet.json');
 const RECORD2 = resolve(ROOT, 'deployments/testnet-reveal.json');
+const RECORD3 = resolve(ROOT, 'deployments/testnet-sale003.json');
 const COMPLAINTS = resolve(ROOT, 'deployments/complaints');
 const TSX = resolve(__dirname, '../node_modules/.bin/tsx');
 const AUDIT = resolve(__dirname, '../src/audit.ts');
@@ -19,6 +20,8 @@ const AUDIT = resolve(__dirname, '../src/audit.ts');
 // The seller's incoming viewing key, from the gitignored demo state (local runs only; never printed).
 const STATE = resolve(ROOT, '.demo/reveal-run-state.json');
 const sellerUivk: string | undefined = existsSync(STATE) ? JSON.parse(readFileSync(STATE, 'utf8')).uivks?.seller : undefined;
+const STATE3 = resolve(ROOT, '.demo/reveal-run-003-state.json');
+const sellerUivk3: string | undefined = existsSync(STATE3) ? JSON.parse(readFileSync(STATE3, 'utf8')).uivks?.seller : undefined;
 let env: Record<string, string> = {};
 
 async function audit(file: string, ...complaints: string[]): Promise<{ code: number; out: string }> {
@@ -189,4 +192,36 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     expect(lying.out).toContain(`✗ complaint ${file.split('/').pop()} UPHELD: the refund address received 0 zat in settlement ${other.txid.slice(0, 10)}, owed 5000 (5000 winner change for`);
     expect(lying.code).toBe(1);
   }, 900_000);
+});
+
+describe('audit of Sale 003, under the current rules (live testnet)', () => {
+  const rec3 = () => JSON.parse(readFileSync(RECORD3, 'utf8'));
+
+  it("passes with bound terms, scannedTo, the forfeit declared and the winner's no-key complaint unfounded; without the seller's key it says payments were not checked", async () => {
+    const rec = rec3();
+    const r = await audit(RECORD3, join(ROOT, 'deployments', rec.complaints[0].file));
+    expect(r.out).toContain('✓ terms: the auction id is the hash of every term');
+    expect(r.out).not.toContain('! terms: legacy');
+    expect(r.out).toContain(`✓ the record covers blocks up to ${rec.scannedTo} (the auctioneer's scan), at or after the end of the reveal window (block ${rec.auction.revealCloseHeight})`);
+    expect(r.out).toMatch(/✓ reveals_listed: 5 reveal note\(s\) on chain, 5 in the record/);
+    expect(r.out).toContain(`✓ 37e5c2df32:2 duplicate`);
+    expect(r.out).toContain(`note: deposit ${rec.outcome.unrevealed[0].slice(0, 10)} is unrevealed and no reveal note names it`);
+    expect(r.out).toMatch(/complaint \S+ unfounded: reveal 6e9e9cf97c \(block 4530306\) was honoured; payment not checked: the complaint gives no refund viewing key/);
+    expect(r.out).toContain("\nchain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund");
+    expect(r.code).toBe(0);
+  }, 600_000);
+
+  it.skipIf(!sellerUivk3)("with the seller's viewing key (local demo state): the winning bid and the forfeit (memo forfeit:<deposit>) reached the seller, and the run ends all checks pass", async () => {
+    const rec = rec3();
+    env = { SBA_SELLER_UIVK: sellerUivk3! };
+    try {
+      const r = await audit(RECORD3);
+      expect(r.out).toContain('✓ seller received 135000 zat, owed 135000 (the winning bid)');
+      expect(r.out).toContain(`✓ forfeit of ${rec.outcome.unrevealed[0].slice(0, 10)}: seller received 195000 zat, owed 195000`);
+      expect(r.out).toMatch(/\nall checks pass\n/);
+      expect(r.code).toBe(0);
+    } finally {
+      env = {};
+    }
+  }, 600_000);
 });
