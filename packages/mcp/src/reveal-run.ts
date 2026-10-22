@@ -1,6 +1,7 @@
 // Live auction on Zcash testnet with the encrypted reveal channel, resumable
-// (state in .demo/reveal-run-state.json, gitignored):
-//   pnpm --filter @sba/mcp reveal-run
+// (state in .demo/, gitignored):
+//   pnpm --filter @sba/mcp reveal-run                 # Sale 002 (.demo/reveal-run-state.json -> deployments/testnet-reveal.json)
+//   SBA_SALE=003 pnpm --filter @sba/mcp reveal-run    # Sale 003 (.demo/reveal-run-003-state.json -> deployments/testnet-sale003.json)
 //
 // The bidders are separate sba-mcp processes, each with only its own wallet and its own openings
 // folder (.demo/bidders/<name>): they bid and reveal through the MCP tools. The auctioneer never
@@ -10,8 +11,10 @@
 //
 // Also exercised on chain: a deposit transaction that pays the auction twice (bidder3, the second
 // payment a duplicate of its commitment), a reveal of one bidder's opening pointed at another
-// bidder's deposit (wrong_commitment), a deposit that is never revealed (unrevealed), and a reveal
-// sent after the window (late).
+// bidder's deposit (wrong_commitment), a deposit that is never revealed (unrevealed; from Sale 003 on
+// it is forfeited to the seller), and a reveal sent after the window (late). From Sale 003 on, the
+// winner also files a complaint through MCP `complain` without a refund key, so it publishes no
+// viewing key (its bid is already public).
 //
 // Wallets: .demo/wallets/{auction,bidder1,bidder2,bidder3,seller} (zingo-cli data dirs, gitignored).
 import { createHash, randomBytes } from 'node:crypto';
@@ -51,8 +54,13 @@ import {
 const ROOT = resolve(import.meta.dirname, '../../..');
 const WALLETS = resolve(ROOT, '.demo/wallets');
 const BIDDERS = resolve(ROOT, '.demo/bidders');
-const STATE = resolve(ROOT, '.demo/reveal-run-state.json');
-const OUT = resolve(ROOT, 'deployments/testnet-reveal.json');
+const SALE = process.env.SBA_SALE ?? '002';
+if (!/^\d{3}$/.test(SALE)) throw new Error(`SBA_SALE must be a three-digit sale number, got ${SALE}`);
+const LEGACY = SALE === '002';
+const STATE = resolve(ROOT, LEGACY ? '.demo/reveal-run-state.json' : `.demo/reveal-run-${SALE}-state.json`);
+const OUT = resolve(ROOT, LEGACY ? 'deployments/testnet-reveal.json' : `deployments/testnet-sale${SALE}.json`);
+// The never-revealed deposit's wallet: bidder2 in Sale 002; bidder1 later (bidder2's demo wallet holds too little for two deposits).
+const NO_SHOW = LEGACY ? 'bidder2' : 'bidder1';
 const MCP = resolve(import.meta.dirname, 'main.ts');
 const TSX = resolve(import.meta.dirname, '../node_modules/.bin/tsx');
 const cfgZ = zingoConfig();
@@ -170,7 +178,7 @@ async function main() {
   // 2. The auctioneer publishes the auction card, including its reveal key.
   if (!state.card) {
     const t = await chainTip();
-    const name = `fuin-reveal-${new Date().toISOString().slice(0, 16)}`;
+    const name = `${LEGACY ? 'fuin-reveal' : `fuin-sale${SALE}`}-${new Date().toISOString().slice(0, 16)}`;
     const keys = revealKeyPair();
     state.revealSecret = keys.secret;
     const terms = {
@@ -224,13 +232,13 @@ async function main() {
     return { txid, bid: '90000', salt: salt.toString(), complaintKey: k.public, complaintSecret: k.secret };
   });
   say(`bidder3 pays the auction twice in one transaction: ${b3.txid}`);
-  // A deposit that is never revealed (bidder2's second bid, opening discarded).
+  // A deposit that is never revealed (a second bid whose opening is discarded).
   const noShow = await step('bid:no-show', async () => {
     const salt = BigInt('0x' + randomBytes(31).toString('hex'));
-    const [txid] = await send('bidder2', [{ address: card.address, amount: DEPOSIT, memo: depositMemo(cfg.auctionId, await commitment(cfg.auctionId, 60_000n, salt)) }]);
+    const [txid] = await send(NO_SHOW, [{ address: card.address, amount: DEPOSIT, memo: depositMemo(cfg.auctionId, await commitment(cfg.auctionId, 60_000n, salt)) }]);
     return { txid };
   });
-  say(`bidder2 sends a deposit it will never reveal: ${noShow.txid}`);
+  say(`${NO_SHOW} sends a deposit it will never reveal: ${noShow.txid}`);
   for (const t of [b1.txid, b2.txid, b3.txid, noShow.txid]) await waitFor(`deposit ${t.slice(0, 10)} mined`, mined(card.uivk, t));
 
   // bidder3 files its opening under the name of its valid deposit (the first of its two payments in chain order).
@@ -293,8 +301,9 @@ async function main() {
   if (!state.steps.settlement) {
     const o = await decide(cfg, deposits, reveals);
     if (JSON.stringify(o.unrevealed) !== JSON.stringify([noShow.txid])) throw new Error(`expected exactly the no-show deposit unrevealed, got ${o.unrevealed}`);
+    if (o.noSale) throw new Error(`expected a sale, got no sale: ${o.noSale.detail}`);
     say(`winner: bid ${o.winningBid} zat; unrevealed: ${o.unrevealed.join(', ')}; MaxBid proof verifies`);
-    state.steps.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed };
+    state.steps.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed, noSale: null };
     save();
     const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: p.memo })));
     state.steps.settlement = { txids, payouts: o.payouts.map((p) => ({ ...p, amount: p.amount.toString() })) };
@@ -302,7 +311,7 @@ async function main() {
     say(`settlement tx ${txids[0]}: ${o.payouts.length} outputs`);
   }
   const settlement = state.steps.settlement as { txids: string[]; payouts: { address: string; amount: string; why: string }[] };
-  const outcome = state.steps.outcome as { winnerCommitment: string; winningBid: string; proof: object; publicSignals: string[]; unrevealed: string[] };
+  const outcome = state.steps.outcome as { winnerCommitment: string; winningBid: string; proof: object; publicSignals: string[]; unrevealed: string[]; noSale?: null };
   await waitFor(`settlement ${settlement.txids[0].slice(0, 10)} mined`, async () => {
     const [t] = await decrypt(state.uivks.seller, [settlement.txids[0]]).catch(() => [undefined]);
     return !!t && t.confirmations >= 1;
@@ -334,7 +343,7 @@ async function main() {
     [b1.txid]: 'bidder1 sealed bid (via MCP)',
     [b2.txid]: 'bidder2 sealed bid (via MCP)',
     [b3Deposit]: 'bidder3 sealed bid (first payment of a two-payment transaction)',
-    [noShow.txid]: 'bidder2 second bid, never revealed',
+    [noShow.txid]: `${NO_SHOW} second bid, never revealed`,
   };
   const revealLabels: Record<string, string> = {
     [attack.txid]: "bidder3's opening pointed at bidder2's deposit",
@@ -356,7 +365,7 @@ async function main() {
         reveals: log.map((l) => ({ ...l, label: revealLabels[l.txid] ?? null })),
         // The record covers the chain up to here; notes mined after it are late and cannot change the outcome.
         scannedTo: tipNow,
-        outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: outcome.proof, publicSignals: outcome.publicSignals, unrevealed: outcome.unrevealed, proofVerifies: result.checks[0].ok, slotsMatchDeposits: result.ok },
+        outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: outcome.proof, publicSignals: outcome.publicSignals, unrevealed: outcome.unrevealed, ...(LEGACY ? {} : { noSale: null }), proofVerifies: result.checks[0].ok, slotsMatchDeposits: result.ok },
         settlement: { txid: settlement.txids[0], height: settle.height, outputs: settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
         ironwoodOnly: allIronwood,
         blockTimes: { open: await blockTime(card.openHeight), close: await blockTime(card.closeHeight), revealClose: await blockTime(card.revealCloseHeight), settlement: await blockTime(settle.height!) },
@@ -367,7 +376,25 @@ async function main() {
       2,
     ) + '\n',
   );
-  say('wrote deployments/testnet-reveal.json');
+  say(`wrote ${OUT.slice(ROOT.length + 1)}`);
+
+  // 8. From Sale 003 on, once the record (with its settlement) is published: the winner files a
+  // complaint through MCP without a refund key (it publishes only its own opening, whose bid the proof
+  // already made public), anchored in the dispute window, and the record lists it.
+  if (!LEGACY) {
+    const filed = await step('complain:bidder2', () => asBidder('bidder2', 'complain', {}));
+    if (filed.refund_key_published) throw new Error('the complaint published a refund key; it should not');
+    const f = filed.filed[0] as { complaint_file: string; anchor_txid: string };
+    await waitFor(`complaint anchor ${f.anchor_txid.slice(0, 10)} mined`, mined(card.uivk, f.anchor_txid));
+    const [anchor] = await decrypt(card.uivk, [f.anchor_txid]);
+    const name = f.complaint_file.split('/').pop()!;
+    mkdirSync(resolve(ROOT, 'deployments/complaints'), { recursive: true });
+    writeFileSync(resolve(ROOT, 'deployments/complaints', name), readFileSync(f.complaint_file));
+    const rec = JSON.parse(readFileSync(OUT, 'utf8'));
+    rec.complaints = [{ file: `complaints/${name}`, by: 'bidder2', anchor: { txid: f.anchor_txid, height: anchor.height } }];
+    writeFileSync(OUT, JSON.stringify(rec, null, 2) + '\n');
+    say(`bidder2 files a complaint via MCP (no refund key): ${name}, anchored at ${f.anchor_txid} (block ${anchor.height})`);
+  }
 }
 
 // snarkjs keeps its bn128 worker threads alive after proving, so exit explicitly.
