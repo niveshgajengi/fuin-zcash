@@ -12,3 +12,8 @@ dist/
 wallets/
 .demo/
 CLAUDE.md
+test-results/
+playwright-report/
+*.mp4
+*.mov
+*.webm
