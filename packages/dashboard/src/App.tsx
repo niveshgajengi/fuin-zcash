@@ -4,9 +4,11 @@ import { checkResult, isCanonicalCommitment, type ResultCheck } from '@sba/circu
 import { emptyCommitment } from '@sba/circuits/poseidon';
 import run1 from '@deployments/testnet.json';
 import run2 from '@deployments/testnet-reveal.json';
+import run3 from '@deployments/testnet-sale003.json';
 import complaint2 from '@deployments/complaints/2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json';
+import complaint3 from '@deployments/complaints/131728459360241149736859342020074215002-6e9e9cf97c662997b116e7cb20c9709f14433bea8591ab4d3c8659f46f1f7f5a.complaint.json';
 
-/* ---------- the two published sales ---------- */
+/* ---------- the published sales ---------- */
 type Deposit = { txid: string; output?: string; height: number | null; valueZat: string; memo: string; status: string; reason: string | null; label?: string | null };
 type BlockTime = { height: number; time: number; hash: string };
 type RevealEntry = { ref: string; txid: string; height: number | null; deposit: string | null; status: string; reason: string | null; label: string | null };
@@ -24,25 +26,63 @@ type SaleRecord = {
 };
 type Complaint = { kind: string; auctionId: string; deposit: string; reveal: string; revealSecret: string; refundViewingKey: string | null; signature: string };
 
-export type SaleId = '002' | '001';
+export type SaleId = '003' | '002' | '001';
+/** The audit's verdict on a sale's complaint, from a live run (an e2e test re-runs the audit and compares). */
+interface Verdict {
+  date: string;
+  verdict: string;
+  reason: string;
+  /** What the audit said about the payment. */
+  paid: string;
+  /** Why this complaint matters for privacy. */
+  note: string;
+}
 interface Sale {
   id: SaleId;
   tab: string;
   r: SaleRecord;
   /** The audit command for this sale, from the repository root. */
   audit: string;
+  /** Before bound terms, tagged settlement memos and forfeits to the seller (Sales 001 and 002). */
+  legacy: boolean;
+  complaint?: Complaint;
+  verdict?: Verdict;
 }
 const ref = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
+const auditOf = (file: string, r: SaleRecord) => `pnpm --filter @sba/service run audit deployments/${file} deployments/${r.complaints?.[0]?.file ?? ''}`.trim();
 const SALES: Sale[] = [
+  {
+    id: '003',
+    tab: 'Sale 003 · current rules',
+    r: run3 as unknown as SaleRecord,
+    audit: auditOf('testnet-sale003.json', run3 as unknown as SaleRecord),
+    legacy: false,
+    complaint: complaint3 as Complaint,
+    verdict: {
+      date: '23 Oct 2026',
+      verdict: 'unfounded',
+      reason: 'reveal 6e9e9cf97c (block 4530306) was honoured',
+      paid: 'payment not checked: the complaint gives no refund viewing key',
+      note: "Filing it made bidder2's own bid public (it is the winning bid). It was filed without a refund key, so it publishes no viewing key.",
+    },
+  },
   {
     id: '002',
     tab: 'Sale 002 · reveal channel',
     r: run2 as unknown as SaleRecord,
-    audit: `pnpm --filter @sba/service run audit deployments/testnet-reveal.json deployments/${(run2 as unknown as SaleRecord).complaints?.[0]?.file ?? ''}`.trim(),
+    audit: auditOf('testnet-reveal.json', run2 as unknown as SaleRecord),
+    legacy: true,
+    complaint: complaint2 as Complaint,
+    verdict: {
+      date: '22 Oct 2026',
+      verdict: 'unfounded',
+      reason: 'reveal 07ec9dcd08 (block 4526464) was honoured',
+      paid: 'paid in full: the refund address received 5000 zat in settlement e84de386e2, owed 5000',
+      note: "Filing it made bidder2's own bid public (it is the winning bid). It was filed before the refund key became opt-in, so it also carries the incoming viewing key of bidder2's whole demo wallet: every testnet payment to that wallet is readable with it.",
+    },
   },
-  { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit' },
+  { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit', legacy: true },
 ];
-const COMPLAINT = complaint2 as Complaint;
 
 const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';
 const REPO = 'https://github.com/nickthelegend/zec-sealed-bid-auction';
@@ -168,7 +208,10 @@ function Lot({ d, n, sale, kind }: { d: Deposit; n: number; sale: Sale; kind: Ki
       <p className="why">
         {kind === 'opened' && 'Opened by the MaxBid proof: the highest bid, at or above the reserve.'}
         {kind === 'sealed' && 'A losing bid. Refunded in full; the amount is never published.'}
-        {kind === 'unrevealed' && 'Never revealed: left out of the proof and listed in the outcome. With no refund address it was not refunded; this sale predates the rule that forfeits it to the seller.'}
+        {kind === 'unrevealed' &&
+          (sale.legacy
+            ? 'Never revealed: left out of the proof and listed in the outcome. With no refund address it was not refunded; this sale predates the rule that forfeits it to the seller.'
+            : 'Never revealed: left out of the proof, listed in the outcome and forfeited to the seller (memo forfeit:<deposit>), minus its 5,000 zat output fee.')}
         {kind === 'refused' && (d.reason ?? 'not a bid')}
       </p>
     </li>
@@ -416,9 +459,12 @@ function Audit({ sale }: { sale: Sale }) {
       </p>
       <ol className="howto">
         <li>It reads the settlement&apos;s block height from the chain and scans the auction&apos;s blocks up to it with the incoming viewing key, so a deposit left out of the record shows up.</li>
-        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch, over capacity. A transaction that pays the auction twice is two deposits.</li>
+        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch. A transaction that pays the auction twice is two deposits.</li>
         <li>It verifies the proof and ties it to those deposits, the same checks this page runs.</li>
-        <li>It says whether the auction id commits to the terms. Both sales here predate that, so their windows and reserve are read from the record (&quot;legacy&quot;).</li>
+        <li>
+          It says whether the auction id commits to the terms. {sale.legacy ? 'This sale predates that, so its windows and reserve are read from the record ("legacy").' : "This sale's id is the hash of every term on its card (\"bound\")."}
+        </li>
+        <li>Given the seller&apos;s incoming viewing key it checks the seller was paid the winning bid and every forfeit; without it the run ends &quot;payments not checked&quot;.</li>
         <li>On an auction with the reveal channel it checks the reveal log: every reveal note on chain is listed, and every status the chain alone decides (window, auction, named deposit) is right.</li>
         <li>
           Given a bidder&apos;s complaint file, it opens that bidder&apos;s reveal with the published secret and says <b>rejected</b>, <b>unfounded</b> or <b>upheld</b>, naming what the auctioneer did wrong.
@@ -454,21 +500,16 @@ async function complaintDigest(c: Complaint) {
   return sha256Hex(new TextEncoder().encode(body + c.signature));
 }
 
-/** The audit's verdict on the complaint, from a live run (an e2e test re-runs the audit and compares). */
-export const COMPLAINT_VERDICT = {
-  date: '22 Oct 2026',
-  verdict: 'unfounded',
-  reason: 'reveal 07ec9dcd08 (block 4526464) was honoured',
-  paid: 'paid in full: the refund address received 5000 zat in settlement e84de386e2, owed 5000',
-};
-
 function ComplaintCard({ sale }: { sale: Sale }) {
   const meta = sale.r.complaints?.[0];
+  const complaint = sale.complaint;
+  const v = sale.verdict;
   const [digest, setDigest] = useState<string | null>(null);
   useEffect(() => {
-    void complaintDigest(COMPLAINT).then(setDigest);
-  }, []);
-  if (!meta) return null;
+    setDigest(null);
+    if (complaint) void complaintDigest(complaint).then(setDigest);
+  }, [complaint]);
+  if (!meta || !complaint || !v) return null;
   return (
     <div className="complaint" aria-labelledby="complaint-title">
       <span className="eyebrow">Dispute</span>
@@ -480,11 +521,11 @@ function ComplaintCard({ sale }: { sale: Sale }) {
         </div>
         <div>
           <dt>Deposit</dt>
-          <dd className="num">{short(COMPLAINT.deposit)}</dd>
+          <dd className="num">{short(complaint.deposit)}</dd>
         </div>
         <div>
           <dt>Reveal it opens</dt>
-          <dd className="num">{short(COMPLAINT.reveal)}</dd>
+          <dd className="num">{short(complaint.reveal)}</dd>
         </div>
         <div>
           <dt>Digest (computed here)</dt>
@@ -503,12 +544,10 @@ function ComplaintCard({ sale }: { sale: Sale }) {
         </div>
       </dl>
       <p className="verdict">
-        <span className="res res-ok">{COMPLAINT_VERDICT.verdict}</span> {COMPLAINT_VERDICT.reason}; {COMPLAINT_VERDICT.paid}.
+        <span className="res res-ok">{v.verdict}</span> {v.reason}; {v.paid}.
       </p>
       <p className="fineprint">
-        The audit&apos;s verdict from a live run on {COMPLAINT_VERDICT.date}; the command above re-checks it against the chain. Filing it made bidder2&apos;s own bid public (it is the winning
-        bid). It was filed before the refund key became opt-in, so it also carries the incoming viewing key of bidder2&apos;s whole demo wallet: every testnet payment to that wallet is readable
-        with it.
+        The audit&apos;s verdict from a live run on {v.date}; the command above re-checks it against the chain. {v.note}
       </p>
     </div>
   );
@@ -589,7 +628,7 @@ function RevealChannel({ sale }: { sale: Sale }) {
 /* ---------- the page ---------- */
 const initialSale = (): SaleId => {
   const q = new URLSearchParams(window.location.search).get('sale');
-  return q === '001' ? '001' : '002';
+  return q === '001' || q === '002' ? q : '003';
 };
 
 export function App() {
@@ -654,7 +693,7 @@ export function App() {
                   {taz(sale.r.outcome.winningBidZat)}
                 </h1>
                 <p className="sale-lede">
-                  {sale.id === '002'
+                  {sale.id !== '001'
                     ? `${proven.length} revealed sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit, placed through three separate sba-mcp servers driven by the reveal-run script. The proof opened the highest one; the other ${proven.length - 1} are never published.`
                     : `${proven.length} sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit. The proof opened the highest one; the other ${proven.length - 1} are never published.`}
                 </p>

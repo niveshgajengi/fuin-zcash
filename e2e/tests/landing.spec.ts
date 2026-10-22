@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import type { Page } from '@playwright/test';
-import { EXPLORER, LANDING, REPO, SALEROOM, expect, fmt, inView, isMobile, noHorizontalScroll, root, sale1, sale2, test } from './fixtures';
+import { EXPLORER, LANDING, REPO, SALEROOM, expect, fmt, inView, isMobile, noHorizontalScroll, root, sale1, sale2, sale3, test } from './fixtures';
 
 type Dep = { txid: string; output?: string; height: number; valueZat: string; status: string };
 const ref = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
@@ -15,9 +15,10 @@ function derive(rec: typeof sale1) {
   const tag = (d: Dep) => (ref(d) === ref(winner) ? 'Opened' : d.status !== 'valid' ? 'Refused' : unrevealed.includes(ref(d)) ? 'Unrevealed' : 'Sealed');
   return { proven, winner, tag };
 }
+const s3 = derive(sale3);
 const s2 = derive(sale2);
 const s1 = derive(sale1);
-const winTaz = tazOf(sale2.outcome.winningBidZat);
+const winTaz = tazOf(sale3.outcome.winningBidZat);
 
 /** Each lot card in `list` is the record's deposit at that position: link, block, amount and tag. */
 async function lotsMatch(page: Page, list: string, rec: typeof sale1, d: ReturnType<typeof derive>) {
@@ -59,36 +60,36 @@ async function ledgerMatches(page: Page, ledger: string, rec: typeof sale1) {
 }
 
 test.describe('landing', () => {
-  test('the cover is Sale 002, bid through MCP by script-driven sba-mcp processes, with the record’s numbers; no horizontal scroll', async ({ page }, info) => {
+  test('the cover is Sale 003, bid through MCP by script-driven sba-mcp processes, with the record’s numbers; no horizontal scroll', async ({ page }, info) => {
     await page.goto(LANDING);
-    await expect(page).toHaveTitle('Fuin · Sale 002, sealed bids on Zcash');
+    await expect(page).toHaveTitle('Fuin · Sale 003, sealed bids on Zcash');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Three sealed bids. One envelope opens.');
-    await expect(page.locator('.cover .lotno')).toContainText(`SALE 002${sale2.auction.name}`);
+    await expect(page.locator('.cover .lotno')).toContainText(`SALE 003${sale3.auction.name}`);
     await expect(page.locator('.cover .lede')).toContainText('Each bidder was a separate sba-mcp server process with only its own wallet, driven over MCP by the reveal-run script (no language model chose a bid)');
     await expect(page.locator('.cover .lede')).toContainText('a losing bid is never published unless its bidder files a complaint, which publishes its own bid');
     await expect(page.locator('.cover .lede')).toContainText('Only the auctioneer reads them.');
     const facts = page.locator('.cover .facts');
-    await expect(facts).toContainText(tazOf(sale2.auction.depositZat));
-    await expect(facts).toContainText(tazOf(sale2.auction.reserveZat));
-    await expect(facts).toContainText(`blocks ${fmt(sale2.auction.openHeight)}–${fmt(sale2.auction.closeHeight)}`);
-    await expect(facts).toContainText(`blocks ${fmt(sale2.auction.closeHeight + 1)}–${fmt(sale2.auction.revealCloseHeight)}`);
-    await expect(facts).toContainText(`block ${fmt(sale2.settlement.height)}`);
-    const len = sale2.blockTimes.close.time - sale2.blockTimes.open.time;
+    await expect(facts).toContainText(tazOf(sale3.auction.depositZat));
+    await expect(facts).toContainText(tazOf(sale3.auction.reserveZat));
+    await expect(facts).toContainText(`blocks ${fmt(sale3.auction.openHeight)}–${fmt(sale3.auction.closeHeight)}`);
+    await expect(facts).toContainText(`blocks ${fmt(sale3.auction.closeHeight + 1)}–${fmt(sale3.auction.revealCloseHeight)}`);
+    await expect(facts).toContainText(`block ${fmt(sale3.settlement.height)}`);
+    const len = sale3.blockTimes.close.time - sale3.blockTimes.open.time;
     await expect(facts).toContainText(`${Math.floor(len / 60)} min ${len % 60} s`);
     expect((await page.locator('body').innerText()).match(/\bMCP\b/g)?.length ?? 0).toBeGreaterThan(3);
     await noHorizontalScroll(page);
     await page.screenshot({ path: info.outputPath(`landing-cover-${info.project.name}.png`) });
   });
 
-  test('the live clock counts from the Sale 002 settlement block header time', async ({ page }) => {
+  test('the live clock counts from the Sale 003 settlement block header time', async ({ page }) => {
     await page.goto(LANDING);
     const read = () => page.locator('#digits b').allTextContents();
     await expect.poll(async () => (await read()).join('')).not.toContain('--');
     const [d, h, m, s] = (await read()).map(Number);
     const shown = d * 86400 + h * 3600 + m * 60 + s;
-    const expected = Math.floor(Date.now() / 1000) - sale2.blockTimes.settlement.time;
+    const expected = Math.floor(Date.now() / 1000) - sale3.blockTimes.settlement.time;
     expect(Math.abs(shown - expected)).toBeLessThanOrEqual(3);
-    await expect(page.locator('.clock .eyebrow')).toContainText(`block ${fmt(sale2.settlement.height)} · ${new Date(sale2.blockTimes.settlement.time * 1000).toISOString().slice(11, 19)} UTC`);
+    await expect(page.locator('.clock .eyebrow')).toContainText(`block ${fmt(sale3.settlement.height)} · ${new Date(sale3.blockTimes.settlement.time * 1000).toISOString().slice(11, 19)} UTC`);
     await expect.poll(async () => (await read()).join(':'), { timeout: 3000 }).not.toBe([d, h, m, s].map((v) => String(v).padStart(2, '0')).join(':'));
   });
 
@@ -97,17 +98,17 @@ test.describe('landing', () => {
     const stage = page.locator('#stage');
     const btn = page.getByRole('button', { name: /Break the seal|Seal it again/ });
     const labels = page.locator('.env-label');
-    await expect(labels).toHaveCount(s2.proven.length);
-    for (const [i, d] of s2.proven.entries()) await expect(labels.nth(i)).toContainText(`Lot ${String((sale2.deposits as Dep[]).indexOf(d) + 1).padStart(2, '0')}`);
-    const w = sale2.outcome.winnerSlot;
+    await expect(labels).toHaveCount(s3.proven.length);
+    for (const [i, d] of s3.proven.entries()) await expect(labels.nth(i)).toContainText(`Lot ${String((sale3.deposits as Dep[]).indexOf(d) + 1).padStart(2, '0')}`);
+    const w = sale3.outcome.winnerSlot;
     await stage.scrollIntoViewIfNeeded();
     // Opens on its own once in view (after 900 ms).
     await expect(stage).toHaveClass(/is-open/);
     await expect(btn).toHaveText('Seal it again');
     await expect(page.locator('#stage-status')).toHaveText(`The proof opened one envelope: ${winTaz}, the highest bid. The other two are never published.`);
-    await expect(page.locator('.env-note')).toHaveText(s2.proven.map((_, i) => (i === w ? 'opened by the proof' : 'sealed for good')));
+    await expect(page.locator('.env-note')).toHaveText(s3.proven.map((_, i) => (i === w ? 'opened by the proof' : 'sealed for good')));
     await expect(page.locator('.env.win .letter strong')).toHaveText(winTaz);
-    await expect(labels.nth(w)).toContainText(s2.winner.txid.slice(0, 8));
+    await expect(labels.nth(w)).toContainText(s3.winner.txid.slice(0, 8));
     await page.screenshot({ path: info.outputPath(`landing-opened-${info.project.name}.png`) });
     await btn.click();
     await expect(stage).not.toHaveClass(/is-open/);
@@ -158,11 +159,11 @@ test.describe('landing', () => {
     await page.getByRole('link', { name: 'Audit it yourself' }).click();
     await expect(page).toHaveURL(/#provenance$/);
     await inView(page, '#provenance h2');
-    // "Verify it in the saleroom" opens the hosted saleroom next to this page, on Sale 002.
+    // "Verify it in the saleroom" opens the hosted saleroom next to this page, on Sale 003.
     await page.goto(LANDING);
     await page.getByRole('link', { name: 'Verify it in the saleroom' }).click();
     await expect(page).toHaveURL(SALEROOM);
-    await expect(page.locator('.sale-meta code')).toHaveText(sale2.auction.name);
+    await expect(page.locator('.sale-meta code')).toHaveText(sale3.auction.name);
     await expect(page.locator('section.verify h2')).toHaveText('The result holds.', { timeout: 30_000 });
     // Keyboard: the first Tab shows the skip link, Enter jumps to the cover.
     await page.goto(LANDING);
@@ -174,14 +175,15 @@ test.describe('landing', () => {
     await expect(page).toHaveURL(/#cover$/);
   });
 
-  test('the first lot section is Sale 002: every deposit a lot card whose tx link is the recorded payment, in chain order', async ({ page }, info) => {
+  test('the first lot section is Sale 003: every deposit a lot card whose tx link is the recorded payment, in chain order', async ({ page }, info) => {
     await page.goto(LANDING + '#lots');
     expect(await page.locator('ul.lots').first().evaluate((el) => el.closest('section')?.id)).toBe('lots');
-    await expect(page.locator('#lots .sec-head')).toContainText(sale2.auction.name);
-    await lotsMatch(page, '#lots', sale2, s2);
+    await expect(page.locator('#lots .sec-head')).toContainText(sale3.auction.name);
+    await lotsMatch(page, '#lots', sale3, s3);
     await expect(page.locator('#lots')).toContainText(winTaz);
-    await expect(page.locator('#lots .lot').filter({ hasText: 'Unrevealed' })).toContainText('this sale predates the rule that forfeits it to the seller');
-    await expect(page.getByRole('link', { name: 'Full record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-reveal.json`);
+    await expect(page.locator('#lots .lot').filter({ hasText: 'Unrevealed' })).toContainText('forfeited to the seller (memo forfeit:<deposit>), minus its 5,000 zat output fee');
+    await expect(page.locator('#lots .lot').filter({ hasText: 'Duplicate' })).toContainText('refunded minus its own 5,000 zat output fee');
+    await expect(page.getByRole('link', { name: 'Full record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-sale003.json`);
     await noHorizontalScroll(page);
     await page.locator('#lots').screenshot({ path: info.outputPath(`landing-lots-${info.project.name}.png`) });
   });
@@ -190,9 +192,9 @@ test.describe('landing', () => {
     await page.goto(LANDING + '#reveals');
     const sec = page.locator('#reveals');
     const rows = sec.getByRole('table', { name: 'Reveal notes on chain' }).locator('.rv');
-    await expect(rows).toHaveCount(sale2.reveals.length);
+    await expect(rows).toHaveCount(sale3.reveals.length);
     const statusText: { [k: string]: string } = { accepted: 'accepted', wrong_commitment: 'wrong deposit', late: 'late' };
-    for (const [i, v] of sale2.reveals.entries()) {
+    for (const [i, v] of sale3.reveals.entries()) {
       const row = rows.nth(i);
       await expect(row.locator('.rv-b')).toHaveText(fmt(v.height));
       await expect(row.getByRole('link')).toHaveAttribute('href', EXPLORER + v.txid);
@@ -200,31 +202,50 @@ test.describe('landing', () => {
       await expect(row.locator('.rv-d')).toHaveText(`opens ${v.deposit.length > 64 ? `${v.deposit.slice(0, 8)}…${v.deposit.slice(64)}` : `${v.deposit.slice(0, 8)}…`}`);
       await expect(row.locator('.st')).toHaveText(statusText[v.status]);
     }
-    await expect(sec.locator('.ledger-head')).toContainText(`blocks ${fmt(sale2.auction.closeHeight + 1)}–${fmt(sale2.auction.revealCloseHeight)}`);
+    await expect(sec.locator('.ledger-head')).toContainText(`blocks ${fmt(sale3.auction.closeHeight + 1)}–${fmt(sale3.auction.revealCloseHeight)}`);
     for (const tool of ['sba-mcp', 'bid', 'reveal', 'complain', 'verify_result']) await expect(sec.locator('code', { hasText: new RegExp(`^${tool}$`) }).first()).toBeVisible();
-    const c = sale2.complaints[0];
+    const c = sale3.complaints[0];
     await expect(sec.getByRole('link', { name: `${c.anchor.txid.slice(0, 8)}… ↗` })).toHaveAttribute('href', EXPLORER + c.anchor.txid);
     await expect(sec).toContainText(`block ${fmt(c.anchor.height)}`);
-    await expect(sec).toContainText("whole demo wallet");
+    await expect(sec).toContainText('It publishes no viewing key');
     await expect(sec).toContainText('The reveal-run script drove each one over MCP');
     await noHorizontalScroll(page);
     await sec.screenshot({ path: info.outputPath(`landing-reveals-${info.project.name}.png`) });
   });
 
-  test('provenance ledger: every Sale 002 recipient line matches what its key decrypted', async ({ page }, info) => {
+  test('provenance ledger: every Sale 003 recipient line matches what its key decrypted', async ({ page }, info) => {
     await page.goto(LANDING + '#provenance');
     const head = page.locator('#provenance .ledger-head');
-    await expect(head).toContainText(`block ${fmt(sale2.settlement.height)}`);
-    await expect(head.getByRole('link')).toHaveAttribute('href', EXPLORER + sale2.settlement.txid);
-    await ledgerMatches(page, '#provenance .ledger', sale2);
+    await expect(head).toContainText(`block ${fmt(sale3.settlement.height)}`);
+    await expect(head.getByRole('link')).toHaveAttribute('href', EXPLORER + sale3.settlement.txid);
+    await ledgerMatches(page, '#provenance .ledger', sale3);
     const term = page.getByLabel(/Audit output/);
-    await expect(term).toContainText('chain checks pass; payments partly checked');
+    await expect(term).toContainText("chain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK)");
+    await expect(term).toContainText('✓ terms: the auction id is the hash of every term');
+    await expect(page.locator('#provenance')).toContainText('the seller paid 135,000 zat for the winning bid and 195,000 for the forfeit');
     await expect(term).not.toContainText('all checks pass');
-    await expect(term).toContainText(`winning bid ${sale2.outcome.winningBidZat} zat`);
-    await expect(term).toContainText('! terms: legacy');
+    await expect(term).toContainText(`winning bid ${sale3.outcome.winningBidZat} zat`);
+    await expect(term).not.toContainText('! terms: legacy');
     await expect(page.getByRole('link', { name: 'Protocol and threat model' })).toHaveAttribute('href', `${REPO}/tree/main/packages/docs`);
     await noHorizontalScroll(page);
     await page.locator('#provenance').screenshot({ path: info.outputPath(`landing-provenance-${info.project.name}.png`) });
+  });
+
+  test('Sale 002 keeps its own section: lots, settlement ledger, record link and its complaint from testnet-reveal.json', async ({ page }, info) => {
+    await page.goto(LANDING + '#sale002');
+    await expect(page.locator('#sale002 h2')).toHaveText('The reveal-channel sale, before bound terms');
+    await expect(page.locator('#sale002 .sec-head')).toContainText(sale2.auction.name);
+    await expect(page.locator('#sale002 .sec-head')).toContainText(`for ${tazOf(sale2.outcome.winningBidZat)}`);
+    await lotsMatch(page, '#sale002', sale2, s2);
+    await expect(page.locator('#sale002 .lot').filter({ hasText: 'Unrevealed' })).toContainText('this sale predates the rule that forfeits it to the seller');
+    await expect(page.locator('#sale002 .s2-ledger .ledger-head').getByRole('link')).toHaveAttribute('href', EXPLORER + sale2.settlement.txid);
+    await ledgerMatches(page, '#sale002 .s2-ledger', sale2);
+    const c = sale2.complaints[0];
+    await expect(page.locator('#sale002 .s2-note').getByRole('link')).toHaveAttribute('href', EXPLORER + c.anchor.txid);
+    await expect(page.locator('#sale002 .s2-note')).toContainText("whole demo wallet");
+    await expect(page.getByRole('link', { name: 'Sale 002 record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-reveal.json`);
+    await noHorizontalScroll(page);
+    await page.locator('#sale002').screenshot({ path: info.outputPath(`landing-sale002-${info.project.name}.png`) });
   });
 
   test('Sale 001 keeps its own section: lots, settlement ledger and record link from testnet.json', async ({ page }, info) => {
@@ -258,7 +279,8 @@ test.describe('landing', () => {
       await expect(conds).toContainText(text);
     await expect(page.locator('#report h3')).toHaveText(['The auctioneer learns every bid', 'Reveals cost a transaction', 'Complaints publish', 'Single-party trusted setup', 'The audit trusts its lightwalletd', 'Payments need a recipient key', 'Ties go to the lower txid', 'Testnet only, and not the first']);
     await expect(page.locator('#report')).toContainText('anyone can pay the auction address after the auctioneer');
-    await expect(page.locator('#report')).toContainText('Both sales here predate bound terms');
+    await expect(page.locator('#report')).toContainText('Sales 001 and 002 predate bound terms');
+    await expect(page.locator('#report')).toContainText("Sale 003's are bound");
   });
 
   test('what is new: the zkSNARKs ZEC auction is named with sources, and Fuin’s three differences', async ({ page }, info) => {
@@ -279,8 +301,8 @@ test.describe('landing', () => {
     await expect(page.getByRole('button', { name: /log/i })).toHaveCount(0);
     const logLinks = page.getByRole('link', { name: /\blog\b|ledger|provenance|record/i });
     const names = (await logLinks.allInnerTexts()).map((s) => s.trim());
-    expect(names).toEqual(expect.arrayContaining(['Full record', 'Live record', 'Sale 001 record']));
-    const records: { [k: string]: string } = { 'Full record': 'testnet-reveal.json', 'Live record': 'testnet-reveal.json', 'Sale 001 record': 'testnet.json' };
+    expect(names).toEqual(expect.arrayContaining(['Full record', 'Live record', 'Sale 002 record', 'Sale 001 record']));
+    const records: { [k: string]: string } = { 'Full record': 'testnet-sale003.json', 'Live record': 'testnet-sale003.json', 'Sale 002 record': 'testnet-reveal.json', 'Sale 001 record': 'testnet.json' };
     for (const name of names) {
       const link = page.getByRole('link', { name, exact: true }).first();
       if (!(await link.isVisible())) continue; // "Provenance" is hidden in the phone masthead
@@ -300,7 +322,7 @@ test.describe('landing', () => {
     await page.goto(LANDING + '#saleroom');
     const sec = page.locator('#saleroom');
     await expect(sec.getByRole('heading', { level: 2 })).toHaveText('Check the result in your own browser');
-    await expect(sec).toContainText('re-checks either sale in the tab');
+    await expect(sec).toContainText('re-checks any of the three sales in the tab');
     await expect(sec.locator('pre.term')).toHaveText('$ pnpm install\n$ pnpm --filter @sba/dashboard dev\n  then open http://localhost:5178');
     // the local command is real: that package, a plain `vite` dev script, and the port its config pins
     const pkg = JSON.parse(readFileSync(resolve(root, 'packages/dashboard/package.json'), 'utf8'));
@@ -351,25 +373,25 @@ test.describe('landing', () => {
     await page.goto(LANDING);
     const foot = page.getByRole('contentinfo').getByRole('navigation', { name: 'Links' });
     await expect(foot.getByRole('link', { name: 'Repository' })).toHaveAttribute('href', REPO);
-    await expect(foot.getByRole('link', { name: 'Live record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-reveal.json`);
+    await expect(foot.getByRole('link', { name: 'Live record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-sale003.json`);
     await expect(foot.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', `${REPO}/tree/main/packages/docs`);
     await expect(foot.getByRole('link', { name: 'Tests' })).toHaveAttribute('href', `${REPO}/blob/main/TESTING.md`);
     await expect(foot.getByRole('link', { name: 'Saleroom' })).toHaveAttribute('href', 'saleroom/');
     await expect(page.getByRole('contentinfo')).toContainText('Copyright (c) 2026 Nivesh Gajengi');
   });
 
-  test('provenance log: every line shown is in a fresh live audit of the chain (Sale 002 and its complaint), and the command works', async ({ page }) => {
+  test('provenance log: every line shown is in a fresh live audit of the chain (Sale 003 and its complaint), and the command works', async ({ page }) => {
     test.setTimeout(300_000);
     await page.goto(LANDING + '#provenance');
     const term = page.getByLabel(/Audit output/);
     const cmd = (await term.locator('.c').innerText()).trim();
-    expect(cmd).toBe(`$ pnpm --filter @sba/service run audit deployments/testnet-reveal.json deployments/${sale2.complaints[0].file}`);
+    expect(cmd).toBe(`$ pnpm --filter @sba/service run audit deployments/testnet-sale003.json deployments/${sale3.complaints[0].file}`);
     const shown = (await term.innerText()).split('\n').slice(1).filter((l) => l.trim() && !/^\[ .* \]$/.test(l.trim()));
     // The exact command from the page, against live testnet (lightwalletd), with only the published viewing key.
     const { stdout } = await promisify(execFile)('pnpm', cmd.split(' ').slice(2), { cwd: root, timeout: 280_000, maxBuffer: 8 << 20 });
     const live = stdout.split('\n');
     for (const l of shown) expect(live, `landing line not in the live audit: ${l}`).toContain(l);
-    expect(live).toContain("chain checks pass; payments partly checked: the complaints' refunds were checked, the seller's payout needs the seller's incoming viewing key (SBA_SELLER_UIVK)");
+    expect(live).toContain("chain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund");
   });
 
   test('audit without the verifier binary says "Setup required" and fails (no fake pass)', async () => {
