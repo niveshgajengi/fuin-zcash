@@ -190,6 +190,8 @@ async function main() {
   // 7. Decide, prove, settle in one shielded transaction.
   if (!state.settlement) {
     const o = await decide(cfg, classified, reveals);
+    // This scripted run's bids are all above the reserve; a no-sale is settled by reveal-run, which publishes it.
+    if (o.noSale || !o.winnerCommitment || !o.proof || !o.publicSignals) throw new Error(`no sale (${o.noSale?.detail}); this scripted run expects a sale, nothing was sent`);
     say(`winner: commitment ${o.winnerCommitment.slice(0, 12)}…, bid ${o.winningBid} zat; MaxBid proof verifies`);
     state.outcome = { winnerCommitment: o.winnerCommitment, winningBid: o.winningBid.toString(), proof: o.proof, publicSignals: o.publicSignals, unrevealed: o.unrevealed };
     const txids = await send('auction', o.payouts.map((p) => ({ address: p.address, amount: p.amount, memo: p.memo })));

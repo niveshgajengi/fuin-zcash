@@ -17,7 +17,7 @@
 // settlement (`sba1:<id>:settlement` on every output) is checked per refund key across complaints.
 import { createHash, sign as edSign, verify as edVerify } from 'node:crypto';
 import { commitment } from '@sba/circuits';
-import { depositRef, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
+import { depositRef, noSaleAmount, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, settledDeposits, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
 import { edPrivate, edPublic, openRevealWithEsk, parseRevealMemo, publicRevealStatus, type RevealLogEntry, type RevealMessage, type RevealWindow, type SealedOpening } from './reveal.js';
 
 export const COMPLAINT_PREFIX = 'sba1d';
@@ -61,7 +61,7 @@ export interface ComplaintContext {
   /** Every complaint anchor note (sba1d), from the chain scan after the settlement. */
   anchors: RevealMessage[];
   /** What the published record says; `settlement.height` is the height the settlement was mined at, read from the chain. */
-  record: { reveals: RevealLogEntry[]; unrevealed: string[]; winnerDeposit: string | null; winningBid: bigint; settlement: { txid: string; height: number } };
+  record: { reveals: RevealLogEntry[]; unrevealed: string[]; winnerDeposit: string | null; winningBid: bigint; settlement: { txid: string; height: number }; noSale?: boolean };
   /** What the settlement paid the refund address, read with `refundViewingKey`; null when no key was given. */
   refund: RefundView | null;
 }
@@ -156,10 +156,15 @@ export async function checkComplaint(c: Complaint, ctx: ComplaintContext): Promi
   const mine = ctx.deposits.filter((d) => d.commitment === c0 && d.status !== 'memo_mismatch' && d.status !== 'pending');
   for (const d of mine) if (d.status === 'valid' && ctx.record.unrevealed.includes(d.ref)) findings.push(`deposit ${short(d.ref)} was revealed by ${at}, inside the window, but the outcome declares it unrevealed`);
 
-  // What the settlement owes this opening: the winner's change, or every deposit with this commitment back.
+  // What the settlement owes this opening: the winner's change, or every deposit with this commitment
+  // back (with no sale, minus each refund's own output fee).
   const owedBy: PaymentCheck['owed'] = [];
+  const settledCount = settledDeposits(ctx.deposits).length;
   for (const d of mine) {
-    if (d.ref === ctx.record.winnerDeposit) {
+    if (ctx.record.noSale) {
+      const z = noSaleAmount(d, settledCount);
+      if (z > 0n) owedBy.push({ deposit: d.ref, zat: z, part: `${z} no-sale refund of ${short(d.ref)}` });
+    } else if (d.ref === ctx.record.winnerDeposit) {
       const change = cfg.depositZat - ctx.record.winningBid - SETTLEMENT_FEE_BUDGET_ZAT;
       if (change > 0n) owedBy.push({ deposit: d.ref, zat: change, part: `${change} winner change for ${short(d.ref)}` });
     } else owedBy.push({ deposit: d.ref, zat: d.value, part: `${d.value} refund of ${short(d.ref)}` });

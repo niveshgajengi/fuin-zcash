@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { checkResult, commitment, emptyCommitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, openSlots, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, openSlots, OUTPUT_FEE_ZAT, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -100,10 +100,75 @@ describe('reveals and settlement', () => {
     expect(parsePayoutMemo(`sba1:${cfg.auctionId}:refund:${'a'.repeat(64)}:2`)).toEqual({ auctionId: cfg.auctionId, kind: 'refund', deposit: `${'a'.repeat(64)}:2` });
     expect(parsePayoutMemo(`sba1:${cfg.auctionId}:settlement`)).toEqual({ auctionId: cfg.auctionId, kind: 'legacy', deposit: null });
   });
+});
 
-  it('refuses to sell below the reserve', async () => {
-    const deposits = classifyDeposits(cfg, [await dep('z', 10, 400_000n, 5n)]);
-    await expect(decide(cfg, deposits, [{ bid: 400_000n, salt: 5n, refundAddress: 'r' }])).rejects.toThrow(/below the reserve/);
+describe('no sale', () => {
+  it('the highest revealed bid is below the reserve: every revealed deposit is refunded minus its output fee, an unrevealed one is forfeited, and a reserve-0 proof shows the top bid is below the reserve', async () => {
+    // The judge's probe: one deposit, bid 10,000, reserve 50,000; decide used to throw and strand the deposit.
+    const small: AuctionConfig = { ...cfg, depositZat: 200_000n, reserveZat: 50_000n };
+    const one = classifyDeposits(small, [{ txid: 'p1', height: 10, value: 200_000n, memo: depositMemo(small.auctionId, await commitment(small.auctionId, 10_000n, 5n)) }]);
+    const lone = await decide(small, one, [{ bid: 10_000n, salt: 5n, refundAddress: 'r' }]);
+    expect(lone.noSale).toEqual({ reason: 'below_reserve', detail: 'the highest revealed bid, 10000 zat, is below the reserve 50000' });
+    // A single output: ZIP-317 charges two actions, so the refund carries both.
+    expect(lone.payouts).toEqual([{ address: 'r', amount: 200_000n - 2n * OUTPUT_FEE_ZAT, why: 'refund, no sale (bid deposit p1), minus its 10000 zat output fee', memo: `sba1:${small.auctionId}:refund:p1` }]);
+
+    const deposits = classifyDeposits(cfg, [
+      await dep('n1', 10, 400_000n, 1n),
+      await dep('n2', 11, 300_000n, 2n),
+      await dep('n3', 12, 1_900_000n, 3n), // never revealed
+      { ...(await dep('n1', 13, 400_000n, 1n)), txid: 'n4' }, // a duplicate of n1, revealed with it
+    ]);
+    const o = await decide(cfg, deposits, [
+      { bid: 400_000n, salt: 1n, refundAddress: 'b1' },
+      { bid: 300_000n, salt: 2n, refundAddress: 'b2' },
+    ]);
+    expect(o.noSale?.reason).toBe('below_reserve');
+    expect(o.winnerCommitment).toBeNull();
+    expect(o.winningBid).toBe(400_000n);
+    expect(o.unrevealed).toEqual(['n3']);
+    expect(o.payouts.map((p) => [p.address, p.amount, p.memo])).toEqual([
+      ['b1', cfg.depositZat - OUTPUT_FEE_ZAT, `sba1:${cfg.auctionId}:refund:n1`],
+      ['b2', cfg.depositZat - OUTPUT_FEE_ZAT, `sba1:${cfg.auctionId}:refund:n2`],
+      ['b1', cfg.depositZat - OUTPUT_FEE_ZAT, `sba1:${cfg.auctionId}:refund:n4`],
+      ['utest1seller', cfg.depositZat - OUTPUT_FEE_ZAT, `sba1:${cfg.auctionId}:forfeit:n3`],
+    ]);
+    expect(o.payouts.every((p) => p.address !== 'utest1seller' || p.memo.includes(':forfeit:'))).toBe(true);
+    // The proof is a real MaxBid proof with reserve 0 over the revealed slots; the check ties it to the reserve.
+    expect(readPublic(o.publicSignals!).reserve).toBe(0n);
+    const ok = await checkOutcome(cfg, deposits, o);
+    expect(ok).toMatchObject({ ok: true, winnerTxid: null, noSale: o.noSale });
+    expect(ok.checks.find((c) => c.name === 'no_sale')).toEqual({ name: 'no_sale', ok: true, detail: 'no sale: the highest revealed bid, 400000 zat, is below the reserve 500000' });
+  });
+
+  it('a no-sale claim fails its check when the proven top bid meets the reserve, or when a revealed deposit is called unrevealed', async () => {
+    const deposits = classifyDeposits(cfg, [await dep('s1', 10, 1_200_000n, 1n), await dep('s2', 11, 900_000n, 2n)]);
+    const sale = await decide(cfg, deposits, [
+      { bid: 1_200_000n, salt: 1n, refundAddress: 'b1' },
+      { bid: 900_000n, salt: 2n, refundAddress: 'b2' },
+    ]);
+    expect(sale.noSale).toBeNull();
+    // Same bids proven with reserve 0 and published as a no-sale: the top bid 1,200,000 meets the 500,000 reserve.
+    const { inputs, prove } = await import('@sba/circuits');
+    const forged = await prove(await inputs(cfg.auctionId, 0n, [{ bid: 1_200_000n, salt: 1n }, { bid: 900_000n, salt: 2n }], 0));
+    const r = await checkOutcome(cfg, deposits, { ...forged, unrevealed: [], noSale: { reason: 'below_reserve', detail: 'forged' } });
+    expect(r.ok).toBe(false);
+    expect(r.checks.find((c) => c.name === 'no_sale')).toMatchObject({ ok: false, detail: 'the outcome says no sale, but the highest revealed bid, 1200000 zat, meets the reserve 500000' });
+    // "Nothing was revealed" while a valid deposit is not declared unrevealed.
+    const none = await checkOutcome(cfg, deposits, { proof: null, publicSignals: null, unrevealed: ['s1'], noSale: { reason: 'no_reveal', detail: 'forged' } });
+    expect(none.ok).toBe(false);
+    expect(none.checks.find((c) => c.name === 'no_sale')?.detail).toBe('the outcome says nothing was revealed, but 1 valid deposit(s) are not declared unrevealed');
+  });
+
+  it('nothing valid revealed: no proof, every deposit forfeited to the seller minus its output fee, a revealed late deposit refunded', async () => {
+    const deposits = classifyDeposits(cfg, [await dep('q1', 10, 1_200_000n, 1n), await dep('q2', 11, 900_000n, 2n), await dep('q3', 150, 1_000_000n, 3n)]);
+    const o = await decide(cfg, deposits, [{ bid: 1_000_000n, salt: 3n, refundAddress: 'late' }]);
+    expect(o).toMatchObject({ noSale: { reason: 'no_reveal' }, proof: null, publicSignals: null, unrevealed: ['q1', 'q2'] });
+    expect(o.payouts.map((p) => [p.address, p.amount, p.memo.split(':')[2]])).toEqual([
+      ['late', cfg.depositZat - OUTPUT_FEE_ZAT, 'refund'],
+      ['utest1seller', cfg.depositZat - OUTPUT_FEE_ZAT, 'forfeit'],
+      ['utest1seller', cfg.depositZat - OUTPUT_FEE_ZAT, 'forfeit'],
+    ]);
+    expect(await checkOutcome(cfg, deposits, o)).toMatchObject({ ok: true, noSale: { reason: 'no_reveal' } });
   });
 });
 

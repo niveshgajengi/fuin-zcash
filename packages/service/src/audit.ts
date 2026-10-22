@@ -90,6 +90,7 @@ console.log('\nthe result:');
 const outcome = await checkOutcome(cfg, classified, run.outcome);
 for (const c of outcome.checks) check(c.ok, `${c.name}: ${c.detail}`);
 if (outcome.winnerTxid) console.log(`  winner: deposit ${outcome.winnerTxid.slice(0, 10)}, winning bid ${outcome.winningBid} zat (the only bid made public)`);
+if (outcome.noSale) console.log(`  no sale (${outcome.noSale.reason}): every revealed deposit is refunded minus its own output fee, unrevealed ones go to the seller`);
 const txs = [...found, settle];
 check(txs.every(ironwoodOnly), `all ${txs.length} transactions have only an Ironwood bundle (no transparent part)`);
 check(settle.outputs.length === 0, 'the auction key sees no outputs of the settlement (refunds are only visible to their recipients)');
@@ -138,7 +139,7 @@ if (complaintFiles.length) {
         deposits: classified,
         reveals: revealMsgs,
         anchors,
-        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end } },
+        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end }, noSale: !!run.outcome.noSale },
         refund,
       });
       const name = f.split('/').pop()!;

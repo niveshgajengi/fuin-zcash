@@ -9,6 +9,9 @@
 // Settle:  MaxBid proof over the valid commitments (deposit order), then ONE shielded transaction:
 //          seller gets the winning bid, every other revealed deposit is refunded in full, and the
 //          winner gets the deposit back minus the bid and the settlement fee.
+// No sale: nothing valid was revealed, or the highest revealed bid is below the reserve. Every
+//          revealed deposit is refunded (minus its own output fee), unrevealed ones are forfeited to
+//          the seller, and a MaxBid proof with reserve 0 shows the highest bid is below the reserve.
 //
 // Zcash has no contracts, so the rejections below are enforced by this service; anyone can check
 // them with the auction's incoming viewing key (sba-verify) and the published proof.
@@ -17,8 +20,10 @@ import { checkResult, commitment, emptyCommitment, inputs, prove, SLOTS, verify,
 
 export const MEMO_PREFIX = 'sba1';
 export const SETTLEMENT_FEE_BUDGET_ZAT = 60_000n;
+/** The marginal ZIP-317 fee of one settlement output (one logical action). */
+export const OUTPUT_FEE_ZAT = 5_000n;
 /** A forfeited deposit pays the marginal ZIP-317 fee of its own settlement output. */
-export const FORFEIT_OUTPUT_FEE_ZAT = 5_000n;
+export const FORFEIT_OUTPUT_FEE_ZAT = OUTPUT_FEE_ZAT;
 
 export interface AuctionConfig {
   name: string;
@@ -210,12 +215,27 @@ export async function checkReveal(cfg: AuctionConfig, deposits: ClassifiedDeposi
 
 const shortRef = (ref: string) => (ref.length > 64 ? `${ref.slice(0, 8)}…${ref.slice(64)}` : ref.slice(0, 8));
 
+/**
+ * Why an auction ended without a sale. `no_reveal`: no valid deposit was revealed (nothing to prove).
+ * `below_reserve`: the highest revealed bid is below the reserve; a MaxBid proof with reserve 0
+ * shows which bid is highest and the audit checks that it is below the real reserve.
+ */
+export interface NoSale {
+  reason: 'no_reveal' | 'below_reserve';
+  detail: string;
+}
+
 export interface Outcome {
-  winnerCommitment: string;
+  /** Null when the auction sold. */
+  noSale: NoSale | null;
+  /** Null when there is no sale. */
+  winnerCommitment: string | null;
+  /** The winning bid; with no sale, the highest revealed bid (below the reserve), or 0 when nothing was revealed. */
   winningBid: bigint;
   slots: string[];
-  proof: object;
-  publicSignals: string[];
+  /** Null only when nothing was revealed. */
+  proof: object | null;
+  publicSignals: string[] | null;
   /** Valid deposits with no accepted reveal: left out of the proof, published so it is visible. */
   unrevealed: string[];
   /** Each output of the settlement; `memo` names what it pays (see `payoutMemo`). */
@@ -225,38 +245,95 @@ export interface Outcome {
 export interface OutcomeCheck {
   ok: boolean;
   checks: Check[];
+  /** The winning deposit; null when there is no sale. */
   winnerTxid: string | null;
   winningBid: bigint;
+  noSale: NoSale | null;
+  /** The deposits whose commitments the proof covers, in slot order. */
+  proven: string[];
+}
+
+/** What a published outcome carries (the record's `outcome`). */
+export interface PublishedOutcome {
+  publicSignals: string[] | null;
+  proof: object | null;
+  unrevealed?: string[];
+  noSale?: NoSale | null;
 }
 
 /**
  * Checks a published outcome against classified deposits: the Groth16 proof verifies, and
  * checkResult ties it to exactly these deposits (no phantom slots, the winner is a real deposit,
- * only declared-unrevealed valid deposits are left out).
+ * only declared-unrevealed valid deposits are left out). A no-sale outcome holds only if nothing
+ * valid was revealed (every valid deposit declared unrevealed, no proof), or if its proof, made with
+ * reserve 0 over the same slots, shows the highest revealed bid is below the auction's reserve.
  */
-export async function checkOutcome(
-  cfg: AuctionConfig,
-  deposits: ClassifiedDeposit[],
-  o: { publicSignals: string[]; proof: object; unrevealed?: string[] },
-): Promise<OutcomeCheck> {
+export async function checkOutcome(cfg: AuctionConfig, deposits: ClassifiedDeposit[], o: PublishedOutcome): Promise<OutcomeCheck> {
+  const unrevealed = o.unrevealed ?? [];
+  const noSale = o.noSale ?? null;
+  if (noSale?.reason === 'no_reveal') {
+    const valid = deposits.filter((d) => d.status === 'valid').map((d) => d.ref);
+    const stray = unrevealed.filter((t) => !valid.includes(t));
+    const proven = valid.filter((t) => !unrevealed.includes(t));
+    const checks: Check[] = [
+      { name: 'unrevealed', ok: stray.length === 0, detail: stray.length ? `declared unrevealed but not a valid deposit: ${stray.join(', ')}` : `${unrevealed.length} valid deposit(s) declared unrevealed` },
+      {
+        name: 'no_sale',
+        ok: proven.length === 0 && o.proof === null,
+        detail:
+          proven.length === 0 && o.proof === null
+            ? `no sale: none of the ${valid.length} valid deposit(s) was revealed, so there is no bid to prove`
+            : `the outcome says nothing was revealed, but ${proven.length ? `${proven.length} valid deposit(s) are not declared unrevealed` : 'it carries a proof'}`,
+      },
+    ];
+    return { ok: checks.every((c) => c.ok), checks, winnerTxid: null, winningBid: 0n, noSale, proven };
+  }
+  if (!o.proof || !o.publicSignals) {
+    const checks = [{ name: 'proof', ok: false, detail: 'the outcome has no proof' }];
+    return { ok: false, checks, winnerTxid: null, winningBid: 0n, noSale, proven: [] };
+  }
   const proofOk = await verify(o.publicSignals, o.proof).catch(() => false);
   const r = checkResult({
     auctionId: cfg.auctionId,
-    reserve: cfg.reserveZat,
+    // A no-sale proof is made with reserve 0 (the circuit then only proves which bid is highest).
+    reserve: noSale ? 0n : cfg.reserveZat,
     deposits: deposits.map((d) => ({ ...d, txid: d.ref })),
-    unrevealed: o.unrevealed ?? [],
+    unrevealed,
     publicSignals: o.publicSignals,
     emptyCommitment: await emptyCommitment(cfg.auctionId),
   });
   const checks = [{ name: 'proof', ok: proofOk, detail: proofOk ? 'the Groth16 proof verifies with the MaxBid verification key' : 'the Groth16 proof does not verify' }, ...r.checks];
-  return { ok: proofOk && r.ok, checks, winnerTxid: r.winnerTxid, winningBid: r.winningBid };
+  if (noSale) {
+    const below = r.winningBid < cfg.reserveZat;
+    checks.push({
+      name: 'no_sale',
+      ok: below && noSale.reason === 'below_reserve',
+      detail: below ? `no sale: the highest revealed bid, ${r.winningBid} zat, is below the reserve ${cfg.reserveZat}` : `the outcome says no sale, but the highest revealed bid, ${r.winningBid} zat, meets the reserve ${cfg.reserveZat}`,
+    });
+  }
+  const ok = proofOk && checks.every((c) => c.ok);
+  return { ok, checks, winnerTxid: noSale ? null : r.winnerTxid, winningBid: r.winningBid, noSale, proven: r.proven };
+}
+
+/** Deposits a settlement pays out (a refund, the winner's change or a forfeit): every mined deposit that carries a bid commitment. */
+export const settledDeposits = (deposits: ClassifiedDeposit[]) => deposits.filter((d) => d.commitment !== null && d.status !== 'pending');
+
+/**
+ * What a no-sale settlement pays for a deposit: its value minus its own output fee, and minus a
+ * second one when the settlement has a single output (ZIP-317 charges at least two actions).
+ */
+export function noSaleAmount(d: { value: bigint }, settledCount: number): bigint {
+  const amount = d.value - OUTPUT_FEE_ZAT - (settledCount < 2 ? OUTPUT_FEE_ZAT : 0n);
+  return amount > 0n ? amount : 0n;
 }
 
 /**
  * Picks the winner among valid, revealed deposits (MaxBid proof over them in deposit order) and
  * builds the settlement payouts: seller, winner change, full refunds for every other revealed
  * deposit (losers, duplicates, late, wrong-amount and over-capacity deposits), and every unrevealed
- * deposit forfeited to the seller.
+ * deposit forfeited to the seller. With no sale (nothing valid revealed, or the highest bid below the
+ * reserve) every revealed deposit is refunded minus its own output fee and unrevealed ones are
+ * forfeited; `noSale` says why.
  */
 export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], reveals: Reveal[]): Promise<Outcome> {
   const byCommitment = new Map<string, Reveal>();
@@ -266,11 +343,22 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
   }
   const valid = deposits.filter((d) => d.status === 'valid' && byCommitment.has(d.commitment!));
   const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.ref);
-  if (valid.length === 0) throw new Error('no valid revealed bid');
   if (valid.length > SLOTS) throw new Error(`more than ${SLOTS} valid bids: the circuit has ${SLOTS} slots`);
+  if (valid.length === 0) {
+    const noSale: NoSale = { reason: 'no_reveal', detail: 'no valid deposit was revealed' };
+    return { noSale, winnerCommitment: null, winningBid: 0n, slots: [], proof: null, publicSignals: null, unrevealed, payouts: noSalePayouts(cfg, deposits, byCommitment) };
+  }
   const openings: Opening[] = valid.map((d) => ({ bid: byCommitment.get(d.commitment!)!.bid, salt: byCommitment.get(d.commitment!)!.salt }));
   const w = winnerOf(openings);
-  if (openings[w].bid < cfg.reserveZat) throw new Error(`highest bid ${openings[w].bid} is below the reserve ${cfg.reserveZat}: no sale`);
+  if (openings[w].bid < cfg.reserveZat) {
+    // Prove which bid is highest with reserve 0; the audit checks that bid is below the real reserve.
+    const input = await inputs(cfg.auctionId, 0n, openings, w);
+    const { proof, publicSignals } = await prove(input);
+    const noSale: NoSale = { reason: 'below_reserve', detail: `the highest revealed bid, ${openings[w].bid} zat, is below the reserve ${cfg.reserveZat}` };
+    const self = await checkOutcome(cfg, deposits, { publicSignals, proof, unrevealed, noSale });
+    if (!self.ok) throw new Error(`internal: the no-sale outcome fails its own check: ${self.checks.filter((c) => !c.ok).map((c) => c.detail).join('; ')}`);
+    return { noSale, winnerCommitment: null, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts: noSalePayouts(cfg, deposits, byCommitment) };
+  }
   const input = await inputs(cfg.auctionId, cfg.reserveZat, openings, w);
   const { proof, publicSignals } = await prove(input);
   const self = await checkOutcome(cfg, deposits, { publicSignals, proof, unrevealed });
@@ -288,12 +376,32 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     if (d.status === 'pending') continue;
     payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${shortRef(d.ref)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
   }
-  // A deposit nobody revealed has no refund address. It goes to the seller, not to the auctioneer, so
-  // the auctioneer gains nothing by making a reveal fail. (Memo mismatches are not bids: they stay.)
-  for (const d of deposits) {
-    if (d.commitment === null || d.status === 'pending' || byCommitment.has(d.commitment)) continue;
-    const amount = d.value - FORFEIT_OUTPUT_FEE_ZAT;
-    if (amount > 0n) payouts.push({ address: cfg.sellerAddress, amount, why: `forfeit (unrevealed ${d.status === 'valid' ? 'bid' : d.status} deposit ${shortRef(d.ref)}) to the seller, minus its ${FORFEIT_OUTPUT_FEE_ZAT} zat output fee`, memo: payoutMemo(cfg.auctionId, 'forfeit', d.ref) });
+  payouts.push(...forfeits(cfg, deposits, byCommitment));
+  return { noSale: null, winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
+}
+
+// A deposit nobody revealed has no refund address. It goes to the seller, not to the auctioneer, so
+// the auctioneer gains nothing by making a reveal fail. (Memo mismatches are not bids: they stay.)
+function forfeits(cfg: AuctionConfig, deposits: ClassifiedDeposit[], byCommitment: Map<string, Reveal>, amountOf = (d: ClassifiedDeposit) => d.value - FORFEIT_OUTPUT_FEE_ZAT): Outcome['payouts'] {
+  const out: Outcome['payouts'] = [];
+  for (const d of settledDeposits(deposits)) {
+    if (byCommitment.has(d.commitment!)) continue;
+    const amount = amountOf(d);
+    if (amount > 0n) out.push({ address: cfg.sellerAddress, amount, why: `forfeit (unrevealed ${d.status === 'valid' ? 'bid' : d.status} deposit ${shortRef(d.ref)}) to the seller, minus its ${d.value - amount} zat output fee`, memo: payoutMemo(cfg.auctionId, 'forfeit', d.ref) });
   }
-  return { winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
+  return out;
+}
+
+/** No sale: every revealed deposit back to its refund address and every unrevealed one to the seller, each minus its own output fee. */
+function noSalePayouts(cfg: AuctionConfig, deposits: ClassifiedDeposit[], byCommitment: Map<string, Reveal>): Outcome['payouts'] {
+  const settled = settledDeposits(deposits);
+  const payouts: Outcome['payouts'] = [];
+  for (const d of settled) {
+    const r = byCommitment.get(d.commitment!);
+    const amount = noSaleAmount(d, settled.length);
+    if (!r || amount === 0n) continue;
+    payouts.push({ address: r.refundAddress, amount, why: `refund, no sale (${d.status === 'valid' ? 'bid' : d.status} deposit ${shortRef(d.ref)}), minus its ${d.value - amount} zat output fee`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
+  }
+  payouts.push(...forfeits(cfg, deposits, byCommitment, (d) => noSaleAmount(d, settled.length)));
+  return payouts;
 }

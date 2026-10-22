@@ -16,7 +16,7 @@ interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
   deposits: { txid: string; output?: string }[];
   settlement?: { txid: string; height: number };
-  outcome?: { proof: object; publicSignals: string[]; unrevealed?: string[] };
+  outcome?: { proof: object | null; publicSignals: string[] | null; unrevealed?: string[]; noSale?: { reason: 'no_reveal' | 'below_reserve'; detail: string } | null };
 }
 
 /** What the bid tool keeps in SBA_BIDDER_DIR (mode 0600). The reveal and complaint secrets never leave it unless the bidder files a complaint. */
@@ -296,7 +296,7 @@ export function createServer(): McpServer {
     'verify_result',
     {
       title: "Check the auction's published result",
-      description: "Verifies the MaxBid Groth16 proof and checks it is about exactly this auction's deposits as read on-chain with the auction's viewing key (scanned up to the settlement's height as mined, which must match the record): proven slots are the valid deposits in chain order (minus any declared unrevealed), spare slots are empty, and the winner is a real deposit.",
+      description: "Verifies the MaxBid Groth16 proof and checks it is about exactly this auction's deposits as read on-chain with the auction's viewing key (scanned up to the settlement's height as mined, which must match the record): proven slots are the valid deposits in chain order (minus any declared unrevealed), spare slots are empty, and the winner is a real deposit. A no-sale result holds only when nothing valid was revealed, or when its proof shows the highest revealed bid is below the reserve.",
       annotations: { readOnlyHint: true },
     },
     () =>
@@ -314,8 +314,10 @@ export function createServer(): McpServer {
           auction_id_matches: ok('auction'),
           slots_are_the_chain_deposits: ok('slots') && ok('unrevealed'),
           winner_is_a_deposit: ok('winner'),
-          winning_bid_zat: r.winningBid.toString(),
+          winning_bid_zat: r.noSale ? null : r.winningBid.toString(),
           winner_deposit: r.winnerTxid,
+          // No sale: nothing valid was revealed, or the proof (reserve 0) shows the highest bid is below the reserve.
+          no_sale: r.noSale ? { ...r.noSale, highest_bid_zat: r.noSale.reason === 'below_reserve' ? r.winningBid.toString() : null } : null,
           unrevealed: p.outcome.unrevealed ?? [],
           failed: [
             ...settlementProblems,

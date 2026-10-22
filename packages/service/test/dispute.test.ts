@@ -166,6 +166,18 @@ describe('checkComplaint', () => {
     expect(ok[0]).toMatchObject({ ok: true, line: expect.stringMatching(/^paid in full: the refund address received 4000000 zat in settlement 5555555555, owed 4000000/) });
   });
 
+  it('no sale: a revealed bidder is owed its deposit minus that refund output fee, and a shortfall is upheld', async () => {
+    const { by, complaint, ctx } = await auction();
+    const c = complaint('bob');
+    const noSale = { noSale: true, winnerDeposit: null, winningBid: 0n };
+    const memo = `sba1:${cfg.auctionId}:refund:${by.bob.txid}`;
+    const paid = await checkComplaint(c, ctx(c, { refund: { keyOwnsAddress: true, outputs: [{ valueZat: 1_995_000n, memo }] } }, noSale));
+    expect(paid).toMatchObject({ verdict: 'unfounded', owedZat: 1_995_000n, reasons: [expect.any(String), expect.stringMatching(/^paid in full: the refund address received 1995000 zat in settlement \w+, owed 1995000/)] });
+    const unpaid = await checkComplaint(c, ctx(c, { refund: { keyOwnsAddress: true, outputs: [] } }, noSale));
+    expect(unpaid.verdict).toBe('upheld');
+    expect(unpaid.reasons[0]).toBe('the refund address received 0 zat in settlement 5555555555, owed 1995000 (1995000 no-sale refund of bbbbbbbbbb)');
+  });
+
   it('a complaint without a refund viewing key is still verified: authentic, anchored and honoured, payment not checked', async () => {
     const { by, log, complaint, ctx } = await auction();
     const c = complaint('alice', { refundViewingKey: null });

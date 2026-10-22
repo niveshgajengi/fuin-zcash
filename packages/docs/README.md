@@ -170,7 +170,8 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 | reveal decrypts, but its opening hashes to another commitment (another bidder's deposit) | `wrong_commitment` |
 | the same opening of a commitment again | `duplicate`: no effect (idempotent) |
 | a different opening of an already-opened commitment | `conflicting`: the first one counts |
-| highest valid bid < reserve | no sale |
+| no valid deposit revealed | **no sale** (`no_reveal`): no proof; every valid deposit is declared unrevealed (the audit checks that no accepted reveal is among them) and forfeited to the seller, minus its output fee; a revealed non-bid deposit (late, duplicate, wrong amount) is refunded minus its output fee |
+| highest revealed valid bid < reserve | **no sale** (`below_reserve`): a MaxBid proof made with reserve 0 over the same slots shows which bid is highest, and the audit checks that bid is below the real reserve (so a no-sale cannot cancel a sale that met it); that bid becomes public, as a winning bid would. Every revealed deposit is refunded to its refund address minus its own 5,000 zat output fee (10,000 when the settlement has a single output, ZIP-317's two-action minimum), memo `sba1:<id>:refund:<deposit>`; unrevealed deposits are forfeited to the seller as above. The outcome is published with `noSale: { reason, detail }` |
 
 ## Trusted setup
 
