@@ -10,7 +10,7 @@ The auctioneer's side, plus the scripts that ran and audit the live auction.
 | `src/zingo.ts` | zingo-cli wrapper (testnet, `--waitsync`); never calls `recovery_info` |
 | `src/verifier.ts` | bridge to `sba-verify`: decrypt with an incoming viewing key, scan a block range for every payment to that key, chain tip, block header times, address ownership; `asDeposits` reads every payment in a transaction as its own deposit |
 | `src/testnet-run.ts` | the first live auction (`pnpm --filter @sba/service testnet-run`), from before the reveal channel: one script held every opening |
-| `src/audit.ts` | re-checks a published auction from the chain (`pnpm --filter @sba/service audit [record] [complaint.json...]`): scans the auction's blocks so a deposit or reveal left out of the record is caught, re-applies the rules, checks the reveal log and the outcome, and checks complaints |
+| `src/audit.ts` | re-checks a published auction from the chain (`pnpm --filter @sba/service run audit [record] [complaint.json...]`): scans the auction's blocks so a deposit or reveal left out of the record is caught, re-applies the rules, checks the reveal log and the outcome, and checks complaints |
 
 Env: `SBA_ZINGO_CLI`, `SBA_LWD_URL`, `SBA_VERIFY_BIN`, `SBA_AUDIT_UIVK` (see the root `.env.example`).
 Tests (`pnpm test`, 28): the rules with real Poseidon commitments and real proofs (8, incl. two

@@ -42,7 +42,7 @@ the winner's complaint (unfounded). Settlement: 5 outputs, each matched by its r
 transaction Ironwood-only. A first attempt was abandoned when lightwalletd transmission failures
 held its deposits past its close; its four payments show up in Sale 002 as memo mismatches.
 
-## Audit (`pnpm --filter @sba/service audit [record] [complaint.json ...]`)
+## Audit (`pnpm --filter @sba/service run audit [record] [complaint.json ...]`)
 
 Scans the auction's blocks (open height to settlement) with only the auction's incoming viewing key,
 so the deposit list comes from the chain, not from the record. Fails if a deposit on chain is not in

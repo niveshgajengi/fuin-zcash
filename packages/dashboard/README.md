@@ -19,7 +19,7 @@ and Sale 002 from `deployments/testnet-reveal.json`).
 - **Audit:** how to re-read it from the chain (including reveal logs and complaints), and the
   auction's incoming viewing key.
 
-This page checks the record against itself; only `pnpm --filter @sba/service audit` re-reads the
+This page checks the record against itself; only `pnpm --filter @sba/service run audit` re-reads the
 deposits from the chain.
 
 `pnpm --filter @sba/dashboard dev` → http://localhost:5178. Checked in a browser at 1280 and 375 px:

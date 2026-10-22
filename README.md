@@ -134,7 +134,7 @@ pnpm --filter @sba/dashboard dev
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
 pnpm --filter @sba/mcp reveal-run
 # re-check a published auction from the chain with only its incoming viewing key (and any complaint files)
-SBA_AUDIT_UIVK=<a recipient's UIVK, optional> pnpm --filter @sba/service audit [deployments/testnet-reveal.json] [complaint.json ...]
+SBA_AUDIT_UIVK=<a recipient's UIVK, optional> pnpm --filter @sba/service run audit [deployments/testnet-reveal.json] [complaint.json ...]
 ```
 
 Demo video: `zec-sealed-bid-audit.mp4` (shared separately until hosted): the audit script re-reading

@@ -292,7 +292,7 @@ function Verify() {
         </button>
       </div>
       <p className="fineprint">
-        This page checks the record against itself. Only the audit (<code>pnpm --filter @sba/service audit</code>) re-reads the deposits from the chain.
+        This page checks the record against itself. Only the audit (<code>pnpm --filter @sba/service run audit</code>) re-reads the deposits from the chain.
       </p>
     </section>
   );
@@ -363,7 +363,7 @@ function Audit() {
       </div>
       <ol className="howto">
         <li>
-          <code>pnpm --filter @sba/service audit</code> scans the auction&apos;s blocks with its incoming viewing key, so a deposit left out of the record shows up.
+          <code>pnpm --filter @sba/service run audit</code> scans the auction&apos;s blocks with its incoming viewing key, so a deposit left out of the record shows up.
         </li>
         <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch. A transaction that pays the auction twice is two deposits.</li>
         <li>It verifies the proof and ties it to those deposits, the same checks this page runs.</li>
