@@ -111,7 +111,13 @@ The audit (`audit <record> <complaint.json>...`) gives one of three verdicts:
 | `upheld` (audit fails) | the reveal was valid and the record rejects it, leaves it out, or declares its deposit unrevealed; or the refund address, read with its own viewing key (checked with `sba-verify owns`), received less than it is owed |
 
 What it owes: every deposit carrying the opened commitment back in full, except the winning deposit,
-which is owed its change (deposit − bid − fee budget).
+which is owed its change (deposit − bid − fee budget). What it was paid: only the settlement outputs
+whose memo names one of those deposits (`refund:<deposit>`, `change:<deposit>`), read with the refund
+key, so a payment for another deposit to the same address cannot make an underpaid one look paid. A
+legacy settlement (every memo `sba1:<id>:settlement`, as in Sales 001 and 002) names no deposit: the
+audit then adds up what every complaint using the same refund key is owed and compares it with that
+key's total once (`checkSharedRefundKeys`). That catches a shortfall across complaints, but a deposit
+whose bidder did not complain can still mask one.
 
 Filing a complaint publishes the bidder's own opening, including its bid. That is the price of
 proving censorship, and the bidder chooses to pay it.
@@ -174,8 +180,27 @@ trusted. A multi-party ceremony, or a transparent proof system, would remove tha
 
 ## Prior art
 
-Sealed-bid auctions with zero-knowledge proofs are not new (for example the zkSNARK-based Zcash
-auction designs discussed in the community, and many Ethereum commit-reveal auctions). What this
-build does differently is run on Zcash's current shielded pool: equal-size shielded deposits whose
-memos are the commitments, a public proof over exactly those memos, and settlement and refunds
-checked with each recipient's incoming viewing key.
+Sealed-bid auctions with zero-knowledge proofs are not new. The closest:
+
+- **zkSNARKs' blind-bid ZEC auction** (September 2026): bids in ZEC, reported 16,971 bids, cleared at
+  1.5 ZEC, settled through NEAR Intents (about $19M across 1,718 cross-chain swaps).
+  Sources: [Crypto Briefing](https://cryptobriefing.com/zksnarks-auction-clears-zcash-blind-bids/),
+  [NEAR Intents blog](https://intents.aurora.dev/blog/zcash-auction-cross-chain-swaps),
+  [Nightash](https://nightash.org/en/news/near-intents-zec-auction-settlement-2026-09-14/). These
+  figures come from those reports; Fuin did not check them on chain.
+- **Ethereum commit-reveal auctions with ZK proofs:** a contract holds the commitments and deposits,
+  bids are revealed to it (or proven in zero knowledge), and the contract enforces the deadlines.
+
+What Fuin does differently:
+
+1. **Equal shielded deposits whose memos are the proof's public inputs.** The MaxBid proof is about
+   exactly the commitments in the auction's deposit memos, and `checkResult` ties every slot to a
+   deposit on chain, so neither a phantom bid nor a dropped deposit passes.
+2. **Reveals sealed inside shielded memos.** There is no contract to receive reveals, so the chain
+   timestamps them instead: each reveal is a note whose memo is the opening sealed to the reveal key,
+   mined inside the window or not, and a reveal the auctioneer drops is visible to anyone with the
+   viewing key.
+3. **Signed complaints anchored on chain, and an audit with only the viewing key.** A bidder's
+   complaint is signed with a key only it holds and anchored in the dispute window, and the audit
+   proves completeness with the incoming viewing key alone: no hidden deposit, no hidden reveal, a
+   settlement height read from the chain.

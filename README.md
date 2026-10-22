@@ -1,12 +1,80 @@
 # Fuin — sealed-bid auctions on Zcash
 
+**Landing:** https://nickthelegend.github.io/zec-sealed-bid-auction/ · **Saleroom (verify in the browser):** https://nickthelegend.github.io/zec-sealed-bid-auction/saleroom/ · **Code:** https://github.com/nickthelegend/zec-sealed-bid-auction
+(These go live when the repository is public and GitHub Pages is set to "GitHub Actions": `.github/workflows/pages.yml` publishes `pnpm build:site`. Until then: `pnpm install && pnpm build:site`, then serve `site/`, or run the saleroom with `pnpm --filter @sba/dashboard dev`.)
+
 Fuin (封印, Japanese for "seal") is a sealed-bid auction where every bid is a **shielded Zcash deposit of the same size**, its memo a
 Poseidon commitment to the bid. After the close, each bidder **reveals through the chain**: a second
 shielded note whose memo is its opening sealed to the auctioneer's reveal key. A **Groth16 proof (`MaxBid`)** shows which
 commitment holds the highest bid at or above the reserve, so **only the winning bid is ever
 published**. One shielded transaction then pays the seller and refunds every other revealed deposit, and each
-recipient checks its own output with its own viewing key. Zcash testnet, Ironwood pool, no
-transparent parts.
+recipient checks its own output with its own viewing key. In Sale 002 the three bidders were
+independent **MCP agents** (`sba-mcp`). Zcash testnet, Ironwood pool, no transparent parts.
+
+## What is new here
+
+Sealed-bid ZK auctions are not new: zkSNARKs ran a blind-bid ZEC auction in September 2026
+(reported 16,971 bids, cleared at 1.5 ZEC, settled through NEAR Intents), and Ethereum has many
+ZK commit-reveal auctions. Fuin's differences:
+
+1. **The deposits are the proof's public inputs.** Every bid is an equal shielded deposit whose memo is
+   the commitment the MaxBid proof is about, so the result is tied to exactly the deposits on chain.
+2. **Reveals are sealed inside shielded memos.** The chain timestamps each reveal against the window,
+   and a dropped reveal is visible to anyone with the viewing key, without exposing the bid.
+3. **Complaints are signed and anchored on chain, and the audit needs only the viewing key** to show
+   the record is complete: no hidden deposit, no hidden reveal.
+
+Sources and the comparison: [packages/docs](packages/docs/README.md#prior-art).
+
+## Live run on Zcash testnet: Sale 002 (the reveal channel, MCP agent bidders)
+
+Auction `fuin-reveal-2026-10-21T18:43` (id 2582488456264710777): deposit 0.002 TAZ, reserve 0.0005 TAZ,
+open at block 4,526,425 (18:42:10 UTC), closes after block 4,526,455 (18:57:03 UTC), reveals until
+block 4,526,479 (19:04:48 UTC), complaints until 60 blocks after the settlement. Record:
+[`deployments/testnet-reveal.json`](deployments/testnet-reveal.json). Run by
+`pnpm --filter @sba/mcp reveal-run`: each bidder is its own `sba-mcp` process with only its own wallet
+and openings folder. The auctioneer learns the openings only from the reveal notes on chain.
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid (MCP `bid`) | valid | [`b7511ee8…`](https://testnet.zcashexplorer.app/transactions/b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b) | 4526435 |
+| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`eb27d26d…`](https://testnet.zcashexplorer.app/transactions/eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768) | 4526435 |
+| bidder3: one transaction pays the auction twice | output 0 **valid**, output 2 **duplicate** (both refunded) | [`9bb4098e…`](https://testnet.zcashexplorer.app/transactions/9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c) | 4526438 |
+| bidder2's second bid, never revealed | **unrevealed** (listed in the outcome; not refunded: this sale predates the forfeit-to-seller rule, so it stayed in the auction wallet) | [`19029d77…`](https://testnet.zcashexplorer.app/transactions/19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66) | 4526439 |
+| 4 payments for an abandoned first attempt (below) | memo_mismatch (another auction's id) | `26f240bc…` ×2, `42ed60c8…`, `597be193…` | 4526425 |
+
+| Reveal note (1 zat, memo sealed to the reveal key) | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 (MCP `reveal`) | accepted | [`332fbc3c…`](https://testnet.zcashexplorer.app/transactions/332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161) | 4526461 |
+| bidder2 (MCP `reveal`) | accepted | [`07ec9dcd…`](https://testnet.zcashexplorer.app/transactions/07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553) | 4526464 |
+| bidder3 (MCP `reveal`, names `9bb4098e…:0`) | accepted | [`80428975…`](https://testnet.zcashexplorer.app/transactions/804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7) | 4526465 |
+| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`ca315a6c…`](https://testnet.zcashexplorer.app/transactions/ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e) | 4526465 |
+| bidder1's reveal re-sent after the window | **late** | [`64de2707…`](https://testnet.zcashexplorer.app/transactions/64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a) | 4526489 |
+
+**Settlement** [`e84de386…`](https://testnet.zcashexplorer.app/transactions/e84de386e23fb514b7b329873d48a4b9316bc00984101f67b4167a9738746f5d)
+(block 4,526,493, 19:10:08 UTC), 5 outputs, each matched by its recipient's own viewing key: seller
+135,000 zat; bidder2 (winner) 5,000 change; bidder1 200,000; bidder3 200,000 + 200,000 (its bid and
+the duplicate second payment). The proof's slots are the three revealed valid deposits; the
+never-revealed one is declared `unrevealed`.
+
+**Dispute:** bidder2, the winner (its bid is already public), filed a complaint with MCP `complain`,
+anchored at [`f17193d5…`](https://testnet.zcashexplorer.app/transactions/f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb)
+(block 4,526,500; file: [`deployments/complaints/`](deployments/complaints)). The audit checks it
+against the chain: `unfounded: reveal 07ec9dcd08 (block 4526464) was honoured`, and, summed per refund
+key because this settlement's memos predate per-deposit tags, `paid in full: the refund address
+received 5000 zat in settlement e84de386e2, owed 5000`. Pointed at a record that names another
+transaction as the settlement, the audit fails (live tests). That complaint was filed before the
+refund key became opt-in, so it carries the incoming viewing key of bidder2's whole demo wallet
+(also used in Sale 001): anyone can read every testnet payment to that wallet with it. The file stays
+as it is because its digest is the one anchored on chain.
+
+An earlier attempt (`fuin-reveal-2026-10-21T18:32`, auction 4193641125122731518) was abandoned:
+lightwalletd transmission failures held three of its deposit transactions (four payments, 0.008 TAZ)
+in the mempool past its close. They were mined in Sale 002's first block, where the audit reads them
+as memo mismatches. They stay in the auction wallet and were not refunded: they came from the same
+operator's demo bidder wallets, that attempt never settled, and no refund was sent, so there is no
+refund txid. Under the current rules a memo mismatch is not a bid and stays where it is; an
+unrevealed deposit goes to the seller, so the auctioneer gains nothing from a failed reveal.
 
 ## Live run on Zcash testnet: Sale 001 (before the reveal channel)
 
@@ -49,48 +117,8 @@ holds them, as an auctioneer must).
 Not refunded: the memo-mismatch deposit (100,000 zat; no reveal can claim it) and whatever of the
 60,000 zat fee budget the settlement fee did not use.
 
-## Live run on Zcash testnet: Sale 002 (the reveal channel)
-
-Auction `fuin-reveal-2026-10-21T18:43` (id 2582488456264710777): deposit 0.002 TAZ, reserve 0.0005 TAZ,
-open at block 4,526,425 (18:42:10 UTC), closes after block 4,526,455 (18:57:03 UTC), reveals until
-block 4,526,479 (19:04:48 UTC), complaints until 60 blocks after the settlement. Record:
-[`deployments/testnet-reveal.json`](deployments/testnet-reveal.json). Run by
-`pnpm --filter @sba/mcp reveal-run`: each bidder is its own `sba-mcp` process with only its own wallet
-and openings folder. The auctioneer learns the openings only from the reveal notes on chain.
-
-| Deposit | Status | Tx | Block |
-|---|---|---|---|
-| bidder1 sealed bid (MCP `bid`) | valid | [`b7511ee8…`](https://testnet.zcashexplorer.app/transactions/b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b) | 4526435 |
-| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`eb27d26d…`](https://testnet.zcashexplorer.app/transactions/eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768) | 4526435 |
-| bidder3: one transaction pays the auction twice | output 0 **valid**, output 2 **duplicate** (both refunded) | [`9bb4098e…`](https://testnet.zcashexplorer.app/transactions/9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c) | 4526438 |
-| bidder2's second bid, never revealed | **unrevealed** (listed in the outcome, not refunded) | [`19029d77…`](https://testnet.zcashexplorer.app/transactions/19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66) | 4526439 |
-| 4 payments for an abandoned first attempt (below) | memo_mismatch (another auction's id) | `26f240bc…` ×2, `42ed60c8…`, `597be193…` | 4526425 |
-
-| Reveal note (1 zat, memo sealed to the reveal key) | Status | Tx | Block |
-|---|---|---|---|
-| bidder1 (MCP `reveal`) | accepted | [`332fbc3c…`](https://testnet.zcashexplorer.app/transactions/332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161) | 4526461 |
-| bidder2 (MCP `reveal`) | accepted | [`07ec9dcd…`](https://testnet.zcashexplorer.app/transactions/07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553) | 4526464 |
-| bidder3 (MCP `reveal`, names `9bb4098e…:0`) | accepted | [`80428975…`](https://testnet.zcashexplorer.app/transactions/804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7) | 4526465 |
-| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`ca315a6c…`](https://testnet.zcashexplorer.app/transactions/ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e) | 4526465 |
-| bidder1's reveal re-sent after the window | **late** | [`64de2707…`](https://testnet.zcashexplorer.app/transactions/64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a) | 4526489 |
-
-**Settlement** [`e84de386…`](https://testnet.zcashexplorer.app/transactions/e84de386e23fb514b7b329873d48a4b9316bc00984101f67b4167a9738746f5d)
-(block 4,526,493, 19:10:08 UTC), 5 outputs, each matched by its recipient's own viewing key: seller
-135,000 zat; bidder2 (winner) 5,000 change; bidder1 200,000; bidder3 200,000 + 200,000 (its bid and
-the duplicate second payment). The proof's slots are the three revealed valid deposits; the
-never-revealed one is declared `unrevealed`.
-
-**Dispute:** bidder2, the winner (its bid is already public), filed a complaint with MCP `complain`,
-anchored at [`f17193d5…`](https://testnet.zcashexplorer.app/transactions/f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb)
-(file: [`deployments/complaints/`](deployments/complaints)). The audit checks it against the chain:
-`unfounded: reveal 07ec9dcd08 (block 4526464) was honoured; paid in full: the refund address received
-5000 zat in settlement e84de386e2, owed 5000`. Pointed at a record that names a different
-transaction as the settlement, the same complaint is upheld and the audit fails (live test).
-
-An earlier attempt (`fuin-reveal-2026-10-21T18:32`) was abandoned: lightwalletd transmission failures
-held three of its deposit transactions (four payments, 0.008 TAZ) in the mempool past its close. They
-were mined in Sale 002's first block, where the audit reads them as memo mismatches. They stay in
-the auction wallet.
+The audit prints `! terms: legacy` for both sales: their ids hash only the name, so their close,
+reveal window and reserve are read from the record. New auctions hash every term into the id.
 
 ## How it works
 
@@ -100,12 +128,16 @@ the auction wallet.
    encrypted to the auction's published X25519 reveal key. Anyone with the viewing key sees which
    deposit a reveal names and when, never what it says. The auctioneer decrypts reveals from the
    chain. Why a memo and not an HTTP endpoint: [packages/docs](packages/docs/README.md#why-reveal-by-memo-not-an-http-endpoint).
-3. The auctioneer proves `MaxBid` over the revealed valid deposits in chain order, lists any valid
-   deposit that was never revealed, and settles in one shielded transaction.
-4. Anyone with the auction's **incoming viewing key** scans the auction's blocks, reads every
-   deposit's amount and memo (never a bid), and checks that the proof covers exactly those deposits
-   (`checkResult`): no phantom bid in a spare slot, no deposit silently left out, the winner a real
-   deposit.
+3. The auctioneer proves `MaxBid` over the revealed valid deposits in chain order (at most 8; a
+   later valid deposit is `over_capacity` and refunded), lists any valid deposit that was never
+   revealed, and settles in one shielded transaction whose memos name what each output pays
+   (`seller`, `change:<deposit>`, `refund:<deposit>`, `forfeit:<deposit>`). An unrevealed deposit
+   goes to the seller.
+4. Anyone with the auction's **incoming viewing key** reads the settlement's height from the chain,
+   scans the auction's blocks up to it, reads every deposit's amount and memo (never a bid), and
+   checks that the proof covers exactly those deposits (`checkResult`): no phantom bid in a spare
+   slot, no deposit silently left out, the winner a real deposit. It also checks that the auction id
+   is the hash of every term on the card (`checkTerms`), so no term changed after the bids.
 
 Protocol, what each party learns, rules and trusted setup: [packages/docs](packages/docs/README.md).
 
@@ -115,32 +147,46 @@ Protocol, what each party learns, rules and trusted setup: [packages/docs](packa
 |---|---|
 | [`packages/circuits`](packages/circuits) | `MaxBid(8)` Circom/Groth16 circuit (6,800 constraints), local setup, helpers, `checkResult` (ties a proof to the deposits), 10 real-proof tests |
 | [`packages/verifier`](packages/verifier) | `sba-verify` (Rust): decrypt transactions, or scan a block range, with an incoming viewing key via lightwalletd, as JSON (every output, with its index); address ownership; chain tip; block times |
-| [`packages/service`](packages/service) | auction rules, the reveal channel (seal, ingest, audit), complaints, zingo-cli wallet wrapper, settlement, the first live run, the chain-scanning audit |
-| [`packages/mcp`](packages/mcp) | `sba-mcp` for agent bidders: `auction_status`, `bid` (refuses closed auctions), `reveal` (sealed note, refuses outside the window), `complain`, `verify_result`; `reveal-run`, the Sale 002 live run |
-| [`packages/dashboard`](packages/dashboard) | the saleroom: lot cards, live clock since the hammer, and in-browser checks (vk hash, Groth16 proof, `checkResult`) with two tamper buttons; Sale 002's reveal notes |
+| [`packages/service`](packages/service) | auction rules (bound terms, capacity, tagged settlement memos, forfeits), the reveal channel (seal, ingest, audit), complaints, zingo-cli wallet wrapper, settlement, the first live run, the chain-scanning audit |
+| [`packages/mcp`](packages/mcp) | `sba-mcp` for agent bidders: `auction_status`, `bid` (refuses closed, unbound or full auctions and unrevealable refund addresses; saves the opening before sending), `reveal` (sealed note, refuses outside the window), `complain` (no viewing key unless asked), `verify_result`; `reveal-run`, the Sale 002 live run |
+| [`packages/dashboard`](packages/dashboard) | the saleroom: both sales in tabs, lot cards, live clock since the hammer, in-browser checks (vk hash, Groth16 proof, `checkResult`) with two tamper buttons on either sale; Sale 002's reveal notes and complaint |
 | [`packages/docs`](packages/docs) | protocol, privacy table, rules, trusted setup, prior art |
-| [`packages/landing`](packages/landing) | one-page catalogue landing with the sealed-envelope reveal |
+| [`packages/landing`](packages/landing) | one-page catalogue landing: Sale 002 and its MCP agents, the sealed-envelope reveal, Sale 001, what is new |
+| [`e2e`](e2e) | Playwright suite in Google Chrome over the landing and the saleroom as hosted (`pnpm test:e2e`) |
 
 ## Run it
 
-Needs Node 22+, pnpm 10, circom 2.2, Rust 1.89 (pinned in `packages/verifier`) and, for a live run,
-zingo-cli (`SBA_ZINGO_CLI`, default `~/src/zingolib/target/release/zingo-cli`).
+**Two minutes, no Rust:** the saleroom re-checks both sales' proofs in your browser.
+
+```sh
+pnpm install && pnpm --filter @sba/dashboard dev   # then open http://localhost:5178
+```
+
+Everything: Node 22+, pnpm 10, circom 2.2, Rust 1.89 (pinned in `packages/verifier`), Google Chrome
+(for the e2e suite, which runs Playwright with `channel: 'chrome'`) and, for a live run, zingo-cli
+(`SBA_ZINGO_CLI`, default `~/src/zingolib/target/release/zingo-cli`).
 
 ```sh
 pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
-pnpm test                      # verifier 6 (Rust) + circuits 10 + service 28 + mcp 8 = 52 (service audit and mcp read live testnet)
-pnpm --filter @sba/dashboard dev
-pnpm test:e2e                  # Playwright in Google Chrome over the landing and the saleroom (46 tests; see TESTING.md)
+pnpm test                      # verifier 6 (Rust) + circuits 10 + service 38 + mcp 15 = 69 (service audit and mcp read live testnet)
+pnpm build:site                # site/: the landing at /, the saleroom at /saleroom/, as GitHub Pages serves them
+pnpm test:e2e                  # Playwright in Google Chrome over that site (72 tests: 36 per viewport; see TESTING.md)
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
 pnpm --filter @sba/mcp reveal-run
 # re-check a published auction from the chain with only its incoming viewing key (and any complaint files)
-SBA_AUDIT_UIVK=<a recipient's UIVK, optional> pnpm --filter @sba/service run audit [deployments/testnet-reveal.json] [complaint.json ...]
+pnpm --filter @sba/service run audit deployments/testnet-reveal.json deployments/complaints/*.complaint.json
+SBA_AUDIT_UIVK=<a recipient's UIVK, optional> pnpm --filter @sba/service run audit [record] [complaint.json ...]
 ```
 
-Demo video: `zec-sealed-bid-audit.mp4` (shared separately until hosted): the audit script re-reading
-Sale 001 with only its viewing key. It was recorded at `58c2393`, before the audit scanned blocks and
-before the reveal channel, so it shows the earlier output.
+`pnpm test:e2e` never stops a process it did not start: `e2e/stack.sh` serves `site/` on
+127.0.0.1:4180 (`FUIN_PORT` to change it), refuses a port in use, and stops its own server by PID,
+also when the build or a readiness check fails.
+
+**Demo video:** there is no current one. The only recording, `zec-sealed-bid-audit.mp4` (16 s,
+shared separately), is the audit re-reading Sale 001 at `58c2393`: it predates the chain-scanning
+audit, the reveal channel and Sale 002. A 2-minute walkthrough (landing, saleroom checks and tamper
+buttons, the live Sale 002 audit with its complaint, the MCP tools) is still to be recorded.
 
 Testnet funds came from the public Valar testnet faucet (0.125 TAZ); Sale 002 reused what was left in the same demo wallets. Wallet files and keys stay in
 the gitignored `.demo/` folder.
@@ -148,20 +194,27 @@ the gitignored `.demo/` folder.
 ## Honest limits
 
 - The auctioneer learns every bid at the reveal and is trusted to settle. It cannot fake a winner the
-  proof does not support, add a phantom bid, hide a deposit or a reveal note from the audit, or call
-  an in-window reveal late. If it rejects a valid reveal it alone can decrypt, or underpays, the
-  bidder's complaint proves it and the audit fails. Nothing forces it to settle at all.
+  proof does not support, add a phantom bid, or leave a deposit or a reveal note out of its record
+  without failing the audit (the audit scans up to the settlement's height as mined, not as recorded).
+  For an auction whose id binds its terms it also cannot move the close or the reveal window. **Both
+  live sales predate that binding** (`! terms: legacy`): their windows and reserve come from the
+  record, so an auctioneer could have moved them. If it rejects a valid reveal it alone can decrypt,
+  or underpays, the bidder's complaint proves it and the audit fails. Nothing forces it to settle.
 - Reveals cost one more shielded transaction per bidder, and the public viewing key shows which
   deposits were revealed and when (the outcome's `unrevealed` list says the same).
-- Filing a complaint publishes the complaining bidder's own bid. In Sale 002 only the winner filed
-  one, so no losing bid is public.
+- Filing a complaint publishes the complaining bidder's own bid. Adding a refund viewing key (opt-in,
+  from a refunds-only wallet) makes every payment to that wallet readable. In Sale 002 only the winner
+  filed one; its complaint carries bidder2's whole demo-wallet key (filed before the key was opt-in).
+- Unrevealed deposits now go to the seller. In Sale 002 (before that rule) the unrevealed deposit and
+  the abandoned attempt's four payments (0.008 TAZ) stayed in the auction wallet.
+- Ties within one block go to the lexically lower txid, not the transaction mined first
+  (`sba-verify` reports no position in the block): a bidder could grind its txid to win a same-block tie.
+- At most 8 valid bids compete (the circuit has 8 slots); later ones are refunded if revealed.
 - Sale 001 predates the reveal channel: one script held every opening.
-- A deposit transaction that pays the auction several times is read as several deposits (fixed;
-  Sale 002 has one). The 1-zat reveal and complaint notes stay with the auction.
 - Zcash has no contracts: late, duplicate, wrong-amount, memo-mismatch and altered bids are rejected
   by the auction service, and the inputs to those decisions are re-checkable with the published key.
 - `MaxBid` uses a single-party local Groth16 setup; whoever ran it could forge proofs.
-- Testnet only. Sealed-bid auctions with ZK proofs have prior art; this is not the first.
+- Testnet only, and not the first sealed-bid ZK auction (see "What is new here").
 
 Judge review and what was fixed: [docs/JUDGE-2026-10-21.md](docs/JUDGE-2026-10-21.md).
 
