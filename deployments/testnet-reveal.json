@@ -298,5 +298,16 @@
       "height": 4526493,
       "time": 1792609808
     }
-  }
+  },
+  "verificationKeySha256": "d2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2",
+  "complaints": [
+    {
+      "file": "complaints/2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json",
+      "by": "bidder2",
+      "anchor": {
+        "txid": "f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb",
+        "height": 4526500
+      }
+    }
+  ]
 }
