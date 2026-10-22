@@ -17,7 +17,7 @@
 // settlement (`sba1:<id>:settlement` on every output) is checked per refund key across complaints.
 import { createHash, sign as edSign, verify as edVerify } from 'node:crypto';
 import { commitment } from '@sba/circuits';
-import { depositRef, noSaleAmount, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, settledDeposits, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
+import { depositRef, noSaleAmount, OUTPUT_FEE_ZAT, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, settledDeposits, type AuctionConfig, type ClassifiedDeposit } from './auction.js';
 import { edPrivate, edPublic, openRevealWithEsk, parseRevealMemo, publicRevealStatus, type RevealLogEntry, type RevealMessage, type RevealWindow, type SealedOpening } from './reveal.js';
 
 export const COMPLAINT_PREFIX = 'sba1d';
@@ -61,7 +61,18 @@ export interface ComplaintContext {
   /** Every complaint anchor note (sba1d), from the chain scan after the settlement. */
   anchors: RevealMessage[];
   /** What the published record says; `settlement.height` is the height the settlement was mined at, read from the chain. */
-  record: { reveals: RevealLogEntry[]; unrevealed: string[]; winnerDeposit: string | null; winningBid: bigint; settlement: { txid: string; height: number }; noSale?: boolean };
+  record: {
+    reveals: RevealLogEntry[];
+    unrevealed: string[];
+    winnerDeposit: string | null;
+    winningBid: bigint;
+    settlement: { txid: string; height: number };
+    noSale?: boolean;
+    /** The deposits the proof covers; a refund of any other deposit pays its own output fee (current rules). */
+    proven?: string[];
+    /** Sales 001 and 002 refunded every revealed deposit in full. */
+    legacyRules?: boolean;
+  };
   /** What the settlement paid the refund address, read with `refundViewingKey`; null when no key was given. */
   refund: RefundView | null;
 }
@@ -167,7 +178,12 @@ export async function checkComplaint(c: Complaint, ctx: ComplaintContext): Promi
     } else if (d.ref === ctx.record.winnerDeposit) {
       const change = cfg.depositZat - ctx.record.winningBid - SETTLEMENT_FEE_BUDGET_ZAT;
       if (change > 0n) owedBy.push({ deposit: d.ref, zat: change, part: `${change} winner change for ${short(d.ref)}` });
-    } else owedBy.push({ deposit: d.ref, zat: d.value, part: `${d.value} refund of ${short(d.ref)}` });
+    } else {
+      // Current rules: a losing bid in the proof is refunded in full, any other deposit minus its own output fee.
+      const full = ctx.record.legacyRules || !ctx.record.proven || ctx.record.proven.includes(d.ref);
+      const z = full ? d.value : d.value - OUTPUT_FEE_ZAT;
+      if (z > 0n) owedBy.push({ deposit: d.ref, zat: z, part: `${z} refund of ${short(d.ref)}` });
+    }
   }
   const owed = owedBy.reduce((n, x) => n + x.zat, 0n);
   const parts = owedBy.map((x) => x.part);

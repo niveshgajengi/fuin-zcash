@@ -322,6 +322,27 @@ export async function checkOutcome(cfg: AuctionConfig, deposits: ClassifiedDepos
   return { ok, checks, winnerTxid: noSale ? null : r.winnerTxid, winningBid: r.winningBid, noSale, proven: r.proven };
 }
 
+/** ZIP-317 fee of a shielded transaction: 5,000 zat per logical action, at least two. */
+export function zip317Fee(spends: number, outputs: number): bigint {
+  return OUTPUT_FEE_ZAT * BigInt(Math.max(2, spends, outputs));
+}
+
+/**
+ * Can the auction wallet pay these outputs plus the ZIP-317 fee from the deposits it settles? The
+ * settlement spends one note per settled deposit and adds a change output when anything is left
+ * over. Throws a readable error before anything is broadcast.
+ */
+export function checkAffordable(deposits: ClassifiedDeposit[], payouts: { amount: bigint }[]): { fundsZat: bigint; paidZat: bigint; feeZat: bigint } {
+  const settled = settledDeposits(deposits);
+  const funds = settled.reduce((n, d) => n + d.value, 0n);
+  const paid = payouts.reduce((n, p) => n + p.amount, 0n);
+  const exact = zip317Fee(settled.length, payouts.length);
+  const fee = funds - paid === exact ? exact : zip317Fee(settled.length, payouts.length + 1);
+  if (funds - paid < fee)
+    throw new Error(`the settlement cannot be paid: ${settled.length} deposits hold ${funds} zat, its ${payouts.length} outputs take ${paid} zat and the ZIP-317 fee is ${fee} zat (short by ${fee - (funds - paid)}); nothing was sent`);
+  return { fundsZat: funds, paidZat: paid, feeZat: fee };
+}
+
 /** Deposits a settlement pays out (a refund, the winner's change or a forfeit): every mined deposit that carries a bid commitment. */
 export const settledDeposits = (deposits: ClassifiedDeposit[]) => deposits.filter((d) => d.commitment !== null && d.status !== 'pending');
 
@@ -336,9 +357,9 @@ export function noSaleAmount(d: { value: bigint }, settledCount: number): bigint
 
 /**
  * Picks the winner among valid, revealed deposits (MaxBid proof over them in deposit order) and
- * builds the settlement payouts: seller, winner change, full refunds for every other revealed
- * deposit (losers, duplicates, late, wrong-amount deposits, and revealed bids after the first 8,
- * which are over capacity), and every unrevealed
+ * builds the settlement payouts: seller, winner change, full refunds of losing bids in the proof,
+ * refunds minus their own 5,000 zat output fee for every other revealed deposit (duplicates, late,
+ * wrong-amount deposits, and revealed bids after the first 8, which are over capacity), and every unrevealed
  * deposit forfeited to the seller. With no sale (nothing valid revealed, or the highest bid below the
  * reserve) every revealed deposit is refunded minus its own output fee and unrevealed ones are
  * forfeited; `noSale` says why.
@@ -355,7 +376,9 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
   const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.ref);
   if (valid.length === 0) {
     const noSale: NoSale = { reason: 'no_reveal', detail: 'no valid deposit was revealed' };
-    return { noSale, winnerCommitment: null, winningBid: 0n, slots: [], proof: null, publicSignals: null, unrevealed, payouts: noSalePayouts(cfg, deposits, byCommitment) };
+    const payouts = noSalePayouts(cfg, deposits, byCommitment);
+    checkAffordable(deposits, payouts);
+    return { noSale, winnerCommitment: null, winningBid: 0n, slots: [], proof: null, publicSignals: null, unrevealed, payouts };
   }
   const openings: Opening[] = valid.map((d) => ({ bid: byCommitment.get(d.commitment!)!.bid, salt: byCommitment.get(d.commitment!)!.salt }));
   const w = winnerOf(openings);
@@ -366,7 +389,9 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     const noSale: NoSale = { reason: 'below_reserve', detail: `the highest revealed bid, ${openings[w].bid} zat, is below the reserve ${cfg.reserveZat}` };
     const self = await checkOutcome(cfg, deposits, { publicSignals, proof, unrevealed, noSale });
     if (!self.ok) throw new Error(`internal: the no-sale outcome fails its own check: ${self.checks.filter((c) => !c.ok).map((c) => c.detail).join('; ')}`);
-    return { noSale, winnerCommitment: null, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts: noSalePayouts(cfg, deposits, byCommitment) };
+    const payouts = noSalePayouts(cfg, deposits, byCommitment);
+    checkAffordable(deposits, payouts);
+    return { noSale, winnerCommitment: null, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
   }
   const input = await inputs(cfg.auctionId, cfg.reserveZat, openings, w);
   const { proof, publicSignals } = await prove(input);
@@ -384,9 +409,14 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
     const kind = over.has(d.ref) ? 'over-capacity bid' : d.status === 'valid' ? 'losing bid' : d.status;
-    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${kind} deposit ${shortRef(d.ref)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
+    // A losing bid in the proof is refunded in full; anything else (a non-bid or an over-capacity bid)
+    // pays its own output's fee, so no number of them can make the settlement unaffordable.
+    const amount = d.status === 'valid' && !over.has(d.ref) ? d.value : d.value - OUTPUT_FEE_ZAT;
+    if (amount <= 0n) continue;
+    payouts.push({ address: r.refundAddress, amount, why: `refund (${kind} deposit ${shortRef(d.ref)})${amount < d.value ? `, minus its ${OUTPUT_FEE_ZAT} zat output fee` : ''}`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
   }
   payouts.push(...forfeits(cfg, deposits, byCommitment));
+  checkAffordable(deposits, payouts);
   return { noSale: null, winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
 }
 

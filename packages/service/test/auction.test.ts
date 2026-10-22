@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { checkResult, commitment, emptyCommitment, inputs, prove, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkSellerPayout, sellerOwed, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkAffordable, checkSellerPayout, sellerOwed, zip317Fee, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -71,7 +71,7 @@ describe('reveals and settlement', () => {
     expect(await checkReveal(cfg, big, { bid: 1_990_000n, salt: 9n, refundAddress: 'r' })).toMatchObject({ ok: false, reason: 'bid_over_deposit' });
   });
 
-  it('picks the highest valid bid with a verifying proof and refunds everyone else in full', async () => {
+  it('picks the highest valid bid with a verifying proof, refunds losing bids in full and a revealed late deposit minus its output fee', async () => {
     const deposits = classifyDeposits(cfg, [
       await dep('t1', 10, 1_200_000n, 11n),
       await dep('t2', 11, 1_750_000n, 22n),
@@ -92,7 +92,7 @@ describe('reveals and settlement', () => {
       ['b2', cfg.depositZat - 1_750_000n - SETTLEMENT_FEE_BUDGET_ZAT],
       ['b1', cfg.depositZat],
       ['b3', cfg.depositZat],
-      ['b1', cfg.depositZat],
+      ['b1', cfg.depositZat - OUTPUT_FEE_ZAT],
     ]);
     // Each output's memo names what it pays, so a recipient (and a complaint) can tell its outputs apart.
     expect(o.payouts.map((p) => p.memo)).toEqual([`sba1:${cfg.auctionId}:seller`, `sba1:${cfg.auctionId}:change:t2`, `sba1:${cfg.auctionId}:refund:t1`, `sba1:${cfg.auctionId}:refund:t3`, `sba1:${cfg.auctionId}:refund:t4`]);
@@ -198,7 +198,7 @@ describe('capacity: the proof has 8 slots, taken by the first 8 revealed valid d
     // 1,900,000 would be the highest, but it is the ninth revealed bid: 1,300,000 wins.
     expect(o.winningBid).toBe(1_300_000n);
     expect(await verify(o.publicSignals!, o.proof!)).toBe(true);
-    expect(o.payouts.find((p) => p.address === 'r8')).toMatchObject({ amount: cfg.depositZat, why: 'refund (over-capacity bid deposit k8)' });
+    expect(o.payouts.find((p) => p.address === 'r8')).toMatchObject({ amount: cfg.depositZat - OUTPUT_FEE_ZAT, why: 'refund (over-capacity bid deposit k8), minus its 5000 zat output fee' });
     const check = await checkOutcome(cfg, deposits, o);
     expect(check).toMatchObject({ ok: true, winnerTxid: 'k3' });
     expect(check.checks.find((c) => c.name === 'slots')?.detail).toBe('slots 0-7 are the 8 revealed valid deposits in chain order; 1 later revealed valid deposit(s) are over capacity (no slot, refunded)');
@@ -294,7 +294,7 @@ describe('multi-payment deposits', () => {
       { bid: 900_000n, salt: 3n, refundAddress: 'r2' },
     ]);
     expect(o.winningBid).toBe(1_100_000n);
-    expect(o.payouts.map((p) => [p.address, p.amount])).toContainEqual(['r1', cfg.depositZat]);
+    expect(o.payouts.map((p) => [p.address, p.amount])).toContainEqual(['r1', cfg.depositZat - OUTPUT_FEE_ZAT]);
   });
 });
 
@@ -383,5 +383,30 @@ describe("the seller's payout (what SBA_SELLER_UIVK lets the audit check)", () =
     expect(checkSellerPayout(id, [{ valueZat: 135_000n, memo: `sba1:${id}:settlement` }], legacy)).toEqual({ ok: true, lines: [{ ok: true, line: 'seller received 135000 zat, owed 135000 (legacy settlement memos: compared in total)' }] });
     // With no sale the seller is owed only the forfeits.
     expect(sellerOwed(real, { winningBid: 0n, noSale: true, revealedCommitments: new Set([real[0].commitment!]), legacy: false })).toEqual({ seller: 0n, forfeits: [{ deposit: T('b'), zat: cfg.depositZat - OUTPUT_FEE_ZAT }] });
+  });
+});
+
+describe('the settlement fee (ZIP-317: 5,000 zat per action, at least two)', () => {
+  it('8 revealed bids plus 5 revealed duplicates: every payout plus the fee fits in the deposits, because each duplicate refund pays its own output fee', async () => {
+    // The judge's case: 13 deposits (13 spends), 14 payouts + change. With full duplicate refunds the fee (75,000) exceeded the 60,000 budget.
+    const bids = [1_100_000n, 1_200_000n, 900_000n, 1_300_000n, 1_000_000n, 800_000n, 1_250_000n, 700_000n];
+    const valid = await Promise.all(bids.map((b, i) => dep(`v${i}`, 10 + i, b, BigInt(200 + i))));
+    const dups = valid.slice(0, 5).map((d, i) => ({ ...d, txid: `x${i}`, height: 30 + i }));
+    const deposits = classifyDeposits(cfg, [...valid, ...dups]);
+    expect(deposits.filter((d) => d.status === 'duplicate')).toHaveLength(5);
+    const o = await decide(cfg, deposits, bids.map((b, i) => ({ bid: b, salt: BigInt(200 + i), refundAddress: `r${i}` })));
+    expect(o.payouts).toHaveLength(14);
+    const funds = 13n * cfg.depositZat;
+    const paid = o.payouts.reduce((n, p) => n + p.amount, 0n);
+    expect(funds - paid).toBeGreaterThanOrEqual(zip317Fee(13, 15));
+    expect(checkAffordable(deposits, o.payouts)).toEqual({ fundsZat: funds, paidZat: paid, feeZat: zip317Fee(13, 15) });
+  });
+
+  it('an unaffordable settlement is refused with a readable error before anything is sent', async () => {
+    const deposits = classifyDeposits(cfg, [await dep('a1', 10, 1_000_000n, 1n), await dep('a2', 11, 900_000n, 2n)]);
+    expect(() => checkAffordable(deposits, [{ amount: cfg.depositZat }, { amount: cfg.depositZat }])).toThrow(
+      'the settlement cannot be paid: 2 deposits hold 4000000 zat, its 2 outputs take 4000000 zat and the ZIP-317 fee is 15000 zat (short by 15000); nothing was sent',
+    );
+    expect(zip317Fee(1, 1)).toBe(10_000n);
   });
 });

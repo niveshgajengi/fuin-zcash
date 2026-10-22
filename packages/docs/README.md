@@ -47,8 +47,11 @@
    `Poseidon(auction_id, 0, 0)`, `w < n`, and only valid deposits can be listed as unrevealed. The
    audit finds the deposits by scanning the auction's blocks (`sba-verify scan`) with its UIVK, so
    it does not depend on the auctioneer's list.
-7. **Settle.** One shielded transaction pays the seller the winning bid. It refunds every other
-   revealed deposit in full: losing bids, duplicates, late, wrong-amount deposits and revealed bids after the first 8 (over capacity).
+7. **Settle.** One shielded transaction pays the seller the winning bid. It refunds every losing bid
+   in the proof in full, and every other revealed deposit (duplicates, late, wrong-amount deposits
+   and revealed bids after the first 8, over capacity) minus its own 5,000 zat output fee, so that
+   no number of them can push the ZIP-317 fee (5,000 zat per action, at least two) past what the
+   deposits hold; `decide` checks the payouts plus the fee fit before anything is sent.
    The winner gets its deposit back minus the bid and a fixed settlement-fee budget (60,000 zat).
    Every unrevealed deposit goes to the seller (minus its 5,000 zat output fee). Each output's memo
    names what it pays: `sba1:<id>:seller`, `:change:<deposit>`, `:refund:<deposit>` or
@@ -160,7 +163,7 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 | Rule | Status |
 |---|---|
 | memo is not `sba1:<this auction>:<commitment>` | `memo_mismatch`: not a bid; it stays in the auction wallet (no reveal can claim it, and nothing the auctioneer decides makes a payment one) |
-| mined after the close height | `late`: refunded at settlement if revealed |
+| mined after the close height | `late`: refunded at settlement if revealed, minus its own 5,000 zat output fee (as are wrong-amount, duplicate and over-capacity deposits; Sales 001 and 002 refunded them in full) |
 | amount ≠ deposit | `wrong_amount`: refunded if revealed |
 | same commitment as an earlier deposit | `duplicate`: refunded if revealed |
 | a revealed valid deposit after the first 8 revealed valid ones in chain order (the proof has 8 slots) | over capacity: no slot, cannot win, refunded. Only revealed deposits take slots, so deposits nobody reveals (or nobody can open) cannot fill the auction; they are forfeited to the seller. MCP `bid` only warns (`capacity_note`) when 8 or more valid deposits are already on chain |

@@ -174,7 +174,7 @@ if (complaintFiles.length) {
         deposits: classified,
         reveals: revealMsgs,
         anchors,
-        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end }, noSale: !!run.outcome.noSale },
+        record: { reveals: run.reveals ?? [], unrevealed: run.outcome.unrevealed ?? [], winnerDeposit: outcomeCheck.winnerTxid, winningBid: outcomeCheck.winningBid, settlement: { txid: run.settlement.txid, height: end }, noSale: !!run.outcome.noSale, proven: outcomeCheck.proven, legacyRules: terms.status === 'legacy' },
         refund,
       });
       const name = f.split('/').pop()!;

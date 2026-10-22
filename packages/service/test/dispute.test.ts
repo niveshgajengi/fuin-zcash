@@ -178,6 +178,17 @@ describe('checkComplaint', () => {
     expect(unpaid.reasons[0]).toBe('the refund address received 0 zat in settlement 5555555555, owed 1995000 (1995000 no-sale refund of bbbbbbbbbb)');
   });
 
+  it('current rules: a deposit outside the proof (over capacity or not a bid) is owed its value minus its own output fee; legacy sales are owed it in full', async () => {
+    const { by, complaint, ctx } = await auction();
+    const d = complaint('dan');
+    const memo = `sba1:${cfg.auctionId}:refund:${by.dan.txid}`;
+    const refund = { keyOwnsAddress: true, outputs: [{ valueZat: 1_995_000n, memo }] };
+    const proven = [by.alice.txid, by.bob.txid];
+    expect(await checkComplaint(d, ctx(d, { refund }, { proven }))).toMatchObject({ verdict: 'unfounded', owedZat: 1_995_000n });
+    const legacy = await checkComplaint(d, ctx(d, { refund }, { proven, legacyRules: true }));
+    expect(legacy).toMatchObject({ verdict: 'upheld', owedZat: 2_000_000n });
+  });
+
   it('a complaint without a refund viewing key is still verified: authentic, anchored and honoured, payment not checked', async () => {
     const { by, log, complaint, ctx } = await auction();
     const c = complaint('alice', { refundViewingKey: null });
