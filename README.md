@@ -216,6 +216,6 @@ the gitignored `.demo/` folder.
 - `MaxBid` uses a single-party local Groth16 setup; whoever ran it could forge proofs.
 - Testnet only, and not the first sealed-bid ZK auction (see "What is new here").
 
-Judge review and what was fixed: [docs/JUDGE-2026-10-21.md](docs/JUDGE-2026-10-21.md).
+What changed, by date: [docs/CHANGELOG.md](docs/CHANGELOG.md).
 
 MIT — Copyright (c) 2026 Nivesh Gajengi.
