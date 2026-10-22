@@ -1,9 +1,11 @@
 // Is a published MaxBid result about exactly this auction's deposits?
 //
 // The circuit accepts any eight public commitments, so a valid proof alone says nothing about which
-// deposits it covers. This check ties it to the chain: the proven slots are the valid deposits in
-// chain order (minus the ones the auctioneer declares unrevealed), every other slot is the empty
-// commitment, and the winner is one of the proven deposits. Without it an auctioneer could put an
+// deposits it covers. This check ties it to the chain: the proven slots are the first 8 revealed
+// valid deposits in chain order (valid deposits minus the ones the auctioneer declares unrevealed),
+// every other slot is the empty commitment, and the winner is one of the proven deposits. Revealed
+// valid deposits after the first 8 are over capacity: they cannot win and are refunded. An
+// unrevealed deposit never takes a slot, so deposits nobody reveals cannot fill the auction. Without it an auctioneer could put an
 // invented bid with no deposit behind it in a spare slot and prove that it wins.
 // No Node imports: the dashboard runs this in the browser.
 
@@ -54,6 +56,8 @@ export interface ResultCheck {
   winningBid: bigint;
   /** Txids of the deposits whose commitments the proof covers, in slot order. */
   proven: string[];
+  /** Revealed valid deposits after the first 8 in chain order: no slot, refunded. */
+  overCapacity: string[];
 }
 
 // Chain order: height, then the deposit's name (txid) within a block. Not the order of transactions in
@@ -67,7 +71,7 @@ export function checkResult(input: ResultInput): ResultCheck {
 
   if (input.publicSignals.length !== SLOTS + 4) {
     add('signals', false, `expected ${SLOTS + 4} public signals, got ${input.publicSignals.length}`);
-    return { ok: false, checks, winnerTxid: null, winningBid: 0n, proven: [] };
+    return { ok: false, checks, winnerTxid: null, winningBid: 0n, proven: [], overCapacity: [] };
   }
   const pub = readPublic(input.publicSignals);
   add(
@@ -88,11 +92,12 @@ export function checkResult(input: ResultInput): ResultCheck {
   );
 
   const declared = new Set(input.unrevealed);
-  const proven = valid.filter((d) => !declared.has(d.txid));
+  const revealed = valid.filter((d) => !declared.has(d.txid));
+  const proven = revealed.slice(0, SLOTS);
+  const overCapacity = revealed.slice(SLOTS);
   const n = proven.length;
   const slotErrors: string[] = [];
   if (n === 0) slotErrors.push('no revealed valid deposit');
-  if (n > SLOTS) slotErrors.push(`${n} revealed valid deposits, the circuit has ${SLOTS} slots`);
   for (let i = 0; i < SLOTS; i++) {
     const want = i < n ? proven[i].commitment : input.emptyCommitment;
     if (pub.commitments[i] !== want) {
@@ -102,7 +107,9 @@ export function checkResult(input: ResultInput): ResultCheck {
   add(
     'slots',
     slotErrors.length === 0,
-    slotErrors.length === 0 ? `slots 0-${n - 1} are the ${n} revealed valid deposits in chain order; slots ${n}-${SLOTS - 1} are empty` : slotErrors.join('; '),
+    slotErrors.length === 0
+      ? `slots 0-${n - 1} are the ${n} revealed valid deposits in chain order${n < SLOTS ? `; slots ${n}-${SLOTS - 1} are empty` : ''}${overCapacity.length ? `; ${overCapacity.length} later revealed valid deposit(s) are over capacity (no slot, refunded)` : ''}`
+      : slotErrors.join('; '),
   );
 
   const winner = Number.isInteger(pub.winner) && pub.winner >= 0 && pub.winner < n ? proven[pub.winner] : null;
@@ -114,5 +121,6 @@ export function checkResult(input: ResultInput): ResultCheck {
     winnerTxid: winner?.txid ?? null,
     winningBid: pub.winningBid,
     proven: proven.map((d) => d.txid),
+    overCapacity: overCapacity.map((d) => d.txid),
   };
 }

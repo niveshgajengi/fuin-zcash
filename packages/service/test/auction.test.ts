@@ -1,10 +1,10 @@
 // The auction rules, with real Poseidon commitments and real Groth16 proofs. No chain access here:
 // the same functions classify the live testnet deposits in testnet-run.ts.
 import { describe, expect, it } from 'vitest';
-import { checkResult, commitment, emptyCommitment, readPublic, verify } from '@sba/circuits';
+import { checkResult, commitment, emptyCommitment, inputs, prove, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, openSlots, OUTPUT_FEE_ZAT, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, FORFEIT_OUTPUT_FEE_ZAT, OUTPUT_FEE_ZAT, validAhead, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -148,7 +148,6 @@ describe('no sale', () => {
     ]);
     expect(sale.noSale).toBeNull();
     // Same bids proven with reserve 0 and published as a no-sale: the top bid 1,200,000 meets the 500,000 reserve.
-    const { inputs, prove } = await import('@sba/circuits');
     const forged = await prove(await inputs(cfg.auctionId, 0n, [{ bid: 1_200_000n, salt: 1n }, { bid: 900_000n, salt: 2n }], 0));
     const r = await checkOutcome(cfg, deposits, { ...forged, unrevealed: [], noSale: { reason: 'below_reserve', detail: 'forged' } });
     expect(r.ok).toBe(false);
@@ -188,24 +187,39 @@ describe('ties', () => {
   });
 });
 
-describe('capacity: the proof has 8 slots', () => {
-  it('nine valid revealed bids: the first 8 in chain order compete, the 9th is over_capacity and refunded; the outcome passes its check', async () => {
+describe('capacity: the proof has 8 slots, taken by the first 8 revealed valid deposits', () => {
+  it('nine valid revealed bids: the first 8 in chain order compete, the 9th is over capacity and refunded; a proof over another 8 fails the slot check', async () => {
     const bids = [1_100_000n, 1_200_000n, 900_000n, 1_300_000n, 1_000_000n, 800_000n, 1_250_000n, 700_000n, 1_900_000n];
     const deposits = classifyDeposits(cfg, await Promise.all(bids.map((b, i) => dep(`k${i}`, 10 + i, b, BigInt(100 + i)))));
-    expect(deposits.map((d) => d.status)).toEqual([...Array(8).fill('valid'), 'over_capacity']);
-    expect(deposits[8].reason).toBe('the auction already had 8 valid bids (the proof has 8 slots): refunded if revealed, cannot win');
-    expect(openSlots(deposits)).toBe(0);
-    expect(openSlots(deposits.slice(0, 5))).toBe(3);
+    // Classification does not cap: capacity depends on which deposits are revealed.
+    expect(deposits.map((d) => d.status)).toEqual(Array(9).fill('valid'));
+    expect(validAhead(deposits)).toBe(9);
     const o = await decide(cfg, deposits, bids.map((b, i) => ({ bid: b, salt: BigInt(100 + i), refundAddress: `r${i}` })));
-    // 1,900,000 would be the highest, but it arrived after the eighth valid bid: 1,300,000 wins.
+    // 1,900,000 would be the highest, but it is the ninth revealed bid: 1,300,000 wins.
     expect(o.winningBid).toBe(1_300_000n);
-    expect(await verify(o.publicSignals, o.proof)).toBe(true);
-    expect(o.payouts.find((p) => p.address === 'r8')).toMatchObject({ amount: cfg.depositZat, why: 'refund (over_capacity deposit k8)' });
-    expect(await checkOutcome(cfg, deposits, o)).toMatchObject({ ok: true, winnerTxid: 'k3' });
-    // A record that does not apply the cap (the 9th called valid) fails the slot check.
-    const uncapped = deposits.map((d) => ({ ...d, txid: d.ref, status: 'valid' }));
-    const r = checkResult({ auctionId: cfg.auctionId, reserve: cfg.reserveZat, deposits: uncapped, unrevealed: [], publicSignals: o.publicSignals, emptyCommitment: await emptyCommitment(cfg.auctionId) });
-    expect(r.checks.find((c) => c.name === 'slots')).toMatchObject({ ok: false, detail: expect.stringMatching(/9 revealed valid deposits, the circuit has 8 slots/) });
+    expect(await verify(o.publicSignals!, o.proof!)).toBe(true);
+    expect(o.payouts.find((p) => p.address === 'r8')).toMatchObject({ amount: cfg.depositZat, why: 'refund (over-capacity bid deposit k8)' });
+    const check = await checkOutcome(cfg, deposits, o);
+    expect(check).toMatchObject({ ok: true, winnerTxid: 'k3' });
+    expect(check.checks.find((c) => c.name === 'slots')?.detail).toBe('slots 0-7 are the 8 revealed valid deposits in chain order; 1 later revealed valid deposit(s) are over capacity (no slot, refunded)');
+    // A proof over k1..k8 (dropping the earliest revealed bid to let the 9th in) fails the slot check.
+    const skipped = await prove(await inputs(cfg.auctionId, cfg.reserveZat, bids.slice(1).map((b, i) => ({ bid: b, salt: BigInt(101 + i) })), 7));
+    const r = checkResult({ auctionId: cfg.auctionId, reserve: cfg.reserveZat, deposits: deposits.map((d) => ({ ...d, txid: d.ref })), unrevealed: [], publicSignals: skipped.publicSignals, emptyCommitment: await emptyCommitment(cfg.auctionId) });
+    expect(r.checks.find((c) => c.name === 'slots')).toMatchObject({ ok: false, detail: expect.stringMatching(/^slot 0 is not deposit k0's memo/) });
+  });
+
+  it('a squatter cannot freeze the auction: 8 earlier deposits nobody can open take no slot, and the honest revealed bid wins', async () => {
+    // The judge's probe: 8 deposits at height 10 whose commitments have no known opening, then one honest bid at height 20.
+    const junk = await Promise.all(Array.from({ length: 8 }, async (_, i) => ({ txid: `j${i}`, height: 10, value: cfg.depositZat, memo: depositMemo(cfg.auctionId, await commitment(cfg.auctionId + 7n, 1n, BigInt(i))) })));
+    const deposits = classifyDeposits(cfg, [...junk, await dep('honest', 20, 1_000_000n, 77n)]);
+    expect(deposits.find((d) => d.ref === 'honest')?.status).toBe('valid');
+    const o = await decide(cfg, deposits, [{ bid: 1_000_000n, salt: 77n, refundAddress: 'h' }]);
+    expect(o.noSale).toBeNull();
+    expect(o.winningBid).toBe(1_000_000n);
+    expect(o.unrevealed).toEqual(junk.map((j) => j.txid));
+    // The squatter's deposits are forfeited to the seller.
+    expect(o.payouts.filter((p) => p.memo.includes(':forfeit:')).map((p) => p.address)).toEqual(Array(8).fill('utest1seller'));
+    expect(await checkOutcome(cfg, deposits, o)).toMatchObject({ ok: true, winnerTxid: 'honest' });
   });
 });
 

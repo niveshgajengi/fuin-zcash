@@ -141,6 +141,7 @@ export interface IncomingDeposit {
   memo: string;
 }
 
+/** `over_capacity` is no longer assigned when classifying (capacity counts revealed bids, see `competing`); kept so older records parse. */
 export type DepositStatus = 'valid' | 'late' | 'pending' | 'wrong_amount' | 'memo_mismatch' | 'duplicate' | 'over_capacity';
 
 /** A deposit's name: its txid, or `txid:<output>` when its transaction pays the auction more than once. */
@@ -156,13 +157,13 @@ export interface ClassifiedDeposit extends IncomingDeposit {
 /**
  * Classifies deposits in chain order (height, then name: within one block, the lexically lower txid
  * comes first, not the transaction mined first). Only `valid` deposits can win; the first deposit
- * with a given commitment is the bid and later copies are duplicates. The proof has SLOTS (8) slots,
- * so only the first 8 valid deposits compete; a later one is `over_capacity` (refunded if revealed).
- * Each payment is its own deposit, including a second payment in the same transaction.
+ * with a given commitment is the bid and later copies are duplicates. Each payment is its own
+ * deposit, including a second payment in the same transaction. Capacity is not decided here: the
+ * proof has SLOTS (8) slots, and they go to the first 8 valid deposits whose reveal was accepted
+ * (see `competing`), so a deposit nobody reveals never takes a slot.
  */
 export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]): ClassifiedDeposit[] {
   const seen = new Set<string>();
-  let valid = 0;
   return deposits
     .map((d) => ({ ...d, ref: depositRef(d) }))
     .sort((a, b) => (a.height ?? Infinity) - (b.height ?? Infinity) || a.ref.localeCompare(b.ref))
@@ -176,15 +177,21 @@ export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]
       if (d.value !== cfg.depositZat) return { ...d, status: 'wrong_amount', commitment: parsed.commitment, reason: `${d.value} zat, deposit is ${cfg.depositZat}` };
       if (seen.has(parsed.commitment)) return { ...d, status: 'duplicate', commitment: parsed.commitment, reason: 'commitment already used by an earlier deposit' };
       seen.add(parsed.commitment);
-      if (valid >= SLOTS) return { ...d, status: 'over_capacity', commitment: parsed.commitment, reason: `the auction already had ${SLOTS} valid bids (the proof has ${SLOTS} slots): refunded if revealed, cannot win` };
-      valid++;
       return { ...d, status: 'valid', commitment: parsed.commitment };
     });
 }
 
-/** How many more valid bids the auction takes before new ones are `over_capacity`. */
-export function openSlots(deposits: ClassifiedDeposit[]): number {
-  return Math.max(0, SLOTS - deposits.filter((d) => d.status === 'valid').length);
+/**
+ * Valid deposits already on chain. Advisory only: a new bid competes unless 8 of the deposits ahead
+ * of it are revealed, which nobody can know before the reveal window.
+ */
+export function validAhead(deposits: ClassifiedDeposit[]): number {
+  return deposits.filter((d) => d.status === 'valid').length;
+}
+
+/** The proof's slots: the first SLOTS revealed valid deposits in chain order compete; later revealed ones are over capacity. */
+export function competing<T extends { status: string }>(revealedValid: T[]): { slots: T[]; overCapacity: T[] } {
+  return { slots: revealedValid.slice(0, SLOTS), overCapacity: revealedValid.slice(SLOTS) };
 }
 
 /** The deposit carrying `commitment` (the valid one if there is one, else the first in chain order), or null. */
@@ -330,7 +337,8 @@ export function noSaleAmount(d: { value: bigint }, settledCount: number): bigint
 /**
  * Picks the winner among valid, revealed deposits (MaxBid proof over them in deposit order) and
  * builds the settlement payouts: seller, winner change, full refunds for every other revealed
- * deposit (losers, duplicates, late, wrong-amount and over-capacity deposits), and every unrevealed
+ * deposit (losers, duplicates, late, wrong-amount deposits, and revealed bids after the first 8,
+ * which are over capacity), and every unrevealed
  * deposit forfeited to the seller. With no sale (nothing valid revealed, or the highest bid below the
  * reserve) every revealed deposit is refunded minus its own output fee and unrevealed ones are
  * forfeited; `noSale` says why.
@@ -341,9 +349,10 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     const check = await checkReveal(cfg, deposits, r);
     if (check.ok) byCommitment.set(check.commitment, r);
   }
-  const valid = deposits.filter((d) => d.status === 'valid' && byCommitment.has(d.commitment!));
+  // Deposits are in chain order (classifyDeposits); the first 8 revealed valid ones take the slots.
+  const { slots: valid, overCapacity } = competing(deposits.filter((d) => d.status === 'valid' && byCommitment.has(d.commitment!)));
+  const over = new Set(overCapacity.map((d) => d.ref));
   const unrevealed = deposits.filter((d) => d.status === 'valid' && !byCommitment.has(d.commitment!)).map((d) => d.ref);
-  if (valid.length > SLOTS) throw new Error(`more than ${SLOTS} valid bids: the circuit has ${SLOTS} slots`);
   if (valid.length === 0) {
     const noSale: NoSale = { reason: 'no_reveal', detail: 'no valid deposit was revealed' };
     return { noSale, winnerCommitment: null, winningBid: 0n, slots: [], proof: null, publicSignals: null, unrevealed, payouts: noSalePayouts(cfg, deposits, byCommitment) };
@@ -374,7 +383,8 @@ export async function decide(cfg: AuctionConfig, deposits: ClassifiedDeposit[], 
     const r = byCommitment.get(d.commitment);
     if (!r) continue; // no reveal, no refund address: listed in `unrevealed` if it was a valid bid
     if (d.status === 'pending') continue;
-    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${d.status === 'valid' ? 'losing bid' : d.status} deposit ${shortRef(d.ref)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
+    const kind = over.has(d.ref) ? 'over-capacity bid' : d.status === 'valid' ? 'losing bid' : d.status;
+    payouts.push({ address: r.refundAddress, amount: d.value, why: `refund (${kind} deposit ${shortRef(d.ref)})`, memo: payoutMemo(cfg.auctionId, 'refund', d.ref) });
   }
   payouts.push(...forfeits(cfg, deposits, byCommitment));
   return { noSale: null, winnerCommitment: winner.commitment!, winningBid: openings[w].bid, slots: input.commitments, proof, publicSignals, unrevealed, payouts };
