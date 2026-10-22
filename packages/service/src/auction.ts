@@ -169,6 +169,11 @@ export function classifyDeposits(cfg: AuctionConfig, deposits: IncomingDeposit[]
     });
 }
 
+/** The deposit carrying `commitment` (the valid one if there is one, else the first in chain order), or null. */
+export function depositForCommitment(deposits: ClassifiedDeposit[], commitment: string): ClassifiedDeposit | null {
+  return deposits.find((d) => d.commitment === commitment && d.status === 'valid') ?? deposits.find((d) => d.commitment === commitment) ?? null;
+}
+
 export interface Reveal {
   bid: bigint;
   salt: bigint;

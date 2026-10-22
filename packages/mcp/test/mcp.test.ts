@@ -1,13 +1,13 @@
 // Real MCP client ↔ real sba-mcp (stdio) ↔ live Zcash testnet (lightwalletd via sba-verify).
 // Uses the published auction in deployments/testnet.json; no deposit is sent by these tests.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resolve } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { termsAuctionId, termsOf } from '@sba/service';
+import { chainTip, termsAuctionId, termsOf } from '@sba/service';
 
 const ROOT = resolve(__dirname, '../../..');
 const AUCTION = resolve(ROOT, 'deployments/testnet.json');
@@ -19,8 +19,8 @@ async function connect(env: Record<string, string>) {
   await c.connect(new StdioClientTransport({ command: resolve(__dirname, '../node_modules/.bin/tsx'), args: [resolve(__dirname, '../src/main.ts')], env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', ...env } }));
   return c;
 }
-const call = async (c: Client, name: string, args: Record<string, unknown> = {}) => {
-  const r = (await c.callTool({ name, arguments: args })) as { isError?: boolean; content: { text: string }[] };
+const call = async (c: Client, name: string, args: Record<string, unknown> = {}, timeout = 60_000) => {
+  const r = (await c.callTool({ name, arguments: args }, undefined, { timeout })) as { isError?: boolean; content: { text: string }[] };
   return { isError: r.isError, text: r.content[0].text };
 };
 
@@ -92,6 +92,75 @@ describe('sba-mcp', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   }, 120_000);
+
+  it('bid refuses a refund address too long to fit a reveal (any UA with a Sapling or transparent receiver), before reading any setting', async () => {
+    for (const len of [151, 182, 217]) {
+      const r = await call(client, 'bid', { bid_zat: 1_000_000, refund_address: 'utest1' + 'q'.repeat(len - 6) });
+      expect(r.isError).toBe(true);
+      expect(r.text).toBe(`refund address is ${len} characters; a reveal holds at most 150 (an Orchard-only unified address fits, one with a Sapling or transparent receiver does not), so this deposit could never be revealed or refunded; nothing was sent`);
+    }
+  });
+
+  describe('bid saves the opening before it sends (open auction, bound terms, live chain tip)', () => {
+    let dir: string;
+    let file: string;
+    const rec = JSON.parse(readFileSync(resolve(ROOT, 'deployments/testnet-reveal.json'), 'utf8'));
+    beforeAll(async () => {
+      dir = mkdtempSync(join(tmpdir(), 'fuin-save-'));
+      const tip = await chainTip();
+      const open = { ...rec.auction, openHeight: tip - 3, closeHeight: 99_000_000, revealCloseHeight: 99_000_024 };
+      file = join(dir, 'auction.json');
+      writeFileSync(file, JSON.stringify({ network: 'testnet', auction: { ...open, auctionId: termsAuctionId(termsOf(open)).toString() }, deposits: [] }));
+    });
+    afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+    it('an openings folder that cannot be written fails before any wallet call', async () => {
+      const notADir = join(dir, 'a-file');
+      writeFileSync(notADir, '');
+      const c = await connect({ SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: join(notADir, 'openings'), SBA_ZINGO_CLI: '/nonexistent/zingo-cli' });
+      const r = await call(c, 'bid', { bid_zat: 100_000, refund_address: rec.auction.seller });
+      await c.close();
+      expect(r.isError).toBe(true);
+      expect(r.text).toMatch(/^cannot save the opening in SBA_BIDDER_DIR \(ENOTDIR[^)]*\); without it the deposit could never be revealed, so nothing was sent$/);
+    }, 120_000);
+
+    it('a send that fails keeps the opening (mode 0600) marked "send failed, may still be mined" (fault injection: zingo-cli path that does not exist)', async () => {
+      const openings = join(dir, 'openings');
+      const c = await connect({ SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: openings, SBA_ZINGO_CLI: '/nonexistent/zingo-cli' });
+      const r = await call(c, 'bid', { bid_zat: 100_000, refund_address: rec.auction.seller });
+      await c.close();
+      expect(r.isError).toBe(true);
+      expect(r.text).toMatch(/^zingo-cli quicksend failed: .*; the opening is kept in SBA_BIDDER_DIR in case the deposit is mined anyway \(reveal finds it by its commitment\)$/);
+      const files = readdirSync(openings);
+      expect(files).toHaveLength(1);
+      expect(statSync(join(openings, files[0])).mode & 0o777).toBe(0o600);
+      const saved = JSON.parse(readFileSync(join(openings, files[0]), 'utf8'));
+      expect(saved).toMatchObject({ bid: '100000', refundAddress: rec.auction.seller, txid: null, status: expect.stringMatching(/^send failed, may still be mined: zingo-cli quicksend failed/) });
+      expect(saved.salt).toMatch(/^\d+$/);
+      expect(saved.complaintSecret).toMatch(/^[0-9a-f]{64}$/);
+    }, 120_000);
+  });
+
+  it('reveal looks up an opening whose send reported no txid by its commitment on chain, and does not reveal one with no deposit (live chain tip)', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-find-'));
+    try {
+      const rec = JSON.parse(readFileSync(resolve(ROOT, 'deployments/testnet-reveal.json'), 'utf8'));
+      const tip = await chainTip();
+      const file = join(dir, 'auction.json');
+      // An auction that opened two blocks ago and is in its reveal window: its blocks hold no deposit with this commitment.
+      writeFileSync(file, JSON.stringify({ network: 'testnet', auction: { ...rec.auction, openHeight: tip - 2, closeHeight: tip - 1, revealCloseHeight: 99_000_000 }, deposits: [] }));
+      const name = join(dir, `${rec.auction.auctionId}-cfailed.json`);
+      writeFileSync(name, JSON.stringify({ auctionId: rec.auction.auctionId, bid: '100000', salt: '7', refundAddress: rec.auction.seller, txid: null, commitment: rec.deposits[4].memo.split(':')[2], status: 'send failed, may still be mined: test', complaintKey: '11'.repeat(32), complaintSecret: '22'.repeat(32) }), { mode: 0o600 });
+      const c = await connect({ SBA_AUCTION_FILE: file, SBA_BIDDER_WALLET: '/nonexistent/fuin-wallet', SBA_BIDDER_DIR: dir, SBA_ZINGO_CLI: '/nonexistent/zingo-cli' });
+      const r = await call(c, 'reveal', {}, 120_000);
+      await c.close();
+      expect(r.isError).toBeFalsy();
+      expect(JSON.parse(r.text)).toMatchObject({ sent: [], not_on_chain: [name], note: expect.stringMatching(/1 opening\(s\) have no deposit on chain with their commitment and were not revealed$/) });
+      expect(JSON.parse(readFileSync(name, 'utf8'))).toMatchObject({ txid: null });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 180_000);
 
   it('reveal refuses outside the reveal window (live chain tip) and on an auction with no channel, before zingo-cli runs', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'fuin-reveal-'));

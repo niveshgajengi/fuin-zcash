@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { commitment, readPublic, verify } from '@sba/circuits';
 import { asDeposits, type DecryptedTx } from '../src/verifier.js';
 import { complaintKeyPair, parseRevealMemo, revealKeyPair, sealReveal } from '../src/reveal.js';
-import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
+import { auctionIdFor, checkOutcome, checkReveal, checkTerms, classifyDeposits, decide, depositForCommitment, depositMemo, parseMemo, parsePayoutMemo, SETTLEMENT_FEE_BUDGET_ZAT, termsAuctionId, termsOf, type AuctionConfig, type IncomingDeposit } from '../src/auction.js';
 
 const cfg: AuctionConfig = {
   name: 'unit',
@@ -46,6 +46,19 @@ describe('classifyDeposits', () => {
     ];
     const byTx = Object.fromEntries(classifyDeposits(cfg, deposits).map((d) => [d.txid, d.status]));
     expect(byTx).toEqual({ aa: 'valid', ab: 'duplicate', b: 'late', c: 'wrong_amount', d: 'memo_mismatch', e: 'memo_mismatch', f: 'pending' });
+  });
+});
+
+describe('depositForCommitment (how MCP reveal finds a deposit whose send reported no txid)', () => {
+  it('picks the valid deposit with that commitment over an earlier non-valid copy, and null when none carries it', async () => {
+    const wrong = await dep('w1', 10, 1_000_000n, 1n, 500_000n); // same commitment, wrong amount, mined first
+    const good = { ...wrong, txid: 'w2', height: 11, value: cfg.depositZat };
+    const late = { ...wrong, txid: 'w3', height: 150, value: cfg.depositZat };
+    const classified = classifyDeposits(cfg, [late, good, wrong]);
+    const c = parseMemo(wrong.memo)!.commitment;
+    expect(depositForCommitment(classified, c)).toMatchObject({ ref: 'w2', status: 'valid' });
+    expect(depositForCommitment(classified.filter((d) => d.txid !== 'w2'), c)).toMatchObject({ ref: 'w1', status: 'wrong_amount' });
+    expect(depositForCommitment(classified, '123')).toBeNull();
   });
 });
 

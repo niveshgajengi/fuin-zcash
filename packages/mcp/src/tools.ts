@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositForCommitment, revealKeyPair, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
@@ -25,11 +25,27 @@ interface Opening {
   bid: string;
   salt: string;
   refundAddress: string;
-  txid: string;
+  /** The deposit's name; null until the send reports it (or `reveal` finds it on chain by its commitment). */
+  txid: string | null;
+  commitment?: string;
+  /** 'sending', 'sent', or 'send failed, may still be mined: <error>'. */
+  status?: string;
   complaintKey: string;
   complaintSecret: string;
   revealTxid?: string;
   revealSecret?: string;
+}
+
+/** The longest refund address a reveal can carry (the sealed opening has a fixed size). */
+function refundAddressFits(auctionId: bigint, bid: bigint, refundAddress: string) {
+  try {
+    // A dry run with throwaway keys and the longest deposit name: exactly what `reveal` will seal later.
+    sealReveal(auctionId, revealKeyPair().public, `${'f'.repeat(64)}:o9999`, { bid, salt: (1n << 248n) - 1n, refundAddress, complaintKey: complaintKeyPair().public });
+  } catch (e) {
+    if (/refund address is \d+ characters/.test((e as Error).message))
+      throw new Error(`refund address is ${refundAddress.length} characters; a reveal holds at most 150 (an Orchard-only unified address fits, one with a Sapling or transparent receiver does not), so this deposit could never be revealed or refunded; nothing was sent`);
+    throw e;
+  }
 }
 
 function need(name: string): string {
@@ -125,8 +141,8 @@ export function createServer(): McpServer {
     'bid',
     {
       title: 'Place a sealed bid',
-      description: "Refuses if the auction has closed, or if its id is not the hash of its published terms (so the close, reveal window and reserve cannot change after the bid). Otherwise commits to bid_zat with a fresh random salt and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET. The opening is saved in SBA_BIDDER_DIR for the reveal.",
-      inputSchema: { bid_zat: z.number().int().positive(), refund_address: z.string().startsWith('utest1') },
+      description: "Refuses if the auction has closed, or if its id is not the hash of its published terms (so the close, reveal window and reserve cannot change after the bid). Also refuses a refund address longer than a reveal can carry (150 characters: an Orchard-only unified address). Otherwise commits to bid_zat with a fresh random salt, saves the opening in SBA_BIDDER_DIR (mode 0600) before anything is sent, and sends the fixed deposit to the auction address with the commitment as memo, from SBA_BIDDER_WALLET.",
+      inputSchema: { bid_zat: z.number().int().positive(), refund_address: z.string().startsWith('utest1').describe('a unified address of at most 150 characters (Orchard-only) that receives the refund or the winner change') },
     },
     ({ bid_zat, refund_address }) =>
       wrap(async () => {
@@ -134,6 +150,7 @@ export function createServer(): McpServer {
         const cfg = config(p);
         if (BigInt(bid_zat) > cfg.depositZat - SETTLEMENT_FEE_BUDGET_ZAT) throw new Error(`bid ${bid_zat} zat is above the deposit (${cfg.depositZat}) minus the fee budget; nothing was sent`);
         if (BigInt(bid_zat) < cfg.reserveZat) throw new Error(`bid ${bid_zat} zat is below the reserve ${cfg.reserveZat}; nothing was sent`);
+        refundAddressFits(cfg.auctionId, BigInt(bid_zat), refund_address);
         const wallet = need('SBA_BIDDER_WALLET');
         const dir = need('SBA_BIDDER_DIR');
         const tip = await chainTip();
@@ -146,10 +163,24 @@ export function createServer(): McpServer {
         const salt = BigInt('0x' + randomBytes(31).toString('hex'));
         const c = await commitment(cfg.auctionId, BigInt(bid_zat), salt);
         const complaint = complaintKeyPair();
-        const [txid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: cfg.depositZat, memo: depositMemo(cfg.auctionId, c) }]);
-        mkdirSync(dir, { recursive: true, mode: 0o700 });
-        const opening: Opening = { auctionId: cfg.auctionId.toString(), bid: String(bid_zat), salt: salt.toString(), refundAddress: refund_address, txid, complaintKey: complaint.public, complaintSecret: complaint.secret };
-        writeFileSync(resolve(dir, `${cfg.auctionId}-${txid}.json`), JSON.stringify(opening), { mode: 0o600 });
+        // The opening is saved before anything is sent: a deposit whose opening is lost can never be revealed or refunded.
+        const file = resolve(dir, `${cfg.auctionId}-c${c.slice(0, 24)}.json`);
+        const opening: Opening = { auctionId: cfg.auctionId.toString(), bid: String(bid_zat), salt: salt.toString(), refundAddress: refund_address, txid: null, commitment: c, status: 'sending', complaintKey: complaint.public, complaintSecret: complaint.secret };
+        try {
+          mkdirSync(dir, { recursive: true, mode: 0o700 });
+          writeFileSync(file, JSON.stringify(opening), { mode: 0o600, flag: 'wx' });
+        } catch (e) {
+          throw new Error(`cannot save the opening in SBA_BIDDER_DIR (${(e as Error).message}); without it the deposit could never be revealed, so nothing was sent`);
+        }
+        let txid: string;
+        try {
+          [txid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: cfg.depositZat, memo: depositMemo(cfg.auctionId, c) }]);
+        } catch (e) {
+          // zingo-cli can fail after broadcasting (lightwalletd errors on sends that were mined later), so the opening stays.
+          writeFileSync(file, JSON.stringify({ ...opening, status: `send failed, may still be mined: ${(e as Error).message}` }), { mode: 0o600 });
+          throw new Error(`${(e as Error).message}; the opening is kept in SBA_BIDDER_DIR in case the deposit is mined anyway (reveal finds it by its commitment)`);
+        }
+        writeFileSync(file, JSON.stringify({ ...opening, txid, status: 'sent' }), { mode: 0o600 });
         return { sent: true, txid, deposit_zat: cfg.depositZat.toString(), commitment: c, note: 'the bid amount is not visible on-chain; after the close, call reveal to send it to the auctioneer encrypted' };
       }),
   );
@@ -175,14 +206,34 @@ export function createServer(): McpServer {
         // A note sent now is mined at tip + 1 at the earliest.
         if (tip < cfg.closeHeight) throw new Error(`the auction closes after block ${cfg.closeHeight} and the chain is at ${tip}; a reveal now would be early, so nothing was sent`);
         if (tip + 1 > p.auction.revealCloseHeight) throw new Error(`the reveal window closed at block ${p.auction.revealCloseHeight} and the chain is at ${tip}; a reveal now would be late, so nothing was sent`);
+        // An opening whose send reported no txid (it failed, or the process stopped) is looked up on chain by its commitment.
+        const unknown = pending.filter((x) => !x.o.txid);
+        const notFound: string[] = [];
+        if (unknown.length) {
+          const { classified } = await depositsOnChain(p);
+          for (const x of unknown) {
+            const c = x.o.commitment ?? (await commitment(cfg.auctionId, BigInt(x.o.bid), BigInt(x.o.salt)));
+            const d = depositForCommitment(classified, c);
+            if (d) {
+              x.o = { ...x.o, txid: d.ref, status: `found on chain at block ${d.height}` };
+              writeFileSync(x.file, JSON.stringify(x.o), { mode: 0o600 });
+            } else notFound.push(x.file);
+          }
+        }
         const sent = [];
         for (const { file, o } of pending) {
+          if (!o.txid) continue;
           const { memo, esk } = sealReveal(cfg.auctionId, p.auction.revealKey, o.txid, { bid: BigInt(o.bid), salt: BigInt(o.salt), refundAddress: o.refundAddress, complaintKey: o.complaintKey });
           const [revealTxid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: REVEAL_ZAT, memo }]);
           writeFileSync(file, JSON.stringify({ ...o, revealTxid, revealSecret: esk }), { mode: 0o600 });
           sent.push({ deposit: o.txid, reveal_txid: revealTxid });
         }
-        return { sent, window_closes_after: p.auction.revealCloseHeight, note: 'each memo is encrypted to the auction reveal key; the bid, salt and refund address are not visible with the auction viewing key' };
+        return {
+          sent,
+          not_on_chain: notFound,
+          window_closes_after: p.auction.revealCloseHeight,
+          note: `each memo is encrypted to the auction reveal key; the bid, salt and refund address are not visible with the auction viewing key${notFound.length ? `; ${notFound.length} opening(s) have no deposit on chain with their commitment and were not revealed` : ''}`,
+        };
       }),
   );
 
@@ -223,7 +274,7 @@ export function createServer(): McpServer {
         const refundViewingKey = refundWallet ? await uivkOf(await exportUfvk(zingoConfig(), refundWallet)) : null;
         const filed = [];
         for (const o of revealed) {
-          const c = signComplaint({ auctionId: cfg.auctionId.toString(), deposit: o.txid, reveal: o.revealTxid!, revealSecret: o.revealSecret!, refundViewingKey }, o.complaintSecret);
+          const c = signComplaint({ auctionId: cfg.auctionId.toString(), deposit: o.txid!, reveal: o.revealTxid!, revealSecret: o.revealSecret!, refundViewingKey }, o.complaintSecret);
           const file = resolve(dir, `${cfg.auctionId}-${o.revealTxid}.complaint.json`);
           writeFileSync(file, JSON.stringify(c, null, 2));
           const [anchorTxid] = await quicksend(zingoConfig(), wallet, [{ address: cfg.address, amount: REVEAL_ZAT, memo: complaintAnchor(c) }]);
