@@ -1,48 +1,70 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import * as snarkjs from 'snarkjs';
-import { checkResult, readPublic, type ResultCheck } from '@sba/circuits/result';
+import { checkResult, type ResultCheck } from '@sba/circuits/result';
 import { emptyCommitment } from '@sba/circuits/poseidon';
-import run from '@deployments/testnet.json';
+import run1 from '@deployments/testnet.json';
 import run2 from '@deployments/testnet-reveal.json';
+import complaint2 from '@deployments/complaints/2582488456264710777-07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553.complaint.json';
 
-type Deposit = { txid: string; height: number | null; valueZat: string; memo: string; status: string; reason: string | null; label?: string };
+/* ---------- the two published sales ---------- */
+type Deposit = { txid: string; output?: string; height: number | null; valueZat: string; memo: string; status: string; reason: string | null; label?: string | null };
 type BlockTime = { height: number; time: number; hash: string };
-const r = run as unknown as {
-  auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight: number; closeHeight: number };
+type RevealEntry = { ref: string; txid: string; height: number | null; deposit: string | null; status: string; reason: string | null; label: string | null };
+type SaleRecord = {
+  auction: { name: string; auctionId: string; uivk: string; depositZat: string; reserveZat: string; openHeight: number; closeHeight: number; revealCloseHeight?: number; disputeBlocks?: number };
   deposits: Deposit[];
-  alteredReveal: { rejected: boolean; reason: string };
-  outcome: { winnerSlot: number; winningBidZat: string; reserveZat: string; commitments: string[]; proof: object; publicSignals: string[]; unrevealed?: string[] };
+  alteredReveal?: { rejected: boolean; reason: string };
+  reveals?: RevealEntry[];
+  outcome: { winnerSlot: number; winningBidZat: string; proof: object; publicSignals: string[]; unrevealed?: string[] };
   settlement: { txid: string; height: number; outputs: { amountZat: string; why: string; recipient: string }[]; viewingKeyChecks: { recipient: string; expected: string; seen: number[]; ok: boolean }[] };
   ironwoodOnly: boolean;
-  blockTimes: { open: BlockTime; close: BlockTime; settlement: BlockTime };
+  blockTimes: { open: BlockTime; close: BlockTime; revealClose?: BlockTime; settlement: BlockTime };
   verificationKeySha256: string;
+  complaints?: { file: string; by: string; anchor: { txid: string; height: number } }[];
 };
+type Complaint = { kind: string; auctionId: string; deposit: string; reveal: string; revealSecret: string; refundViewingKey: string | null; signature: string };
 
-type RevealEntry = { ref: string; txid: string; height: number | null; deposit: string | null; status: string; reason: string | null; label: string | null };
-type Deposit2 = Deposit & { output?: string };
-const r2 = run2 as unknown as {
-  auction: { name: string; depositZat: string; closeHeight: number; revealCloseHeight: number; disputeBlocks: number };
-  deposits: Deposit2[];
-  reveals?: RevealEntry[];
-  outcome?: { winningBidZat: string; unrevealed: string[] };
-  settlement?: { txid: string; height: number; viewingKeyChecks: { ok: boolean }[] };
-};
+export type SaleId = '002' | '001';
+interface Sale {
+  id: SaleId;
+  tab: string;
+  r: SaleRecord;
+  /** The audit command for this sale, from the repository root. */
+  audit: string;
+}
+const ref = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
+const SALES: Sale[] = [
+  {
+    id: '002',
+    tab: 'Sale 002 · reveal channel',
+    r: run2 as unknown as SaleRecord,
+    audit: `pnpm --filter @sba/service run audit deployments/testnet-reveal.json deployments/${(run2 as unknown as SaleRecord).complaints?.[0]?.file ?? ''}`.trim(),
+  },
+  { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit' },
+];
+const COMPLAINT = complaint2 as Complaint;
 
 const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';
 const REPO = 'https://github.com/nickthelegend/zec-sealed-bid-auction';
 const taz = (z: string | number) => `${(Number(z) / 1e8).toLocaleString('en-US', { maximumFractionDigits: 6 })} TAZ`;
 const zat = (z: string | number) => Number(z).toLocaleString('en-US');
 const short = (s: string, a = 8) => (s.length > a + 1 ? `${s.slice(0, a)}…` : s);
+const shortRef = (s: string) => (s.length > 64 ? `${s.slice(0, 8)}…${s.slice(64)}` : short(s));
 const utc = (t: number) => new Date(t * 1000).toISOString().slice(11, 19);
 const commitmentOf = (d: Deposit) => d.memo.split(':')[2] ?? null;
 const pad = (n: number) => String(n).padStart(2, '0');
 const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
 
-const valid = r.deposits.filter((d) => d.status === 'valid');
-const winnerTxid = valid[r.outcome.winnerSlot]?.txid;
-type Kind = 'sealed' | 'opened' | 'refused';
-const kindOf = (d: Deposit): Kind => (d.txid === winnerTxid ? 'opened' : d.status === 'valid' ? 'sealed' : 'refused');
-const STATUS: Record<string, string> = { wrong_amount: 'Wrong amount', memo_mismatch: 'Memo mismatch', duplicate: 'Duplicate', late: 'Late', pending: 'Pending' };
+type Kind = 'sealed' | 'opened' | 'unrevealed' | 'refused';
+/** What the page derives from a record: the proven deposits (valid, revealed, chain order), the winner, each lot's kind. */
+function view(s: Sale) {
+  const unrevealed = s.r.outcome.unrevealed ?? [];
+  const proven = s.r.deposits.filter((d) => d.status === 'valid' && !unrevealed.includes(ref(d)));
+  const winner = proven[s.r.outcome.winnerSlot] ? ref(proven[s.r.outcome.winnerSlot]) : null;
+  const kindOf = (d: Deposit): Kind => (ref(d) === winner ? 'opened' : d.status !== 'valid' ? 'refused' : unrevealed.includes(ref(d)) ? 'unrevealed' : 'sealed');
+  return { unrevealed, proven, winner, kindOf };
+}
+const STATUS: { [k: string]: string } = { wrong_amount: 'Wrong amount', memo_mismatch: 'Memo mismatch', duplicate: 'Duplicate', late: 'Late', pending: 'Pending', over_capacity: 'Over capacity' };
 
 /* ---------- live clock: time since the settlement block's header time ---------- */
 function useSince(t: number) {
@@ -55,8 +77,8 @@ function useSince(t: number) {
   return [Math.floor(s / 86400), Math.floor((s % 86400) / 3600), Math.floor((s % 3600) / 60), s % 60];
 }
 
-function Clock() {
-  const [d, h, m, s] = useSince(r.blockTimes.settlement.time);
+function Clock({ since }: { since: number }) {
+  const [d, h, m, s] = useSince(since);
   return (
     <div className="clock" role="timer" aria-label={`${plural(d, 'day')} ${plural(h, 'hour')} ${plural(m, 'minute')} since the hammer`}>
       <span className="clock-label">Since the hammer</span>
@@ -78,18 +100,24 @@ function Clock() {
 }
 
 /* ---------- lot cards ---------- */
-function Plate({ d, kind }: { d: Deposit; kind: Kind }) {
+function Plate({ d, kind, sale }: { d: Deposit; kind: Kind; sale: Sale }) {
   if (kind === 'opened')
     return (
       <div className="plate plate-open">
         <span className="plate-flap" aria-hidden="true" />
         <span className="plate-letter">
           <small>Winning bid</small>
-          <strong>{taz(r.outcome.winningBidZat)}</strong>
+          <strong>{taz(sale.r.outcome.winningBidZat)}</strong>
         </span>
       </div>
     );
   if (kind === 'sealed') return <div className="plate plate-sealed" aria-hidden="true" />;
+  if (kind === 'unrevealed')
+    return (
+      <div className="plate plate-sealed plate-unrevealed">
+        <span>Never opened</span>
+      </div>
+    );
   return (
     <div className="plate plate-refused">
       <span>{STATUS[d.status] ?? d.status}</span>
@@ -97,17 +125,17 @@ function Plate({ d, kind }: { d: Deposit; kind: Kind }) {
   );
 }
 
-function Lot({ d, n }: { d: Deposit; n: number }) {
-  const kind = kindOf(d);
+const TAG: { [k in Kind]: string } = { opened: 'Opened', sealed: 'Sealed', unrevealed: 'Unrevealed', refused: 'Refused' };
+
+function Lot({ d, n, sale, kind }: { d: Deposit; n: number; sale: Sale; kind: Kind }) {
   const c = commitmentOf(d);
-  const tag = kind === 'opened' ? 'Opened' : kind === 'sealed' ? 'Sealed' : 'Refused';
   return (
     <li className={`lot lot-${kind}`}>
       <div className="lot-top">
         <b>LOT {pad(n)}</b>
-        <span className={`tag tag-${kind}`}>{tag}</span>
+        <span className={`tag tag-${kind}`}>{TAG[kind]}</span>
       </div>
-      <Plate d={d} kind={kind} />
+      <Plate d={d} kind={kind} sale={sale} />
       <dl>
         <div>
           <dt>Deposit</dt>
@@ -120,12 +148,13 @@ function Lot({ d, n }: { d: Deposit; n: number }) {
         <div>
           <dt>Tx</dt>
           <dd>
-            <a href={EXPLORER + d.txid} target="_blank" rel="noreferrer" aria-label={`Transaction ${d.txid} on the explorer`}>
-              {short(d.txid)} ↗
+            <a href={EXPLORER + d.txid} target="_blank" rel="noreferrer" aria-label={`Transaction ${d.txid}${d.output === undefined ? '' : ` output ${d.output}`} on the explorer`}>
+              {short(d.txid)}
+              {d.output === undefined ? '' : `:${d.output}`} ↗
             </a>
           </dd>
         </div>
-        {c && (
+        {c && d.status !== 'memo_mismatch' && (
           <div>
             <dt>Commitment</dt>
             <dd title={c}>{short(c, 10)}</dd>
@@ -135,6 +164,7 @@ function Lot({ d, n }: { d: Deposit; n: number }) {
       <p className="why">
         {kind === 'opened' && 'Opened by the MaxBid proof: the highest bid, at or above the reserve.'}
         {kind === 'sealed' && 'A losing bid. Refunded in full; the amount is never published.'}
+        {kind === 'unrevealed' && 'Never revealed: left out of the proof and listed in the outcome. With no refund address it was not refunded; this sale predates the rule that forfeits it to the seller.'}
         {kind === 'refused' && (d.reason ?? 'not a bid')}
       </p>
     </li>
@@ -145,17 +175,19 @@ const FILTERS: { id: 'all' | Kind; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'sealed', label: 'Sealed' },
   { id: 'opened', label: 'Opened' },
+  { id: 'unrevealed', label: 'Unrevealed' },
   { id: 'refused', label: 'Refused' },
 ];
 
-function Catalogue() {
+function Catalogue({ sale }: { sale: Sale }) {
   const [filter, setFilter] = useState<'all' | Kind>('all');
+  const { kindOf } = useMemo(() => view(sale), [sale]);
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: r.deposits.length, sealed: 0, opened: 0, refused: 0 };
-    r.deposits.forEach((d) => c[kindOf(d)]++);
+    const c: { [k: string]: number } = { all: sale.r.deposits.length, sealed: 0, opened: 0, unrevealed: 0, refused: 0 };
+    sale.r.deposits.forEach((d) => c[kindOf(d)]++);
     return c;
-  }, []);
-  const shown = r.deposits.map((d, i) => ({ d, n: i + 1 })).filter(({ d }) => filter === 'all' || kindOf(d) === filter);
+  }, [sale, kindOf]);
+  const shown = sale.r.deposits.map((d, i) => ({ d, n: i + 1, kind: kindOf(d) })).filter(({ kind }) => filter === 'all' || kind === filter);
   return (
     <section className="block" aria-labelledby="lots-title">
       <div className="block-head">
@@ -164,7 +196,7 @@ function Catalogue() {
           <h2 id="lots-title">Every deposit to the auction</h2>
         </div>
         <div className="chips" role="group" aria-label="Filter lots">
-          {FILTERS.map((f) => (
+          {FILTERS.filter((f) => f.id !== 'unrevealed' || counts.unrevealed > 0).map((f) => (
             <button key={f.id} type="button" className="chip" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
               {f.label} <span>{counts[f.id]}</span>
             </button>
@@ -172,15 +204,15 @@ function Catalogue() {
         </div>
       </div>
       <p className="block-sub">
-        In chain order, as the audit finds them by scanning blocks {r.auction.openHeight.toLocaleString('en-US')} to {r.settlement.height.toLocaleString('en-US')} with the
-        auction&apos;s incoming viewing key.
+        In chain order, as the audit finds them by scanning blocks {sale.r.auction.openHeight.toLocaleString('en-US')} to {sale.r.settlement.height.toLocaleString('en-US')} with
+        the auction&apos;s incoming viewing key. A transaction that pays the auction twice is two lots.
       </p>
       {shown.length === 0 ? (
         <p className="empty">No lots in this group.</p>
       ) : (
         <ul className="lots">
-          {shown.map(({ d, n }) => (
-            <Lot key={d.txid} d={d} n={n} />
+          {shown.map(({ d, n, kind }) => (
+            <Lot key={ref(d)} d={d} n={n} sale={sale} kind={kind} />
           ))}
         </ul>
       )}
@@ -199,57 +231,65 @@ const STEP_LABELS: [string, string][] = [
 ];
 const fresh = (): Step[] => STEP_LABELS.map(([name, label]) => ({ name, label, state: 'wait', detail: '' }));
 
-async function sha256Hex(buf: ArrayBuffer) {
-  const h = await crypto.subtle.digest('SHA-256', buf);
+async function sha256Hex(buf: ArrayBuffer | Uint8Array) {
+  const h = await crypto.subtle.digest('SHA-256', buf as BufferSource);
   return [...new Uint8Array(h)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function Verify() {
+/** Served next to the page: './verification_key.json' under the hosted subpath, '/verification_key.json' in dev. */
+export const VK_URL = `${import.meta.env.BASE_URL}verification_key.json`;
+
+function Verify({ sale }: { sale: Sale }) {
   const [steps, setSteps] = useState<Step[]>(fresh);
   const [tamper, setTamper] = useState<Tamper>('none');
   const [busy, setBusy] = useState(false);
   const set = (name: string, state: Step['state'], detail: string) => setSteps((s) => s.map((x) => (x.name === name ? { ...x, state, detail } : x)));
+  const { proven, unrevealed } = useMemo(() => view(sale), [sale]);
 
-  const runChecks = useCallback(async (t: Tamper) => {
-    setBusy(true);
-    setTamper(t);
-    setSteps(fresh());
-    const signals = [...r.outcome.publicSignals];
-    if (t === 'bid') signals[signals.length - 1] = String(BigInt(signals[signals.length - 1]) + 1n);
-    if (t === 'phantom') signals[2 + valid.length] = signals[2]; // a copy of lot 1's commitment where an empty slot must be
-    try {
-      set('vk', 'run', '');
-      const res = await fetch('/verification_key.json');
-      if (!res.ok) throw new Error(`verification_key.json: HTTP ${res.status}`);
-      const buf = await res.arrayBuffer();
-      const hex = await sha256Hex(buf);
-      set('vk', hex === r.verificationKeySha256 ? 'ok' : 'bad', `sha256 ${hex.slice(0, 12)}… ${hex === r.verificationKeySha256 ? 'matches' : 'does not match'} the record`);
-      const vk = JSON.parse(new TextDecoder().decode(buf));
+  const runChecks = useCallback(
+    async (t: Tamper) => {
+      const r = sale.r;
+      setBusy(true);
+      setTamper(t);
+      setSteps(fresh());
+      const signals = [...r.outcome.publicSignals];
+      if (t === 'bid') signals[signals.length - 1] = String(BigInt(signals[signals.length - 1]) + 1n);
+      if (t === 'phantom') signals[2 + proven.length] = signals[2]; // a copy of the first proven commitment where an empty slot must be
+      try {
+        set('vk', 'run', '');
+        const res = await fetch(VK_URL);
+        if (!res.ok) throw new Error(`verification_key.json: HTTP ${res.status}`);
+        const buf = await res.arrayBuffer();
+        const hex = await sha256Hex(buf);
+        set('vk', hex === r.verificationKeySha256 ? 'ok' : 'bad', `sha256 ${hex.slice(0, 12)}… ${hex === r.verificationKeySha256 ? 'matches' : 'does not match'} the record`);
+        const vk = JSON.parse(new TextDecoder().decode(buf));
 
-      set('proof', 'run', '');
-      const ok = await snarkjs.groth16.verify(vk, signals, r.outcome.proof);
-      set('proof', ok ? 'ok' : 'bad', ok ? 'pairing check passes in this tab (snarkjs)' : 'the proof does not verify for these public signals');
+        set('proof', 'run', '');
+        const ok = await snarkjs.groth16.verify(vk, signals, r.outcome.proof);
+        set('proof', ok ? 'ok' : 'bad', ok ? 'pairing check passes in this tab (snarkjs)' : 'the proof does not verify for these public signals');
 
-      set('slots', 'run', '');
-      const check: ResultCheck = checkResult({
-        auctionId: BigInt(r.auction.auctionId),
-        reserve: BigInt(r.auction.reserveZat),
-        deposits: r.deposits.map((d) => ({ txid: d.txid, height: d.height, status: d.status, commitment: d.status === 'memo_mismatch' ? null : commitmentOf(d) })),
-        unrevealed: r.outcome.unrevealed ?? [],
-        publicSignals: signals,
-        emptyCommitment: await emptyCommitment(BigInt(r.auction.auctionId)),
-      });
-      const by = (n: string) => check.checks.find((c) => c.name === n)!;
-      const slotsOk = by('slots').ok && by('unrevealed').ok && by('auction').ok;
-      set('slots', slotsOk ? 'ok' : 'bad', [by('auction'), by('unrevealed'), by('slots')].filter((c) => !slotsOk ? !c.ok : c.name === 'slots').map((c) => c.detail).join('; '));
-      set('winner', by('winner').ok ? 'ok' : 'bad', by('winner').detail);
-    } catch (e) {
-      // The step that was running failed; the ones after it never ran, so they say that instead of repeating its error.
-      setSteps((s) => s.map((x) => (x.state === 'run' ? { ...x, state: 'error', detail: (e as Error).message } : x.state === 'wait' ? { ...x, state: 'error', detail: 'not run: an earlier check could not finish' } : x)));
-    } finally {
-      setBusy(false);
-    }
-  }, []);
+        set('slots', 'run', '');
+        const check: ResultCheck = checkResult({
+          auctionId: BigInt(r.auction.auctionId),
+          reserve: BigInt(r.auction.reserveZat),
+          deposits: r.deposits.map((d) => ({ txid: ref(d), height: d.height, status: d.status, commitment: d.status === 'memo_mismatch' ? null : commitmentOf(d) })),
+          unrevealed,
+          publicSignals: signals,
+          emptyCommitment: await emptyCommitment(BigInt(r.auction.auctionId)),
+        });
+        const by = (n: string) => check.checks.find((c) => c.name === n)!;
+        const slotsOk = by('slots').ok && by('unrevealed').ok && by('auction').ok;
+        set('slots', slotsOk ? 'ok' : 'bad', [by('auction'), by('unrevealed'), by('slots')].filter((c) => (!slotsOk ? !c.ok : c.name === 'slots')).map((c) => c.detail).join('; '));
+        set('winner', by('winner').ok ? 'ok' : 'bad', by('winner').detail);
+      } catch (e) {
+        // The step that was running failed; the ones after it never ran, so they say that instead of repeating its error.
+        setSteps((s) => s.map((x) => (x.state === 'run' ? { ...x, state: 'error', detail: (e as Error).message } : x.state === 'wait' ? { ...x, state: 'error', detail: 'not run: an earlier check could not finish' } : x)));
+      } finally {
+        setBusy(false);
+      }
+    },
+    [sale, proven, unrevealed],
+  );
 
   useEffect(() => {
     void runChecks('none');
@@ -261,14 +301,14 @@ function Verify() {
 
   return (
     <section className={`verify ${done ? (allOk ? 'is-ok' : 'is-bad') : ''}`} aria-labelledby="verify-title">
-      <span className="eyebrow">Verify in this tab</span>
+      <span className="eyebrow">Verify in this tab · Sale {sale.id}</span>
       <h2 id="verify-title" aria-live="polite">
         {verdict}
       </h2>
       <p className="verify-sub">
-        {tamper === 'none' && 'Against the published record, with the proof and checks the audit uses.'}
+        {tamper === 'none' && `Against the published Sale ${sale.id} record, with the proof and checks the audit uses.`}
         {tamper === 'bid' && 'Tampered: the winning bid was raised by 1 zat.'}
-        {tamper === 'phantom' && `Tampered: slot ${valid.length}, which must be empty, now holds a commitment.`}
+        {tamper === 'phantom' && `Tampered: slot ${proven.length}, which must be empty, now holds a commitment.`}
       </p>
       <ol className="steps">
         {steps.map((s) => (
@@ -301,7 +341,9 @@ function Verify() {
 }
 
 /* ---------- settlement ---------- */
-function Provenance() {
+function Provenance({ sale }: { sale: Sale }) {
+  const r = sale.r;
+  const { unrevealed } = view(sale);
   return (
     <section className="block" aria-labelledby="prov-title">
       <div className="block-head">
@@ -343,18 +385,20 @@ function Provenance() {
         <li>
           Every deposit and the settlement carry only an Ironwood bundle, no transparent part: <b>{r.ironwoodOnly ? 'yes' : 'no'}</b>.
         </li>
+        {r.alteredReveal && (
+          <li>
+            An altered reveal (a bidder claiming a different bid with its real salt) was refused: <b>{r.alteredReveal.reason}</b>.
+          </li>
+        )}
         <li>
-          An altered reveal (a bidder claiming a different bid with its real salt) was refused: <b>{r.alteredReveal.reason}</b>.
-        </li>
-        <li>
-          Valid deposits declared unrevealed: <b>{(r.outcome.unrevealed ?? []).length}</b>.
+          Valid deposits declared unrevealed: <b>{unrevealed.length}</b>.
         </li>
       </ul>
     </section>
   );
 }
 
-function Audit() {
+function Audit({ sale }: { sale: Sale }) {
   return (
     <section className="block" aria-labelledby="audit-title">
       <div className="block-head">
@@ -363,12 +407,14 @@ function Audit() {
           <h2 id="audit-title">Re-read it from the chain</h2>
         </div>
       </div>
+      <p className="block-sub">
+        From the repository root: <code className="cmd">{sale.audit}</code>
+      </p>
       <ol className="howto">
-        <li>
-          <code>pnpm --filter @sba/service run audit</code> scans the auction&apos;s blocks with its incoming viewing key, so a deposit left out of the record shows up.
-        </li>
-        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch. A transaction that pays the auction twice is two deposits.</li>
+        <li>It reads the settlement&apos;s block height from the chain and scans the auction&apos;s blocks up to it with the incoming viewing key, so a deposit left out of the record shows up.</li>
+        <li>It re-applies the rules to what the chain shows: late, duplicate, wrong amount, memo mismatch, over capacity. A transaction that pays the auction twice is two deposits.</li>
         <li>It verifies the proof and ties it to those deposits, the same checks this page runs.</li>
+        <li>It says whether the auction id commits to the terms. Both sales here predate that, so their windows and reserve are read from the record (&quot;legacy&quot;).</li>
         <li>On an auction with the reveal channel it checks the reveal log: every reveal note on chain is listed, and every status the chain alone decides (window, auction, named deposit) is right.</li>
         <li>
           Given a bidder&apos;s complaint file, it opens that bidder&apos;s reveal with the published secret and says <b>rejected</b>, <b>unfounded</b> or <b>upheld</b>, naming what the auctioneer did wrong.
@@ -376,14 +422,14 @@ function Audit() {
       </ol>
       <details className="key">
         <summary>Auction incoming viewing key</summary>
-        <code>{r.auction.uivk}</code>
+        <code>{sale.r.auction.uivk}</code>
         <p>Reads deposits to the auction address: amounts and commitment memos. It cannot spend, and it never shows a bid.</p>
       </details>
     </section>
   );
 }
 
-const REVEAL_STATUS: Record<string, string> = {
+const REVEAL_STATUS: { [k: string]: string } = {
   accepted: 'accepted',
   duplicate: 'duplicate',
   conflicting: 'conflicting',
@@ -398,29 +444,93 @@ const REVEAL_STATUS: Record<string, string> = {
   bid_over_deposit: 'over deposit',
 };
 
+/** The complaint's digest, as the audit computes it (complaintDigest): sha256 of the signed body, then the signature. */
+async function complaintDigest(c: Complaint) {
+  const body = JSON.stringify([c.kind, c.auctionId, c.deposit, c.reveal, c.revealSecret, c.refundViewingKey]);
+  return sha256Hex(new TextEncoder().encode(body + c.signature));
+}
+
+/** The audit's verdict on the complaint, from a live run (an e2e test re-runs the audit and compares). */
+export const COMPLAINT_VERDICT = {
+  date: '22 Oct 2026',
+  verdict: 'unfounded',
+  reason: 'reveal 07ec9dcd08 (block 4526464) was honoured',
+  paid: 'paid in full: the refund address received 5000 zat in settlement e84de386e2, owed 5000',
+};
+
+function ComplaintCard({ sale }: { sale: Sale }) {
+  const meta = sale.r.complaints?.[0];
+  const [digest, setDigest] = useState<string | null>(null);
+  useEffect(() => {
+    void complaintDigest(COMPLAINT).then(setDigest);
+  }, []);
+  if (!meta) return null;
+  return (
+    <div className="complaint" aria-labelledby="complaint-title">
+      <span className="eyebrow">Dispute</span>
+      <h3 id="complaint-title">The winner&apos;s complaint</h3>
+      <dl className="kv">
+        <div>
+          <dt>Filed by</dt>
+          <dd>{meta.by} with MCP complain</dd>
+        </div>
+        <div>
+          <dt>Deposit</dt>
+          <dd className="num">{short(COMPLAINT.deposit)}</dd>
+        </div>
+        <div>
+          <dt>Reveal it opens</dt>
+          <dd className="num">{short(COMPLAINT.reveal)}</dd>
+        </div>
+        <div>
+          <dt>Digest (computed here)</dt>
+          <dd className="num" title={digest ?? undefined}>
+            {digest ? `${digest.slice(0, 16)}…` : 'hashing…'}
+          </dd>
+        </div>
+        <div>
+          <dt>Anchored on chain</dt>
+          <dd className="num">
+            <a href={EXPLORER + meta.anchor.txid} target="_blank" rel="noreferrer">
+              {short(meta.anchor.txid)} ↗
+            </a>{' '}
+            block {meta.anchor.height.toLocaleString('en-US')}
+          </dd>
+        </div>
+      </dl>
+      <p className="verdict">
+        <span className="res res-ok">{COMPLAINT_VERDICT.verdict}</span> {COMPLAINT_VERDICT.reason}; {COMPLAINT_VERDICT.paid}.
+      </p>
+      <p className="fineprint">
+        The audit&apos;s verdict from a live run on {COMPLAINT_VERDICT.date}; the command above re-checks it against the chain. Filing it made bidder2&apos;s own bid public (it is the winning
+        bid). It was filed before the refund key became opt-in, so it also carries the incoming viewing key of bidder2&apos;s whole demo wallet: every testnet payment to that wallet is readable
+        with it.
+      </p>
+    </div>
+  );
+}
+
 /* ---------- sale 2: openings read from sealed reveal notes on chain ---------- */
-function RevealChannel() {
-  const { reveals, outcome, settlement } = r2;
-  if (!reveals || !outcome || !settlement) return null; // the record is written when the live run settles
+function RevealChannel({ sale }: { sale: Sale }) {
+  const { reveals, settlement } = sale.r;
+  const { unrevealed } = view(sale);
+  if (!reveals) return null;
   // A bid transaction that pays the auction more than once (its payments are separate deposits).
-  const multiTx = r2.deposits.find((d) => d.output !== undefined && d.status === 'valid')?.txid;
-  const multi = r2.deposits.filter((d) => d.txid === multiTx);
+  const multiTx = sale.r.deposits.find((d) => d.output !== undefined && d.status === 'valid')?.txid;
+  const multi = sale.r.deposits.filter((d) => d.txid === multiTx);
   const checks = settlement.viewingKeyChecks;
   return (
     <section className="block" aria-labelledby="sale2-title">
       <div className="block-head">
         <div>
-          <span className="eyebrow">Sale 002 · the reveal channel</span>
+          <span className="eyebrow">Sale {sale.id} · the reveal channel</span>
           <h2 id="sale2-title">Bids opened by sealed memo</h2>
         </div>
-        <a className="btn btn-line" href={EXPLORER + settlement.txid} target="_blank" rel="noreferrer">
-          {short(settlement.txid)} ↗
-        </a>
       </div>
       <p className="block-sub">
-        <code>{r2.auction.name}</code>. After the close, each bidder sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the
-        auction&apos;s reveal key. The public viewing key sees only which deposit a reveal names and when. The auctioneer read the openings from the chain, never from the
-        bidders. Hammer price {taz(outcome.winningBidZat)}.
+        <code>{sale.r.auction.name}</code>. Three agent bidders, each its own <code>sba-mcp</code> process with only its own wallet, bid and revealed through the MCP tools. After the
+        close, each sent a 1-zat note to the auction address whose memo is its bid, salt and refund address sealed to the auction&apos;s reveal key. The public viewing key sees only which
+        deposit a reveal names and when. The auctioneer read the openings from the chain, never from the bidders. Hammer price {taz(sale.r.outcome.winningBidZat)}.
       </p>
       <div className="ledger" role="table" aria-label="Reveal notes on chain">
         <div className="reveal-row ledger-head" role="row">
@@ -441,7 +551,7 @@ function RevealChannel() {
               {v.label ? <small>{v.label}</small> : null}
             </span>
             <span role="cell" className="num">
-              {v.deposit ? short(v.deposit) : '—'}
+              {v.deposit ? shortRef(v.deposit) : '—'}
             </span>
             <span role="cell" title={v.reason ?? undefined}>
               <span className={`res ${v.status === 'accepted' ? 'res-ok' : 'res-bad'}`}>{REVEAL_STATUS[v.status] ?? v.status}</span>
@@ -451,29 +561,51 @@ function RevealChannel() {
       </div>
       <ul className="facts">
         <li>
-          Reveal window: blocks <b>{(r2.auction.closeHeight + 1).toLocaleString('en-US')}</b>–<b>{r2.auction.revealCloseHeight.toLocaleString('en-US')}</b>; complaints
-          until {r2.auction.disputeBlocks} blocks after the settlement.
+          Reveal window: blocks <b>{(sale.r.auction.closeHeight + 1).toLocaleString('en-US')}</b>–<b>{sale.r.auction.revealCloseHeight?.toLocaleString('en-US')}</b>; complaints
+          until {sale.r.auction.disputeBlocks} blocks after the settlement.
         </li>
         {multi.length > 0 ? (
           <li>
-            Transaction <b>{short(multi[0].txid)}</b> pays the auction {multi.length} times: read as {multi.length} deposits (
-            {multi.map((d) => STATUS[d.status]?.toLowerCase() ?? d.status).join(', ')}).
+            Transaction <b>{short(multi[0].txid)}</b> pays the auction {multi.length} times: read as {multi.length} deposits ({multi.map((d) => (d.status === 'valid' ? 'valid' : (STATUS[d.status]?.toLowerCase() ?? d.status))).join(', ')}).
           </li>
         ) : null}
         <li>
-          Deposits never revealed, listed in the outcome: <b>{outcome.unrevealed.length}</b>
-          {outcome.unrevealed.length ? ` (${outcome.unrevealed.map((t) => short(t)).join(', ')})` : ''}.
+          Deposits never revealed, listed in the outcome: <b>{unrevealed.length}</b>
+          {unrevealed.length ? ` (${unrevealed.map((t) => short(t)).join(', ')})` : ''}.
         </li>
         <li>
           Settlement outputs each recipient decrypted with its own key: <b>{checks.filter((c) => c.ok).length} of {checks.length} match</b>.
         </li>
       </ul>
+      <ComplaintCard sale={sale} />
     </section>
   );
 }
 
+/* ---------- the page ---------- */
+const initialSale = (): SaleId => {
+  const q = new URLSearchParams(window.location.search).get('sale');
+  return q === '001' ? '001' : '002';
+};
+
 export function App() {
-  const t = r.blockTimes;
+  const [saleId, setSaleId] = useState<SaleId>(initialSale);
+  const sale = SALES.find((s) => s.id === saleId)!;
+  const { proven } = view(sale);
+  const t = sale.r.blockTimes;
+  const choose = (id: SaleId) => {
+    setSaleId(id);
+    const u = new URL(window.location.href);
+    u.searchParams.set('sale', id);
+    window.history.replaceState(null, '', u);
+  };
+  const timeline: [string, string, string][] = [
+    ['Open', t.open.height.toLocaleString('en-US'), `${utc(t.open.time)} UTC`],
+    ['Close', t.close.height.toLocaleString('en-US'), `${utc(t.close.time)} UTC`],
+    ...(t.revealClose ? ([['Reveals close', t.revealClose.height.toLocaleString('en-US'), `${utc(t.revealClose.time)} UTC`]] as [string, string, string][]) : []),
+    ['Hammer', t.settlement.height.toLocaleString('en-US'), `${utc(t.settlement.time)} UTC`],
+    ['Reserve', taz(sale.r.auction.reserveZat), 'met'],
+  ];
   return (
     <div className="page">
       <a className="skip" href="#main">
@@ -489,6 +621,7 @@ export function App() {
             <span className="net">
               <i aria-hidden="true" /> Zcash testnet
             </span>
+            {import.meta.env.PROD && <a href="../">Catalogue</a>}
             <a href={REPO} target="_blank" rel="noreferrer">
               Code ↗
             </a>
@@ -497,58 +630,55 @@ export function App() {
       </header>
 
       <main id="main" className="main">
-        <section className="sale" aria-labelledby="sale-title">
-          <div className="sale-meta">
-            <span className="lotno">SALE 001</span>
-            <code>{r.auction.name}</code>
-          </div>
-          <div className="sale-grid">
-            <div>
-              <h1 id="sale-title">
-                <span>Hammer price</span>
-                {taz(r.outcome.winningBidZat)}
-              </h1>
-              <p className="sale-lede">
-                {valid.length} sealed bids, each an equal {taz(r.auction.depositZat)} shielded deposit. The proof opened the highest one; the other {valid.length - 1} are never
-                published.
-              </p>
+        <div className="sales" role="tablist" aria-label="Sales">
+          {SALES.map((s) => (
+            <button key={s.id} type="button" role="tab" id={`tab-${s.id}`} aria-selected={s.id === saleId} aria-controls="sale-panel" className="sale-tab" onClick={() => choose(s.id)}>
+              {s.tab}
+            </button>
+          ))}
+        </div>
+        <div id="sale-panel" role="tabpanel" aria-labelledby={`tab-${saleId}`}>
+          <section className="sale" aria-labelledby="sale-title">
+            <div className="sale-meta">
+              <span className="lotno">SALE {sale.id}</span>
+              <code>{sale.r.auction.name}</code>
             </div>
-            <Clock />
-          </div>
-          <ol className="timeline" aria-label="Auction timeline">
-            <li>
-              <span>Open</span>
-              <b>{t.open.height.toLocaleString('en-US')}</b>
-              <small>{utc(t.open.time)} UTC</small>
-            </li>
-            <li>
-              <span>Close</span>
-              <b>{t.close.height.toLocaleString('en-US')}</b>
-              <small>{utc(t.close.time)} UTC</small>
-            </li>
-            <li>
-              <span>Hammer</span>
-              <b>{t.settlement.height.toLocaleString('en-US')}</b>
-              <small>{utc(t.settlement.time)} UTC</small>
-            </li>
-            <li>
-              <span>Reserve</span>
-              <b>{taz(r.auction.reserveZat)}</b>
-              <small>met</small>
-            </li>
-          </ol>
-        </section>
+            <div className="sale-grid">
+              <div>
+                <h1 id="sale-title">
+                  <span>Hammer price</span>
+                  {taz(sale.r.outcome.winningBidZat)}
+                </h1>
+                <p className="sale-lede">
+                  {sale.id === '002'
+                    ? `${proven.length} revealed sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit, placed by three agents through their own sba-mcp servers. The proof opened the highest one; the other ${proven.length - 1} are never published.`
+                    : `${proven.length} sealed bids, each an equal ${taz(sale.r.auction.depositZat)} shielded deposit. The proof opened the highest one; the other ${proven.length - 1} are never published.`}
+                </p>
+              </div>
+              <Clock since={t.settlement.time} />
+            </div>
+            <ol className="timeline" aria-label="Auction timeline" style={{ '--n': timeline.length } as CSSProperties}>
+              {timeline.map(([label, big, small]) => (
+                <li key={label} className={label === 'Hammer' ? 'is-hammer' : undefined}>
+                  <span>{label}</span>
+                  <b>{big}</b>
+                  <small>{small}</small>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-        <div className="layout">
-          <div className="col">
-            <Catalogue />
-            <Provenance />
-            <RevealChannel />
-            <Audit />
+          <div className="layout">
+            <div className="col">
+              <Catalogue key={`lots-${sale.id}`} sale={sale} />
+              <Provenance sale={sale} />
+              <RevealChannel sale={sale} />
+              <Audit sale={sale} />
+            </div>
+            <aside className="side">
+              <Verify key={`verify-${sale.id}`} sale={sale} />
+            </aside>
           </div>
-          <aside className="side">
-            <Verify />
-          </aside>
         </div>
       </main>
       <footer className="foot">

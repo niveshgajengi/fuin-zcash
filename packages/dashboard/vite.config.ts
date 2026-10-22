@@ -4,6 +4,8 @@ import { defineConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
+  // Relative asset and fetch paths, so the built saleroom works at any path (GitHub Pages serves it at /<repo>/saleroom/).
+  base: './',
   plugins: [react(), nodePolyfills({ include: ['buffer', 'crypto', 'stream', 'util', 'events', 'process'] })],
   resolve: {
     alias: {
