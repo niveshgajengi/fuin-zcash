@@ -1,12 +1,30 @@
+import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { EXPLORER, REPO, SALEROOM, expect, fmt, noHorizontalScroll, sale1, sale2, test } from './fixtures';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { promisify } from 'node:util';
+import { EXPLORER, LANDING, REPO, SALEROOM, VK_PATH, expect, fmt, noHorizontalScroll, root, sale1, sale2, test } from './fixtures';
 import type { Page } from '@playwright/test';
 
-const valid = sale1.deposits.filter((d: { status: string }) => d.status === 'valid');
-const winner = valid[sale1.outcome.winnerSlot];
+type Dep = { txid: string; output?: string; height: number; valueZat: string; memo: string; status: string; reason: string | null };
+const ref = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
 const taz = (z: string | number) => `${(Number(z) / 1e8).toLocaleString('en-US', { maximumFractionDigits: 6 })} TAZ`;
 const utc = (t: number) => new Date(t * 1000).toISOString().slice(11, 19);
-const kindOf = (d: { txid: string; status: string }) => (d.txid === winner.txid ? 'opened' : d.status === 'valid' ? 'sealed' : 'refused');
+
+/** What the page must show for a record: proven deposits (valid, revealed, chain order), the winner, each lot's kind. */
+function derive(rec: typeof sale1) {
+  const unrevealed: string[] = rec.outcome.unrevealed ?? [];
+  const deposits = rec.deposits as Dep[];
+  const proven = deposits.filter((d) => d.status === 'valid' && !unrevealed.includes(ref(d)));
+  const winner = proven[rec.outcome.winnerSlot];
+  const kindOf = (d: Dep) => (ref(d) === ref(winner) ? 'opened' : d.status !== 'valid' ? 'refused' : unrevealed.includes(ref(d)) ? 'unrevealed' : 'sealed');
+  return { deposits, unrevealed, proven, winner, kindOf };
+}
+
+const SALES = [
+  { id: '002', rec: sale2, url: SALEROOM, tab: 'Sale 002 · reveal channel' },
+  { id: '001', rec: sale1, url: `${SALEROOM}?sale=001`, tab: 'Sale 001 · first sale' },
+] as const;
 
 const verify = (page: Page) => page.locator('section.verify');
 const step = (page: Page, label: string) => verify(page).locator('.step', { hasText: label });
@@ -16,145 +34,182 @@ async function settled(page: Page, verdict: string) {
 }
 
 test.describe('saleroom', () => {
-  test('sale header: hammer price, lede, timeline and live clock from the record; no horizontal scroll', async ({ page }, info) => {
+  test('Sale 002 is the headline: the tabs switch the whole page and the URL, and ?sale=001 opens the first sale', async ({ page }, info) => {
     await page.goto(SALEROOM);
-    await expect(page).toHaveTitle(/Fuin/);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Hammer price${taz(sale1.outcome.winningBidZat)}`);
+    const tabs = page.getByRole('tablist', { name: 'Sales' }).getByRole('tab');
+    await expect(tabs).toHaveText(['Sale 002 · reveal channel', 'Sale 001 · first sale']);
+    await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
+    await expect(page.locator('.sale-meta code')).toHaveText(sale2.auction.name);
+    await settled(page, 'The result holds.');
+    await tabs.nth(1).click();
+    await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+    await expect(page).toHaveURL(/\?sale=001$/);
     await expect(page.locator('.sale-meta code')).toHaveText(sale1.auction.name);
-    await expect(page.locator('.sale-lede')).toContainText(`${valid.length} sealed bids, each an equal ${taz(sale1.auction.depositZat)}`);
-    const tl = page.getByRole('list', { name: 'Auction timeline' }).locator('li');
-    const bt = sale1.blockTimes;
-    for (const [i, [label, b]] of ([['Open', bt.open], ['Close', bt.close], ['Hammer', bt.settlement]] as const).entries()) {
-      await expect(tl.nth(i)).toContainText(label);
-      await expect(tl.nth(i).locator('b')).toHaveText(fmt(b.height));
-      await expect(tl.nth(i).locator('small')).toHaveText(`${utc(b.time)} UTC`);
-    }
-    await expect(tl.nth(3).locator('b')).toHaveText(taz(sale1.auction.reserveZat));
-    const clock = page.getByRole('timer');
-    const label = (await clock.getAttribute('aria-label'))!;
-    expect(label).toMatch(/^\d+ days? \d+ hours? \d+ minutes? since the hammer$/);
-    for (const [n, unit] of label.matchAll(/(\d+) (\w+)/g).map((x) => [Number(x[1]), x[2]] as const)) if (unit !== 'since') expect(unit.endsWith('s')).toBe(n !== 1);
-    const read = async () => (await clock.locator('.digits > span').allTextContents()).map((t) => parseInt(t, 10));
-    const [d, h, m, s] = await read();
-    expect(Math.abs(d * 86400 + h * 3600 + m * 60 + s - (Math.floor(Date.now() / 1000) - bt.settlement.time))).toBeLessThanOrEqual(3);
-    await expect.poll(async () => (await read()).join(':'), { timeout: 3000 }).not.toBe([d, h, m, s].join(':'));
+    await expect(page.locator('section[aria-labelledby=sale2-title]')).toHaveCount(0);
+    await expect(verify(page).locator('.eyebrow')).toHaveText('Verify in this tab · Sale 001');
     await settled(page, 'The result holds.');
+    await page.reload();
+    await expect(page.locator('.sale-meta code')).toHaveText(sale1.auction.name);
+    await tabs.first().click();
+    await expect(page).toHaveURL(/\?sale=002$/);
+    await expect(page.locator('.sale-meta code')).toHaveText(sale2.auction.name);
     await noHorizontalScroll(page);
-    await page.screenshot({ path: info.outputPath(`saleroom-top-${info.project.name}.png`) });
+    await page.screenshot({ path: info.outputPath(`saleroom-tabs-${info.project.name}.png`) });
   });
 
-  test('verify in this tab: the record passes all four checks against the served verification key', async ({ page, request }, info) => {
-    await page.goto(SALEROOM);
-    await settled(page, 'The result holds.');
-    const served = await (await request.get(SALEROOM + 'verification_key.json')).body();
-    const sha = createHash('sha256').update(served).digest('hex');
-    expect(sha).toBe(sale1.verificationKeySha256);
-    await expect(verify(page).locator('.step-ok')).toHaveCount(4);
-    await expect(step(page, 'Verification key is the published one')).toContainText(`sha256 ${sha.slice(0, 12)}… matches the record`);
-    await expect(step(page, 'Groth16 proof verifies')).toContainText('pairing check passes in this tab (snarkjs)');
-    await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slots 0-${valid.length - 1} are the ${valid.length} revealed valid deposits in chain order`);
-    await expect(step(page, 'Winner is a real deposit')).toContainText(`slot ${sale1.outcome.winnerSlot} is deposit ${winner.txid.slice(0, 10)}`);
-    await verify(page).screenshot({ path: info.outputPath(`saleroom-verify-ok-${info.project.name}.png`) });
-  });
+  for (const s of SALES) {
+    const { deposits, unrevealed, proven, winner, kindOf } = derive(s.rec);
 
-  test('tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores', async ({ page }, info) => {
-    await page.goto(SALEROOM);
-    await settled(page, 'The result holds.');
-    const v = verify(page);
+    test(`Sale ${s.id} header: hammer price, lede, timeline and live clock from the record; no horizontal scroll`, async ({ page }, info) => {
+      await page.goto(s.url);
+      await expect(page).toHaveTitle(/Fuin/);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Hammer price${taz(s.rec.outcome.winningBidZat)}`);
+      await expect(page.locator('.sale-meta')).toContainText(`SALE ${s.id}`);
+      await expect(page.locator('.sale-meta code')).toHaveText(s.rec.auction.name);
+      await expect(page.locator('.sale-lede')).toContainText(`${proven.length} ${s.id === '002' ? 'revealed sealed bids' : 'sealed bids'}, each an equal ${taz(s.rec.auction.depositZat)}`);
+      if (s.id === '002') await expect(page.locator('.sale-lede')).toContainText('three agents through their own sba-mcp servers');
+      const tl = page.getByRole('list', { name: 'Auction timeline' }).locator('li');
+      const bt = s.rec.blockTimes as { open: { height: number; time: number }; close: { height: number; time: number }; revealClose?: { height: number; time: number }; settlement: { height: number; time: number } };
+      const rows = [['Open', bt.open], ['Close', bt.close], ...(bt.revealClose ? [['Reveals close', bt.revealClose]] : []), ['Hammer', bt.settlement]] as [string, { height: number; time: number }][];
+      await expect(tl).toHaveCount(rows.length + 1);
+      for (const [i, [label, b]] of rows.entries()) {
+        await expect(tl.nth(i).locator('span')).toHaveText(label);
+        await expect(tl.nth(i).locator('b')).toHaveText(fmt(b.height));
+        await expect(tl.nth(i).locator('small')).toHaveText(`${utc(b.time)} UTC`);
+      }
+      await expect(tl.last().locator('b')).toHaveText(taz(s.rec.auction.reserveZat));
+      const clock = page.getByRole('timer');
+      const label = (await clock.getAttribute('aria-label'))!;
+      expect(label).toMatch(/^\d+ days? \d+ hours? \d+ minutes? since the hammer$/);
+      for (const [n, unit] of label.matchAll(/(\d+) (\w+)/g).map((x) => [Number(x[1]), x[2]] as const)) if (unit !== 'since') expect(unit.endsWith('s')).toBe(n !== 1);
+      const read = async () => (await clock.locator('.digits > span').allTextContents()).map((t) => parseInt(t, 10));
+      const [d, h, m, sec] = await read();
+      expect(Math.abs(d * 86400 + h * 3600 + m * 60 + sec - (Math.floor(Date.now() / 1000) - bt.settlement.time))).toBeLessThanOrEqual(3);
+      await expect.poll(async () => (await read()).join(':'), { timeout: 3000 }).not.toBe([d, h, m, sec].join(':'));
+      await settled(page, 'The result holds.');
+      await noHorizontalScroll(page);
+      await page.screenshot({ path: info.outputPath(`saleroom-${s.id}-top-${info.project.name}.png`) });
+    });
 
-    await v.getByRole('button', { name: 'Claim 1 zat more' }).click();
-    await settled(page, 'The result does not hold.');
-    await expect(v).toHaveClass(/is-bad/);
-    await expect(v.locator('.verify-sub')).toHaveText('Tampered: the winning bid was raised by 1 zat.');
-    await expect(step(page, 'Verification key is the published one')).toHaveClass(/step-ok/);
-    await expect(step(page, 'Groth16 proof verifies')).toHaveClass(/step-bad/);
-    await expect(step(page, 'Groth16 proof verifies')).toContainText('the proof does not verify for these public signals');
-    await v.screenshot({ path: info.outputPath(`saleroom-tamper-bid-${info.project.name}.png`) });
+    test(`Sale ${s.id} verify in this tab: the record passes all four checks against the served verification key`, async ({ page, request }, info) => {
+      await page.goto(s.url);
+      await settled(page, 'The result holds.');
+      const served = await (await request.get(SALEROOM + 'verification_key.json')).body();
+      const sha = createHash('sha256').update(served).digest('hex');
+      expect(sha).toBe(s.rec.verificationKeySha256);
+      await expect(verify(page).locator('.step-ok')).toHaveCount(4);
+      await expect(verify(page).locator('.verify-sub')).toHaveText(`Against the published Sale ${s.id} record, with the proof and checks the audit uses.`);
+      await expect(step(page, 'Verification key is the published one')).toContainText(`sha256 ${sha.slice(0, 12)}… matches the record`);
+      await expect(step(page, 'Groth16 proof verifies')).toContainText('pairing check passes in this tab (snarkjs)');
+      await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slots 0-${proven.length - 1} are the ${proven.length} revealed valid deposits in chain order`);
+      await expect(step(page, 'Winner is a real deposit')).toContainText(`slot ${s.rec.outcome.winnerSlot} is deposit ${ref(winner).slice(0, 10)}`);
+      await verify(page).screenshot({ path: info.outputPath(`saleroom-${s.id}-verify-ok-${info.project.name}.png`) });
+    });
 
-    await v.getByRole('button', { name: 'Slip in a phantom bid' }).click();
-    await settled(page, 'The result does not hold.');
-    await expect(v.locator('.verify-sub')).toHaveText(`Tampered: slot ${valid.length}, which must be empty, now holds a commitment.`);
-    await expect(step(page, 'Groth16 proof verifies')).toHaveClass(/step-bad/);
-    await expect(step(page, 'Proof covers exactly the valid deposits')).toHaveClass(/step-bad/);
-    await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slot ${valid.length}`);
-    await v.screenshot({ path: info.outputPath(`saleroom-tamper-phantom-${info.project.name}.png`) });
+    test(`Sale ${s.id} tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores`, async ({ page }, info) => {
+      await page.goto(s.url);
+      await settled(page, 'The result holds.');
+      const v = verify(page);
 
-    await v.getByRole('button', { name: 'Check the published result' }).click();
-    // While the checks run, every action is disabled.
-    await settled(page, 'The result holds.');
-    await expect(v).toHaveClass(/is-ok/);
-    await expect(v.locator('.step-ok')).toHaveCount(4);
-  });
+      await v.getByRole('button', { name: 'Claim 1 zat more' }).click();
+      await settled(page, 'The result does not hold.');
+      await expect(v).toHaveClass(/is-bad/);
+      await expect(v.locator('.verify-sub')).toHaveText('Tampered: the winning bid was raised by 1 zat.');
+      await expect(step(page, 'Verification key is the published one')).toHaveClass(/step-ok/);
+      await expect(step(page, 'Groth16 proof verifies')).toHaveClass(/step-bad/);
+      await expect(step(page, 'Groth16 proof verifies')).toContainText('the proof does not verify for these public signals');
+      await v.screenshot({ path: info.outputPath(`saleroom-${s.id}-tamper-bid-${info.project.name}.png`) });
 
-  test('lot filters: each chip shows exactly its lots and its count', async ({ page }, info) => {
-    await page.goto(SALEROOM);
-    const chips = page.getByRole('group', { name: 'Filter lots' });
-    const lots = page.locator('ul.lots > li');
-    const count = { all: sale1.deposits.length, sealed: 0, opened: 0, refused: 0 } as Record<string, number>;
-    sale1.deposits.forEach((d: { txid: string; status: string }) => count[kindOf(d)]++);
-    for (const [label, id] of [['Sealed', 'sealed'], ['Opened', 'opened'], ['Refused', 'refused'], ['All', 'all']]) {
-      const chip = chips.getByRole('button', { name: new RegExp(`^${label} \\d+$`) });
-      await expect(chip).toHaveText(`${label} ${count[id]}`);
-      await chip.click();
-      await expect(chip).toHaveAttribute('aria-pressed', 'true');
-      await expect(chips.locator('[aria-pressed=true]')).toHaveCount(1);
-      await expect(lots).toHaveCount(count[id]);
-      if (id !== 'all') await expect(page.locator(`ul.lots > li:not(.lot-${id})`)).toHaveCount(0);
-      await page.locator('section[aria-labelledby=lots-title]').screenshot({ path: info.outputPath(`saleroom-filter-${id}-${info.project.name}.png`) });
-    }
-  });
+      await v.getByRole('button', { name: 'Slip in a phantom bid' }).click();
+      await settled(page, 'The result does not hold.');
+      await expect(v.locator('.verify-sub')).toHaveText(`Tampered: slot ${proven.length}, which must be empty, now holds a commitment.`);
+      await expect(step(page, 'Groth16 proof verifies')).toHaveClass(/step-bad/);
+      await expect(step(page, 'Proof covers exactly the valid deposits')).toHaveClass(/step-bad/);
+      await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slot ${proven.length} should be empty`);
+      await v.screenshot({ path: info.outputPath(`saleroom-${s.id}-tamper-phantom-${info.project.name}.png`) });
 
-  test('lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons', async ({ page }) => {
-    await page.goto(SALEROOM);
-    const lots = page.locator('ul.lots > li');
-    await expect(lots).toHaveCount(sale1.deposits.length);
-    for (const [i, d] of sale1.deposits.entries()) {
-      const lot = lots.nth(i);
-      await expect(lot.locator('.lot-top b')).toHaveText(`LOT ${String(i + 1).padStart(2, '0')}`);
-      const a = lot.getByRole('link', { name: `Transaction ${d.txid} on the explorer` });
-      await expect(a).toHaveAttribute('href', EXPLORER + d.txid);
-      await expect(a).toHaveAttribute('target', '_blank');
-      await expect(lot).toContainText(fmt(d.height));
-      if (kindOf(d) === 'refused') await expect(lot.locator('.why')).toHaveText(d.reason);
-    }
-    await expect(page.locator('ul.lots')).toContainText(taz(sale1.outcome.winningBidZat));
-    await expect(page.locator('ul.lots .plate-open')).toHaveCount(1);
-  });
+      await v.getByRole('button', { name: 'Check the published result' }).click();
+      await settled(page, 'The result holds.');
+      await expect(v).toHaveClass(/is-ok/);
+      await expect(v.locator('.step-ok')).toHaveCount(4);
+    });
 
-  test('provenance ledger: each recipient’s decrypted outputs match; settlement link', async ({ page }, info) => {
-    await page.goto(SALEROOM);
-    const sec = page.locator('section[aria-labelledby=prov-title]');
-    await expect(sec.getByRole('link', { name: `${sale1.settlement.txid.slice(0, 8)}… ↗` })).toHaveAttribute('href', EXPLORER + sale1.settlement.txid);
-    await expect(sec).toContainText(`block ${fmt(sale1.settlement.height)} (${utc(sale1.blockTimes.settlement.time)} UTC), ${sale1.settlement.outputs.length} outputs`);
-    // The column header row is display:none below 640 px (each cell carries its own label there).
-    const rows = sec.getByRole('table', { name: 'Settlement outputs by recipient' }).locator('.ledger-row:not(.ledger-head)');
-    await expect(rows).toHaveCount(sale1.settlement.viewingKeyChecks.length);
-    for (const c of sale1.settlement.viewingKeyChecks) {
-      const row = rows.filter({ hasText: c.recipient });
-      await expect(row.getByRole('cell').nth(1)).toHaveText(`${c.expected.split('+').map(fmt).join(' + ')} zat`);
-      await expect(row.getByRole('cell').nth(2)).toHaveText(`${c.seen.map(fmt).join(' + ')} zat`);
-      await expect(row.getByRole('cell').nth(3)).toHaveText(c.ok ? 'match' : 'mismatch');
-    }
-    await expect(sec).toContainText(`no transparent part: ${sale1.ironwoodOnly ? 'yes' : 'no'}`);
-    await sec.screenshot({ path: info.outputPath(`saleroom-provenance-${info.project.name}.png`) });
-  });
+    test(`Sale ${s.id} lot filters: each chip shows exactly its lots and its count`, async ({ page }, info) => {
+      await page.goto(s.url);
+      const chips = page.getByRole('group', { name: 'Filter lots' });
+      const lots = page.locator('ul.lots > li');
+      const count: { [k: string]: number } = { all: deposits.length, sealed: 0, opened: 0, unrevealed: 0, refused: 0 };
+      deposits.forEach((d) => count[kindOf(d)]++);
+      const shown = [['Sealed', 'sealed'], ['Opened', 'opened'], ...(count.unrevealed ? [['Unrevealed', 'unrevealed']] : []), ['Refused', 'refused'], ['All', 'all']];
+      await expect(chips.getByRole('button')).toHaveCount(shown.length);
+      for (const [label, id] of shown) {
+        const chip = chips.getByRole('button', { name: new RegExp(`^${label} \\d+$`) });
+        await expect(chip).toHaveText(`${label} ${count[id]}`);
+        await chip.click();
+        await expect(chip).toHaveAttribute('aria-pressed', 'true');
+        await expect(chips.locator('[aria-pressed=true]')).toHaveCount(1);
+        await expect(lots).toHaveCount(count[id]);
+        if (id !== 'all') await expect(page.locator(`ul.lots > li:not(.lot-${id})`)).toHaveCount(0);
+        await page.locator('section[aria-labelledby=lots-title]').screenshot({ path: info.outputPath(`saleroom-${s.id}-filter-${id}-${info.project.name}.png`) });
+      }
+    });
+
+    test(`Sale ${s.id} lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons`, async ({ page }) => {
+      await page.goto(s.url);
+      const lots = page.locator('ul.lots > li');
+      await expect(lots).toHaveCount(deposits.length);
+      for (const [i, d] of deposits.entries()) {
+        const lot = lots.nth(i);
+        await expect(lot.locator('.lot-top b')).toHaveText(`LOT ${String(i + 1).padStart(2, '0')}`);
+        const a = lot.getByRole('link', { name: `Transaction ${d.txid}${d.output === undefined ? '' : ` output ${d.output}`} on the explorer` });
+        await expect(a).toHaveAttribute('href', EXPLORER + d.txid);
+        await expect(a).toHaveAttribute('target', '_blank');
+        await expect(lot).toContainText(fmt(d.height));
+        await expect(lot.locator('.tag')).toHaveText({ opened: 'Opened', sealed: 'Sealed', unrevealed: 'Unrevealed', refused: 'Refused' }[kindOf(d)]);
+        if (kindOf(d) === 'refused') await expect(lot.locator('.why')).toHaveText(d.reason!);
+        if (kindOf(d) === 'unrevealed') await expect(lot.locator('.why')).toContainText('Never revealed: left out of the proof and listed in the outcome');
+      }
+      await expect(page.locator('ul.lots')).toContainText(taz(s.rec.outcome.winningBidZat));
+      await expect(page.locator('ul.lots .plate-open')).toHaveCount(1);
+      expect(unrevealed.length).toBe(s.id === '002' ? 1 : 0);
+    });
+
+    test(`Sale ${s.id} provenance ledger: each recipient’s decrypted outputs match; settlement link`, async ({ page }, info) => {
+      await page.goto(s.url);
+      const sec = page.locator('section[aria-labelledby=prov-title]');
+      await expect(sec.getByRole('link', { name: `${s.rec.settlement.txid.slice(0, 8)}… ↗` })).toHaveAttribute('href', EXPLORER + s.rec.settlement.txid);
+      await expect(sec).toContainText(`block ${fmt(s.rec.settlement.height)} (${utc(s.rec.blockTimes.settlement.time)} UTC), ${s.rec.settlement.outputs.length} outputs`);
+      // The column header row is display:none below 640 px (each cell carries its own label there).
+      const rows = sec.getByRole('table', { name: 'Settlement outputs by recipient' }).locator('.ledger-row:not(.ledger-head)');
+      await expect(rows).toHaveCount(s.rec.settlement.viewingKeyChecks.length);
+      for (const c of s.rec.settlement.viewingKeyChecks as { recipient: string; expected: string; seen: number[]; ok: boolean }[]) {
+        const row = rows.filter({ hasText: c.recipient });
+        await expect(row.getByRole('cell').nth(1)).toHaveText(`${c.expected.split('+').map(fmt).join(' + ')} zat`);
+        await expect(row.getByRole('cell').nth(2)).toHaveText(`${c.seen.map(fmt).join(' + ')} zat`);
+        await expect(row.getByRole('cell').nth(3)).toHaveText(c.ok ? 'match' : 'mismatch');
+      }
+      await expect(sec).toContainText(`no transparent part: ${s.rec.ironwoodOnly ? 'yes' : 'no'}`);
+      await expect(sec).toContainText(`Valid deposits declared unrevealed: ${unrevealed.length}`);
+      await sec.screenshot({ path: info.outputPath(`saleroom-${s.id}-provenance-${info.project.name}.png`) });
+    });
+  }
 
   test('Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks', async ({ page }, info) => {
     await page.goto(SALEROOM);
     const sec = page.locator('section[aria-labelledby=sale2-title]');
     await expect(sec.getByRole('heading', { name: 'Bids opened by sealed memo' })).toBeVisible();
-    await expect(sec.locator('.block-sub code')).toHaveText(sale2.auction.name);
+    await expect(sec.locator('.block-sub code').first()).toHaveText(sale2.auction.name);
+    await expect(sec).toContainText('Three agent bidders, each its own sba-mcp process with only its own wallet, bid and revealed through the MCP tools.');
     await expect(sec).toContainText(`Hammer price ${taz(sale2.outcome.winningBidZat)}`);
-    await expect(sec.getByRole('link', { name: `${sale2.settlement.txid.slice(0, 8)}… ↗` })).toHaveAttribute('href', EXPLORER + sale2.settlement.txid);
     const rows = sec.getByRole('table', { name: 'Reveal notes on chain' }).locator('.reveal-row:not(.ledger-head)');
     await expect(rows).toHaveCount(sale2.reveals.length);
-    const statusText: Record<string, string> = { accepted: 'accepted', wrong_commitment: 'wrong deposit', late: 'late' };
+    const statusText: { [k: string]: string } = { accepted: 'accepted', wrong_commitment: 'wrong deposit', late: 'late' };
     for (const [i, v] of sale2.reveals.entries()) {
       const row = rows.nth(i);
       await expect(row.getByRole('cell').nth(0)).toHaveText(fmt(v.height));
       await expect(row.getByRole('link')).toHaveAttribute('href', EXPLORER + v.txid);
       if (v.label) await expect(row.getByRole('cell').nth(1)).toContainText(v.label);
-      await expect(row.getByRole('cell').nth(2)).toHaveText(`${v.deposit.slice(0, 8)}…`);
+      await expect(row.getByRole('cell').nth(2)).toHaveText(v.deposit.length > 64 ? `${v.deposit.slice(0, 8)}…${v.deposit.slice(64)}` : `${v.deposit.slice(0, 8)}…`);
       await expect(row.getByRole('cell').nth(3)).toHaveText(statusText[v.status] ?? v.status);
     }
     await expect(sec).toContainText(`Reveal window: blocks ${fmt(sale2.auction.closeHeight + 1)}–${fmt(sale2.auction.revealCloseHeight)}; complaints until ${sale2.auction.disputeBlocks} blocks`);
@@ -165,13 +220,45 @@ test.describe('saleroom', () => {
     await sec.screenshot({ path: info.outputPath(`saleroom-sale2-${info.project.name}.png`) });
   });
 
+  test('Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s', async ({ page }, info) => {
+    test.setTimeout(300_000);
+    await page.goto(SALEROOM);
+    const card = page.locator('.complaint');
+    const meta = sale2.complaints[0];
+    const c = JSON.parse(readFileSync(resolve(root, 'deployments', meta.file), 'utf8'));
+    const digest = createHash('sha256').update(JSON.stringify([c.kind, c.auctionId, c.deposit, c.reveal, c.revealSecret, c.refundViewingKey])).update(c.signature).digest('hex');
+    await expect(card.locator('dd[title]')).toHaveAttribute('title', digest);
+    await expect(card).toContainText(`${digest.slice(0, 16)}…`);
+    await expect(card.getByRole('link')).toHaveAttribute('href', EXPLORER + meta.anchor.txid);
+    await expect(card).toContainText(`block ${fmt(meta.anchor.height)}`);
+    await expect(card).toContainText("carries the incoming viewing key of bidder2's whole demo wallet");
+    // The anchor, read live from testnet with the auction's public viewing key: its memo carries exactly this digest.
+    const bin = process.env.SBA_VERIFY_BIN ?? resolve(root, 'packages/verifier/target/release/sba-verify');
+    expect(existsSync(bin), `Setup required: SBA_VERIFY_BIN (${bin})`).toBe(true);
+    const { stdout: tx } = await promisify(execFile)(bin, ['tx', meta.anchor.txid], { env: { ...process.env, SBA_UIVK: sale2.auction.uivk }, timeout: 120_000 });
+    const anchor = JSON.parse(tx);
+    expect(anchor.height).toBe(meta.anchor.height);
+    expect(anchor.outputs.map((o: { memo: { text?: string } }) => o.memo?.text)).toEqual([`sba1d:${sale2.auction.auctionId}:${digest}`]);
+    // The verdict: run the command the page shows and find the quoted lines in its output.
+    const cmd = (await page.locator('section[aria-labelledby=audit-title] code.cmd').innerText()).trim();
+    expect(cmd).toBe(`pnpm --filter @sba/service run audit deployments/testnet-reveal.json deployments/${meta.file}`);
+    const { stdout } = await promisify(execFile)('pnpm', cmd.split(' ').slice(1), { cwd: root, timeout: 280_000, maxBuffer: 8 << 20 });
+    const verdict = ((await card.locator('.verdict').textContent()) ?? '').trim(); // textContent: the badge is upper-cased by CSS only
+    const m = verdict.match(/^(\w+) (.+?); (paid in full: .+)\.$/)!;
+    expect(m, verdict).not.toBeNull();
+    expect(stdout).toContain(`${m[1]}: ${m[2]}`);
+    expect(stdout).toContain(m[3]);
+    expect(stdout).toContain('all checks pass');
+    await card.screenshot({ path: info.outputPath(`saleroom-complaint-${info.project.name}.png`) });
+  });
+
   test('audit: the viewing-key disclosure opens and closes and shows the published key', async ({ page }) => {
     await page.goto(SALEROOM);
     const det = page.locator('details.key');
     await expect(det.locator('code')).toBeHidden();
     await det.getByText('Auction incoming viewing key').click();
     await expect(det).toHaveAttribute('open', '');
-    await expect(det.locator('code')).toHaveText(sale1.auction.uivk);
+    await expect(det.locator('code')).toHaveText(sale2.auction.uivk);
     await expect(det.locator('code')).toBeVisible();
     await noHorizontalScroll(page);
     await det.getByText('Auction incoming viewing key').click();
@@ -183,12 +270,18 @@ test.describe('saleroom', () => {
     // No button in the saleroom is labelled "log"; assert it so a new one cannot ship untested.
     await expect(page.getByRole('button', { name: /log/i })).toHaveCount(0);
     await expect(page.getByRole('link', { name: /\blog\b/i })).toHaveCount(0);
-    // The ledgers are reached by scrolling and their explorer links (checked above); the header:
     await expect(page.getByRole('link', { name: 'Code ↗' })).toHaveAttribute('href', REPO);
-    // The audit command the page tells users to run is the one that works (pnpm's own `audit` would run otherwise).
-    for (const code of await page.locator('code', { hasText: '@sba/service' }).allTextContents()) expect(code).toBe('pnpm --filter @sba/service run audit');
+    // Every audit command on the page is `pnpm --filter @sba/service run audit` (pnpm's own `audit` would run otherwise), with only files that exist.
+    for (const code of await page.locator('code', { hasText: '@sba/service' }).allTextContents()) {
+      expect(code.startsWith('pnpm --filter @sba/service run audit')).toBe(true);
+      for (const f of code.split(' ').slice(5)) expect(existsSync(resolve(root, f)), f).toBe(true);
+    }
     await page.getByRole('link', { name: 'Fuin saleroom' }).click();
     await expect(page).toHaveURL(/#main$/);
+    // The catalogue (landing) is one level up, as hosted.
+    await page.getByRole('link', { name: 'Catalogue' }).click();
+    await expect(page).toHaveURL(LANDING);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await page.goto(SALEROOM);
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to the saleroom' });
@@ -218,7 +311,7 @@ test.describe('saleroom', () => {
   });
 
   test('error state (fault injection on the page’s own static file): verification key unavailable or altered', async ({ page, health }, info) => {
-    health.allowSameOrigin404('/verification_key.json');
+    health.allowSameOrigin404(VK_PATH);
     await page.route('**/verification_key.json', (r) => r.fulfill({ status: 404, body: 'not found' }));
     await page.goto(SALEROOM);
     await settled(page, 'Could not finish the checks.');

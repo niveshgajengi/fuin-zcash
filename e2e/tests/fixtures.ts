@@ -2,8 +2,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { test as base, expect, type Page } from '@playwright/test';
 
-export const LANDING = process.env.FUIN_LANDING ?? 'http://127.0.0.1:4180/';
-export const SALEROOM = process.env.FUIN_SALEROOM ?? 'http://127.0.0.1:4178/';
+import { LANDING, SALEROOM } from './urls';
+
+export { LANDING, SALEROOM, VK_PATH } from './urls';
 export const root = resolve(import.meta.dirname, '../..');
 export const sale1 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet.json'), 'utf8'));
 export const sale2 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet-reveal.json'), 'utf8'));
@@ -19,7 +20,8 @@ export const test = base.extend<{ health: Health }>({
     async ({ page }, use) => {
       const problems: string[] = [];
       const allowed = new Set<string>();
-      const same = (u: string) => u.startsWith('http://127.0.0.1:');
+      const origins = new Set([new URL(LANDING).origin, new URL(SALEROOM).origin]);
+      const same = (u: string) => origins.has(new URL(u).origin);
       page.on('console', (m) => {
         if (m.type() === 'error' && !(allowed.size && m.text().includes('Failed to load resource'))) problems.push(`console: ${m.text()}`);
       });

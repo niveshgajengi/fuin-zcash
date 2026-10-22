@@ -1,6 +1,8 @@
+import { LANDING, SALEROOM } from './tests/urls';
+
 // The stack must already be up (./stack.sh); fail loudly instead of starting a half stack.
 export default async function globalSetup() {
-  for (const url of [process.env.FUIN_LANDING ?? 'http://127.0.0.1:4180/', process.env.FUIN_SALEROOM ?? 'http://127.0.0.1:4178/']) {
+  for (const url of [LANDING, SALEROOM]) {
     const res = await fetch(url).catch((e: Error) => {
       throw new Error(`Setup required: ${url} is not running (${e.message}). Start it with e2e/stack.sh`);
     });

@@ -1,8 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
-// Real Google Chrome (channel: 'chrome') against the stack from ./stack.sh: the static landing and the
-// built saleroom (vite preview). Both read the published testnet records in ../deployments; nothing
-// is mocked. The one fault-injection test (verification key unavailable / altered) says so in its name.
+// Real Google Chrome (channel: 'chrome'; install Google Chrome first) against the stack from
+// ./stack.sh: the site as hosted, the static landing at / and the built saleroom at /saleroom/. Both
+// read the published testnet records in ../deployments; nothing is mocked. The fault-injection tests
+// (verification key unavailable / altered) say so in their names.
 export default defineConfig({
   testDir: './tests',
   globalSetup: './global-setup.ts',

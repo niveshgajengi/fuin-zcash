@@ -3,3 +3,4 @@ packages:
   - "packages/service"
   - "packages/mcp"
   - "packages/dashboard"
+  - "e2e"
