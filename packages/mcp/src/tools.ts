@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { commitment } from '@sba/circuits';
-import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintAnchor, complaintKeyPair, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
+import { asDeposits, chainTip, checkOutcome, classifyDeposits, complaintAnchor, complaintKeyPair, decrypt, depositMemo, depositRef, exportUfvk, quicksend, REVEAL_ZAT, scan, sealReveal, SETTLEMENT_FEE_BUDGET_ZAT, signComplaint, uivkOf, zingoConfig, type AuctionConfig } from '@sba/service';
 
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
@@ -49,14 +49,32 @@ function config(p: Published): AuctionConfig {
 }
 
 /**
+ * The published settlement as mined: its height is read from the chain, never taken from the record,
+ * and must match the record and come after the close (or the reveal window). Null when unsettled.
+ */
+async function settlementOnChain(p: Published): Promise<{ height: number | null; problems: string[] } | null> {
+  if (!p.settlement) return null;
+  const [t] = await decrypt(p.auction.uivk, [p.settlement.txid]);
+  const last = typeof p.auction.revealCloseHeight === 'number' ? p.auction.revealCloseHeight : p.auction.closeHeight;
+  const problems: string[] = [];
+  if (t.height === null) problems.push(`settlement ${p.settlement.txid} is not mined`);
+  else {
+    if (t.height !== p.settlement.height) problems.push(`settlement ${p.settlement.txid} is mined at block ${t.height}; the record says ${p.settlement.height}`);
+    if (t.height <= last) problems.push(`settlement ${p.settlement.txid} is mined at block ${t.height}, not after block ${last}`);
+  }
+  return { height: t.height, problems };
+}
+
+/**
  * Every deposit to the auction, found by scanning its blocks with the published viewing key (from
- * the open height to the settlement, or to the tip while it is unsettled), so the list does not
- * depend on the auctioneer. Also says which of them the published record leaves out.
+ * the open height to the settlement as mined, or to the tip while it is unsettled), so the list does
+ * not depend on the auctioneer. Also says which of them the published record leaves out.
  */
 async function depositsOnChain(p: Published) {
   const cfg = config(p);
   if (typeof p.auction.openHeight !== 'number') throw new Error('Setup required: auction.openHeight in SBA_AUCTION_FILE (the block to start scanning from)');
-  const end = p.settlement?.height ?? (await chainTip());
+  const settled = await settlementOnChain(p);
+  const end = settled?.height ?? (await chainTip());
   const found = await scan(cfg.uivk, p.auction.openHeight, end);
   const classified = classifyDeposits(cfg, found.flatMap(asDeposits));
   const listed = new Set(p.deposits.map(depositRef));
@@ -65,6 +83,7 @@ async function depositsOnChain(p: Published) {
     cfg,
     classified,
     scanned: `${p.auction.openHeight}-${end}`,
+    settlementProblems: settled?.problems ?? [],
     notListed: [...onChain].filter((t) => !listed.has(t)),
     notOnChain: [...listed].filter((t) => !onChain.has(t)),
   };
@@ -87,7 +106,7 @@ export function createServer(): McpServer {
     () =>
       wrap(async () => {
         const p = published();
-        const { classified: deposits, scanned, notListed } = await depositsOnChain(p);
+        const { classified: deposits, scanned, notListed, settlementProblems } = await depositsOnChain(p);
         return {
           auction: p.auction.name,
           deposit_zat: p.auction.depositZat,
@@ -96,6 +115,7 @@ export function createServer(): McpServer {
           blocks_scanned: scanned,
           deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, status: d.status, reason: d.reason ?? null })),
           missing_from_published_record: notListed,
+          settlement_problems: settlementProblems,
         };
       }),
   );
@@ -166,7 +186,7 @@ export function createServer(): McpServer {
     {
       title: 'File a complaint about the settlement',
       description:
-        "Within the dispute window after the settlement (settlement height + disputeBlocks), files a complaint for each of this bidder's revealed openings: it publishes that reveal's ephemeral secret (which makes this bidder's own bid public), adds the refund address's incoming viewing key from SBA_BIDDER_WALLET so the audit can read what the settlement paid it, signs it with the complaint key inside the reveal, saves it in SBA_BIDDER_DIR, and anchors its SHA-256 on chain with a 1-zat note to the auction address. The audit, given the file, says whether it is upheld. Refuses outside the window, before any wallet call.",
+        "Within the dispute window after the settlement (its height as mined, read from the chain, + disputeBlocks), files a complaint for each of this bidder's revealed openings: it publishes that reveal's ephemeral secret (which makes this bidder's own bid public), adds the refund address's incoming viewing key from SBA_BIDDER_WALLET so the audit can read what the settlement paid it, signs it with the complaint key inside the reveal, saves it in SBA_BIDDER_DIR, and anchors its SHA-256 on chain with a 1-zat note to the auction address. The audit, given the file, says whether it is upheld. Refuses outside the window, before any wallet call.",
     },
     () =>
       wrap(async () => {
@@ -181,8 +201,11 @@ export function createServer(): McpServer {
           .map((f) => JSON.parse(readFileSync(resolve(dir, f), 'utf8')) as Opening)
           .filter((o) => o.revealTxid && o.revealSecret);
         if (revealed.length === 0) throw new Error(`no revealed opening for auction ${cfg.auctionId} in SBA_BIDDER_DIR; nothing was sent`);
+        // The window counts from the settlement as mined, not from the height the record gives.
+        const settled = (await settlementOnChain(p))!;
+        if (settled.height === null) throw new Error(`settlement ${p.settlement.txid} is not mined yet; nothing was sent`);
         const tip = await chainTip();
-        const last = p.settlement.height + p.auction.disputeBlocks;
+        const last = settled.height + p.auction.disputeBlocks;
         if (tip + 1 > last) throw new Error(`the dispute window closed at block ${last} and the chain is at ${tip}; nothing was sent`);
         const refundViewingKey = await uivkOf(await exportUfvk(zingoConfig(), wallet));
         const filed = [];
@@ -201,18 +224,19 @@ export function createServer(): McpServer {
     'verify_result',
     {
       title: "Check the auction's published result",
-      description: "Verifies the MaxBid Groth16 proof and checks it is about exactly this auction's deposits as read on-chain with the auction's viewing key: proven slots are the valid deposits in chain order (minus any declared unrevealed), spare slots are empty, and the winner is a real deposit.",
+      description: "Verifies the MaxBid Groth16 proof and checks it is about exactly this auction's deposits as read on-chain with the auction's viewing key (scanned up to the settlement's height as mined, which must match the record): proven slots are the valid deposits in chain order (minus any declared unrevealed), spare slots are empty, and the winner is a real deposit.",
       annotations: { readOnlyHint: true },
     },
     () =>
       wrap(async () => {
         const p = published();
         if (!p.outcome) throw new Error('this auction has no published result yet');
-        const { cfg, classified, notListed, notOnChain } = await depositsOnChain(p);
+        const { cfg, classified, notListed, notOnChain, settlementProblems } = await depositsOnChain(p);
         const r = await checkOutcome(cfg, classified, p.outcome);
         const ok = (name: string) => r.checks.find((c) => c.name === name)?.ok ?? false;
         return {
-          result_holds: r.ok && notListed.length === 0 && notOnChain.length === 0,
+          result_holds: r.ok && notListed.length === 0 && notOnChain.length === 0 && settlementProblems.length === 0,
+          settlement_mined_as_recorded: settlementProblems.length === 0,
           record_lists_every_chain_deposit: notListed.length === 0 && notOnChain.length === 0,
           proof_verifies: ok('proof'),
           auction_id_matches: ok('auction'),
@@ -222,6 +246,7 @@ export function createServer(): McpServer {
           winner_deposit: r.winnerTxid,
           unrevealed: p.outcome.unrevealed ?? [],
           failed: [
+            ...settlementProblems,
             ...r.checks.filter((c) => !c.ok).map((c) => `${c.name}: ${c.detail}`),
             ...notListed.map((t) => `deposit ${t} is on chain but not in the published record`),
             ...notOnChain.map((t) => `listed deposit ${t} is not on chain in the auction's blocks`),

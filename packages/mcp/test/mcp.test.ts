@@ -119,6 +119,27 @@ describe('sba-mcp', () => {
     }
   }, 120_000);
 
+  it('verify_result reads the settlement height from the chain: a record that understates it, so the scan misses a deposit it leaves out, does not hold', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-height-'));
+    try {
+      const rec = JSON.parse(readFileSync(AUCTION, 'utf8'));
+      const late = rec.deposits.find((d: { status: string }) => d.status === 'late');
+      rec.deposits = rec.deposits.filter((d: { txid: string }) => d.txid !== late.txid);
+      rec.settlement = { ...rec.settlement, height: late.height - 4 };
+      const file = join(dir, 'auction.json');
+      writeFileSync(file, JSON.stringify(rec));
+      const c = await connect({ SBA_AUCTION_FILE: file });
+      const r = JSON.parse((await call(c, 'verify_result')).text);
+      await c.close();
+      expect(r.result_holds).toBe(false);
+      expect(r.settlement_mined_as_recorded).toBe(false);
+      expect(r.failed).toContain(`settlement ${rec.settlement.txid} is mined at block 4522291; the record says ${late.height - 4}`);
+      expect(r.failed).toContain(`deposit ${late.txid} is on chain but not in the published record`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 180_000);
+
   it('verify_result holds on the reveal-channel auction: two-payment deposit read per payment, one deposit declared unrevealed', async () => {
     const c = await connect({ SBA_AUCTION_FILE: resolve(ROOT, 'deployments/testnet-reveal.json') });
     const r = JSON.parse((await call(c, 'verify_result')).text);
