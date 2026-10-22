@@ -14,12 +14,12 @@
 // sent after the window (late).
 //
 // Wallets: .demo/wallets/{auction,bidder1,bidder2,bidder3,seller} (zingo-cli data dirs, gitignored).
-import { randomBytes } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { commitment, readPublic } from '@sba/circuits';
+import { commitment, readPublic, VKEY } from '@sba/circuits';
 import {
   address,
   asDeposits,
@@ -358,6 +358,8 @@ async function main() {
         settlement: { txid: settlement.txids[0], height: settle.height, outputs: settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
         ironwoodOnly: allIronwood,
         blockTimes: { open: await blockTime(card.openHeight), close: await blockTime(card.closeHeight), revealClose: await blockTime(card.revealCloseHeight), settlement: await blockTime(settle.height!) },
+        // The saleroom hashes the verification key it fetches and compares it with this.
+        verificationKeySha256: createHash('sha256').update(readFileSync(VKEY)).digest('hex'),
       },
       null,
       2,
