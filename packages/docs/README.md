@@ -185,7 +185,33 @@ uses is reproducible from the chain with the published UIVK (`sba-verify`).
 
 `MaxBid` uses Groth16 with a **single-party local setup** (`packages/circuits/scripts/build.sh`).
 Whoever ran it could forge proofs, so the proof convinces only to the extent that the setup is
-trusted. A multi-party ceremony, or a transparent proof system, would remove that trust.
+trusted. A multi-party ceremony, or a transparent proof system, would remove that trust. A phase-2
+ceremony needs contributors other than the author (separate people on separate machines, then a
+public beacon); a ceremony in which the author contributes twice on one machine would add nothing,
+so none has been run. Every record carries the `verificationKeySha256` it verifies with, so a new
+key from a ceremony would not invalidate Sales 001 and 002: each sale is checked against its own key.
+
+## The auctioneer sees every bid: how threshold decryption would stop that (not built)
+
+Today the reveal key is one X25519 key held by the auctioneer, so it decrypts every opening. A
+threshold version would split the reveal secret among *n* independent key holders (for example with
+Feldman or Pedersen distributed key generation over X25519 or a pairing-free group), publish only the
+joint public key on the card, and have bidders seal reveals to it exactly as now. After the reveal
+window, *t* of *n* holders would each publish a decryption share for every in-window reveal note;
+anyone could combine them, open every reveal and run the same `ingestReveals`, `decide` and proof.
+No single party, the auctioneer included, would see a bid before the window closes, and a holder who
+refuses to publish a share is visible on chain. What it would not fix: once opened, the losing bids
+are known to whoever combines the shares, unless the combination and the MaxBid proof are themselves
+done inside an MPC. Sales 001 to 003 use the single-key design.
+
+## What the audit trusts: the lightwalletd it reads
+
+`sba-verify` reads compact blocks, transactions and heights from one lightwalletd (default
+`testnet.zec.rocks`, or `SBA_LWD_URL`). The audit's completeness claim, "no hidden deposit, no hidden
+reveal", holds only if that server returns every block in the range honestly: a server that drops a
+transaction, or lies about a height, would mislead it the same way it would mislead a wallet. To
+reduce that trust, run the audit twice against independent servers (`SBA_LWD_URL=<another testnet
+lightwalletd>`) and compare the output, or against your own `zcashd`/`zebrad` with lightwalletd.
 
 ## Prior art
 
