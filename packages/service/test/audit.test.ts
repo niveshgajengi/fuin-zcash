@@ -114,6 +114,23 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
     expect(relabelled.code).toBe(1);
   }, 600_000);
 
+  it("a note mined after the auctioneer's scan (scannedTo) is reported, not failed: anyone can pay the auction between the scan and the settlement", async () => {
+    const rec = rec2();
+    // The late reveal (block 4526489) was mined after the window and before the settlement (4526493): as if it arrived after the auctioneer's scan.
+    const late = rec.reveals.find((v: { status: string }) => v.status === 'late');
+    const unlisted = rec.reveals.filter((v: { ref: string }) => v.ref !== late.ref);
+    const r = await withRecord({ ...rec, scannedTo: late.height - 1, reveals: unlisted });
+    expect(r.out).toContain(`✓ the record covers blocks up to ${late.height - 1} (the auctioneer's scan), at or after the end of the reveal window (block ${rec.auction.revealCloseHeight})`);
+    expect(r.out).toContain(`note: reveal ${late.ref.slice(0, 10)} (block ${late.height}) is outside the record (mined after the auctioneer's scan to ${late.height - 1}, after the reveal window): it cannot affect the outcome`);
+    expect(r.out).toMatch(/✓ reveals_listed: 4 reveal note\(s\) on chain, 4 in the record/);
+    expect(r.out).not.toContain('NOT LISTED');
+    expect(r.code).toBe(0);
+    // A scan that stops inside the reveal window does not cover it: that fails.
+    const short = await withRecord({ ...rec, scannedTo: rec.auction.revealCloseHeight - 1, reveals: unlisted });
+    expect(short.out).toContain(`✗ the record covers blocks up to ${rec.auction.revealCloseHeight - 1} (the auctioneer's scan), BEFORE the end of the reveal window (block ${rec.auction.revealCloseHeight})`);
+    expect(short.code).toBe(1);
+  }, 600_000);
+
   it("checks the winner's complaint against the chain: unfounded on the real settlement, upheld (names the shortfall) when the record points at another settlement", async () => {
     const rec = rec2();
     const [file] = readdirSync(COMPLAINTS).filter((f) => f.endsWith('.complaint.json')).map((f) => join(COMPLAINTS, f));

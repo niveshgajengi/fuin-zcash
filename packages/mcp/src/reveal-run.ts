@@ -354,6 +354,8 @@ async function main() {
         auction: card,
         deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, valueZat: d.value.toString(), memo: d.memo, status: d.status, reason: d.reason ?? null, label: labels[d.ref] ?? (d.txid === b3.txid ? 'bidder3 second payment of the same commitment' : abandoned.has(d.txid) ? 'deposit for an earlier, abandoned attempt (mined after its close)' : null) })),
         reveals: log.map((l) => ({ ...l, label: revealLabels[l.txid] ?? null })),
+        // The record covers the chain up to here; notes mined after it are late and cannot change the outcome.
+        scannedTo: tipNow,
         outcome: { winnerSlot: pub.winner, winningBidZat: pub.winningBid.toString(), reserveZat: pub.reserve.toString(), commitments: pub.commitments, proof: outcome.proof, publicSignals: outcome.publicSignals, unrevealed: outcome.unrevealed, proofVerifies: result.checks[0].ok, slotsMatchDeposits: result.ok },
         settlement: { txid: settlement.txids[0], height: settle.height, outputs: settlement.payouts.map((p) => ({ amountZat: p.amount, why: p.why, recipient: who[p.address] })), viewingKeyChecks: checks },
         ironwoodOnly: allIronwood,

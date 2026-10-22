@@ -259,6 +259,23 @@ describe('sba-mcp', () => {
     }
   }, 180_000);
 
+  it('verify_result: a record whose scannedTo stops inside the reveal window does not hold (live)', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fuin-scanned-'));
+    try {
+      const rec = JSON.parse(readFileSync(resolve(ROOT, 'deployments/testnet-reveal.json'), 'utf8'));
+      const file = join(dir, 'auction.json');
+      writeFileSync(file, JSON.stringify({ ...rec, scannedTo: rec.auction.revealCloseHeight - 1 }));
+      const c = await connect({ SBA_AUCTION_FILE: file });
+      const r = JSON.parse((await call(c, 'verify_result')).text);
+      await c.close();
+      expect(r.result_holds).toBe(false);
+      expect(r.failed).toContain(`the record covers blocks up to ${rec.auction.revealCloseHeight - 1}, before the end of the reveal window (block ${rec.auction.revealCloseHeight})`);
+      expect(r.deposits_after_the_record).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 180_000);
+
   it('verify_result holds on the reveal-channel auction: two-payment deposit read per payment, one deposit declared unrevealed', async () => {
     const c = await connect({ SBA_AUCTION_FILE: resolve(ROOT, 'deployments/testnet-reveal.json') });
     const r = JSON.parse((await call(c, 'verify_result')).text);

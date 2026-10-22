@@ -54,34 +54,51 @@ for (const d of incoming) {
   const name = depositRef(d);
   console.log(`  ${name.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`}  block ${d.height}  ${String(d.value).padStart(8)} zat  memo ${d.memo.length > 40 ? d.memo.slice(0, 40) + '…' : d.memo}`);
 }
+// The record covers the chain up to the height the auctioneer scanned to (scannedTo), which must be at
+// or after the end of the last window. Anything mined after it and before the settlement is late (a
+// deposit after the close, a reveal after the window), so it cannot change the outcome: anyone can pay
+// the auction address in that gap, so such a note is reported, not failed. Records without scannedTo
+// (Sales 001 and 002), and auctions with no reveal window, are held to completeness up to the settlement.
+const hasScan = typeof run.scannedTo === 'number' && typeof a.revealCloseHeight === 'number';
+const scannedTo: number = hasScan ? Math.min(run.scannedTo, end) : end;
+if (hasScan) check(run.scannedTo >= lastWindow, `the record covers blocks up to ${run.scannedTo} (the auctioneer's scan), ${run.scannedTo >= lastWindow ? 'at or after' : 'BEFORE'} the end of the reveal window (block ${lastWindow})`);
+const inRecordRange = (h: number | null) => h !== null && h <= scannedTo;
 const listed = new Set<string>(run.deposits.map(depositRef));
-const onChain = new Set(incoming.map(depositRef));
+const onChain = new Set(incoming.filter((d) => inRecordRange(d.height)).map(depositRef));
 check(
   [...onChain].every((t) => listed.has(t)),
-  `every deposit on chain is in the published list${[...onChain].filter((t) => !listed.has(t)).map((t) => `; NOT LISTED: ${t}`).join('')}`,
+  `every deposit on chain${scannedTo < end ? ` up to block ${scannedTo}` : ''} is in the published list${[...onChain].filter((t) => !listed.has(t)).map((t) => `; NOT LISTED: ${t}`).join('')}`,
 );
+const allOnChain = new Set(incoming.map(depositRef));
 check(
-  [...listed].every((t) => onChain.has(t)),
-  `every listed deposit is on chain in the window${[...listed].filter((t) => !onChain.has(t)).map((t) => `; NOT FOUND: ${t}`).join('')}`,
+  [...listed].every((t) => allOnChain.has(t)),
+  `every listed deposit is on chain in the window${[...listed].filter((t) => !allOnChain.has(t)).map((t) => `; NOT FOUND: ${t}`).join('')}`,
 );
+const afterRecord = incoming.filter((d) => !inRecordRange(d.height) && !listed.has(depositRef(d)));
+for (const d of afterRecord) console.log(`  note: deposit ${depositRef(d).slice(0, 10)} (block ${d.height}) is outside the record (mined after the auctioneer's scan to ${scannedTo}): it is late, no reveal in the window can name it, so it cannot affect the outcome; it stays in the auction wallet`);
 
 const classified = classifyDeposits(cfg, incoming);
 console.log('\nrules applied to what the chain shows:');
 for (const d of classified) {
+  if (afterRecord.some((x) => depositRef(x) === d.ref)) continue;
   const recorded = run.deposits.find((x: { txid: string; output?: string }) => depositRef(x) === d.ref)?.status ?? 'not listed';
   check(recorded === d.status, `${d.ref.slice(0, 10)}${d.output === undefined ? '' : `:${d.output}`} ${d.status}${d.reason ? ` (${d.reason})` : ''}${recorded === d.status ? '' : `; the record says ${recorded}`}`);
 }
 
 const revealMsgs = found.flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:`));
+const recordedReveals = new Set<string>((run.reveals ?? []).map((r: { ref: string }) => r.ref));
+const revealsAfterRecord = revealMsgs.filter((m) => !inRecordRange(m.height) && !recordedReveals.has(depositRef(m)));
 if (a.revealKey) {
   console.log(`\nreveals (sealed to the auctioneer's reveal key; this key sees only which deposit each names and when), window ${a.closeHeight + 1}-${a.revealCloseHeight}:`);
   for (const m of revealMsgs) {
     const rec = (run.reveals ?? []).find((r: { ref: string }) => r.ref === depositRef(m));
     console.log(`  ${depositRef(m).slice(0, 10)}  block ${m.height}  names deposit ${(() => { const d = m.memo.split(':').slice(2, -1).join(':'); return d.length > 64 ? `${d.slice(0, 10)}:${d.slice(65)}` : d.slice(0, 10); })()}  record: ${rec ? rec.status : 'not listed'}`);
   }
-  const r = auditReveals({ auctionId: cfg.auctionId, closeHeight: a.closeHeight, revealCloseHeight: a.revealCloseHeight }, classified, revealMsgs, run.reveals ?? [], run.outcome.unrevealed ?? []);
+  const inRecord = revealMsgs.filter((m) => !revealsAfterRecord.includes(m));
+  const r = auditReveals({ auctionId: cfg.auctionId, closeHeight: a.closeHeight, revealCloseHeight: a.revealCloseHeight }, classified, inRecord, run.reveals ?? [], run.outcome.unrevealed ?? []);
   for (const c of r.checks) check(c.ok, `${c.name}: ${c.detail}`);
   for (const n of r.notes) console.log(`  note: ${n}`);
+  for (const m of revealsAfterRecord) console.log(`  note: reveal ${depositRef(m).slice(0, 10)} (block ${m.height}) is outside the record (mined after the auctioneer's scan to ${scannedTo}, after the reveal window): it cannot affect the outcome`);
 } else {
   console.log(`\nreveals: this auction predates the reveal channel (openings were handed over out of band); ${revealMsgs.length} reveal note(s) on chain`);
 }

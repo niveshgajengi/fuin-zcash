@@ -140,7 +140,12 @@ anchored on chain.
 
 The auctioneer is trusted to settle and learns every bid at the reveal. It cannot put a phantom bid
 in the proof, or leave a deposit or a reveal note out of its record, without failing the audit: the
-audit scans up to the settlement's height as mined, read from the chain, not from the record. On an
+audit scans up to the settlement's height as mined, read from the chain, not from the record. The
+record says how far the auctioneer scanned (`scannedTo`, at or after the end of the reveal window);
+the record must list every note up to there. A note mined after it and before the settlement is late
+(a deposit after the close, a reveal after the window), so it cannot change the outcome: anyone can
+pay the auction address in that gap, so the audit prints it as a note instead of failing an honest
+record. (Sales 001 and 002 have no `scannedTo` and are held to completeness up to the settlement.) On an
 auction whose id binds its terms it also cannot move the close or the reveal window, so it cannot call
 an in-window reveal late. On the two legacy sales (ids that hash only the name) it could: their
 windows come from the record, which the audit flags as `legacy`. If it rejects a valid reveal as tampered (only it can decrypt), or

@@ -15,6 +15,8 @@ import { asDeposits, chainTip, checkOutcome, checkTerms, classifyDeposits, compl
 interface Published {
   auction: { name: string; auctionId: string; address: string; uivk: string; depositZat: string; reserveZat: string; openHeight?: number; closeHeight: number; seller: string; revealKey?: string; revealCloseHeight?: number; disputeBlocks?: number };
   deposits: { txid: string; output?: string }[];
+  /** The height the auctioneer scanned to when it built the record (at or after the last window). */
+  scannedTo?: number;
   settlement?: { txid: string; height: number };
   outcome?: { proof: object | null; publicSignals: string[] | null; unrevealed?: string[]; noSale?: { reason: 'no_reveal' | 'below_reserve'; detail: string } | null };
 }
@@ -94,15 +96,26 @@ async function depositsOnChain(p: Published) {
   const end = settled?.height ?? (await chainTip());
   const found = await scan(cfg.uivk, p.auction.openHeight, end);
   const classified = classifyDeposits(cfg, found.flatMap(asDeposits));
+  // A settled record with a reveal window covers the chain up to its scannedTo (otherwise: up to the settlement).
+  // Deposits mined after that are late, so they cannot change the outcome: anyone can pay the auction
+  // address between the auctioneer's scan and the settlement, so they are reported, not failed.
+  const last = typeof p.auction.revealCloseHeight === 'number' ? p.auction.revealCloseHeight : p.auction.closeHeight;
+  const hasScan = settled !== null && typeof p.scannedTo === 'number' && typeof p.auction.revealCloseHeight === 'number';
+  const coveredTo = hasScan ? Math.min(p.scannedTo!, end) : end;
+  const problems = [...(settled?.problems ?? [])];
+  if (hasScan && p.scannedTo! < last) problems.push(`the record covers blocks up to ${p.scannedTo}, before the end of the reveal window (block ${last})`);
   const listed = new Set(p.deposits.map(depositRef));
-  const onChain = new Set(classified.map((d) => d.ref));
+  const inRange = (d: { height: number | null }) => d.height !== null && d.height <= coveredTo;
+  const onChain = new Set(classified.filter(inRange).map((d) => d.ref));
+  const all = new Set(classified.map((d) => d.ref));
   return {
     cfg,
     classified,
     scanned: `${p.auction.openHeight}-${end}`,
-    settlementProblems: settled?.problems ?? [],
+    settlementProblems: problems,
     notListed: [...onChain].filter((t) => !listed.has(t)),
-    notOnChain: [...listed].filter((t) => !onChain.has(t)),
+    notOnChain: [...listed].filter((t) => !all.has(t)),
+    outsideRecord: classified.filter((d) => !inRange(d) && !listed.has(d.ref)).map((d) => d.ref),
   };
 }
 
@@ -123,7 +136,7 @@ export function createServer(): McpServer {
     () =>
       wrap(async () => {
         const p = published();
-        const { classified: deposits, scanned, notListed, settlementProblems } = await depositsOnChain(p);
+        const { classified: deposits, scanned, notListed, settlementProblems, outsideRecord } = await depositsOnChain(p);
         return {
           auction: p.auction.name,
           deposit_zat: p.auction.depositZat,
@@ -132,6 +145,7 @@ export function createServer(): McpServer {
           blocks_scanned: scanned,
           deposits: deposits.map((d) => ({ txid: d.txid, ...(d.output === undefined ? {} : { output: d.output }), height: d.height, status: d.status, reason: d.reason ?? null })),
           missing_from_published_record: notListed,
+          after_the_record: outsideRecord,
           settlement_problems: settlementProblems,
         };
       }),
@@ -308,7 +322,7 @@ export function createServer(): McpServer {
       wrap(async () => {
         const p = published();
         if (!p.outcome) throw new Error('this auction has no published result yet');
-        const { cfg, classified, notListed, notOnChain, settlementProblems } = await depositsOnChain(p);
+        const { cfg, classified, notListed, notOnChain, settlementProblems, outsideRecord } = await depositsOnChain(p);
         const r = await checkOutcome(cfg, classified, p.outcome);
         const ok = (name: string) => r.checks.find((c) => c.name === name)?.ok ?? false;
         return {
@@ -324,6 +338,8 @@ export function createServer(): McpServer {
           // No sale: nothing valid was revealed, or the proof (reserve 0) shows the highest bid is below the reserve.
           no_sale: r.noSale ? { ...r.noSale, highest_bid_zat: r.noSale.reason === 'below_reserve' ? r.winningBid.toString() : null } : null,
           unrevealed: p.outcome.unrevealed ?? [],
+          // Mined after the auctioneer's scan (scannedTo) and so late: they cannot affect the outcome.
+          deposits_after_the_record: outsideRecord,
           failed: [
             ...settlementProblems,
             ...r.checks.filter((c) => !c.ok).map((c) => `${c.name}: ${c.detail}`),
