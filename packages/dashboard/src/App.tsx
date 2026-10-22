@@ -36,6 +36,7 @@ const short = (s: string, a = 8) => (s.length > a + 1 ? `${s.slice(0, a)}…` : 
 const utc = (t: number) => new Date(t * 1000).toISOString().slice(11, 19);
 const commitmentOf = (d: Deposit) => d.memo.split(':')[2] ?? null;
 const pad = (n: number) => String(n).padStart(2, '0');
+const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
 
 const valid = r.deposits.filter((d) => d.status === 'valid');
 const winnerTxid = valid[r.outcome.winnerSlot]?.txid;
@@ -57,7 +58,7 @@ function useSince(t: number) {
 function Clock() {
   const [d, h, m, s] = useSince(r.blockTimes.settlement.time);
   return (
-    <div className="clock" role="timer" aria-label={`${d} days ${h} hours ${m} minutes since the hammer`}>
+    <div className="clock" role="timer" aria-label={`${plural(d, 'day')} ${plural(h, 'hour')} ${plural(m, 'minute')} since the hammer`}>
       <span className="clock-label">Since the hammer</span>
       <span className="digits" aria-hidden="true">
         {[
