@@ -224,6 +224,10 @@ test.describe('saleroom', () => {
     await settled(page, 'Could not finish the checks.');
     await expect(step(page, 'Verification key is the published one')).toHaveClass(/step-error/);
     await expect(step(page, 'Verification key is the published one')).toContainText('verification_key.json: HTTP 404');
+    for (const later of ['Groth16 proof verifies', 'Proof covers exactly the valid deposits', 'Winner is a real deposit']) {
+      await expect(step(page, later)).toHaveClass(/step-error/);
+      await expect(step(page, later)).toContainText('not run: an earlier check could not finish');
+    }
     await verify(page).screenshot({ path: info.outputPath(`saleroom-vk-missing-${info.project.name}.png`) });
 
     await page.unroute('**/verification_key.json');
