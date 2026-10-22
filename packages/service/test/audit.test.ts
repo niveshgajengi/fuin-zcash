@@ -173,7 +173,9 @@ describe('audit of the reveal-channel auction (live testnet)', () => {
 
   it("checks the winner's complaint against the chain: unfounded on the real settlement, upheld (names the shortfall) when the record points at another settlement", async () => {
     const rec = rec2();
-    const [file] = readdirSync(COMPLAINTS).filter((f) => f.endsWith('.complaint.json')).map((f) => join(COMPLAINTS, f));
+    // Sale 002's complaint, named by its record (deployments/complaints also holds Sale 003's).
+    const file = join(ROOT, 'deployments', rec.complaints[0].file);
+    expect(readdirSync(COMPLAINTS)).toContain(file.split('/').pop());
     const honest = await audit(RECORD2, file);
     expect(honest.out).toContain(`✓ settlement ${rec.settlement.txid.slice(0, 10)} is mined at block ${rec.settlement.height}, as the record says, after the reveal window (block ${rec.auction.revealCloseHeight})`);
     // Sale 002's settlement predates memos that name each deposit (all say `settlement`), so the payment is summed per refund key.
