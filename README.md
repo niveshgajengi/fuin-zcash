@@ -48,20 +48,20 @@ auctioneer learns the openings only from the reveal notes on chain.
 
 | Deposit | Status | Tx | Block |
 |---|---|---|---|
-| bidder1 sealed bid (MCP `bid`) | valid | [`372e205c…`](https://testnet.zcashexplorer.app/transactions/372e205ce0e039f8219a3e2d099ba00c7b91d122ff28235ba266b4b2af137756) | 4530270 |
-| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`dc95f63d…`](https://testnet.zcashexplorer.app/transactions/dc95f63d121f62a0a8ef7f2b6505c8be5d1ef20748dec60c0fd580731014bafa) | 4530270 |
-| bidder3: one transaction pays the auction twice | output 1 **valid**, output 2 **duplicate** (refunded minus its 5,000 zat output fee) | [`37e5c2df…`](https://testnet.zcashexplorer.app/transactions/37e5c2df32f94bed8fea377d72babbc03974bf415e8baf2511fbf28f6e2662d0) | 4530273 |
-| bidder1's second bid, never revealed | **unrevealed: forfeited to the seller** (memo `forfeit:<deposit>`, 195,000 zat) | [`4462163e…`](https://testnet.zcashexplorer.app/transactions/4462163e69d228e6819f975c91cd0f1ccf66c2e2ae6a8ba9a4ee2377e92d1318) | 4530273 |
+| bidder1 sealed bid (MCP `bid`) | valid | [`372e205c…`](https://testnet.zecblock.com/tx/372e205ce0e039f8219a3e2d099ba00c7b91d122ff28235ba266b4b2af137756) | 4530270 |
+| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`dc95f63d…`](https://testnet.zecblock.com/tx/dc95f63d121f62a0a8ef7f2b6505c8be5d1ef20748dec60c0fd580731014bafa) | 4530270 |
+| bidder3: one transaction pays the auction twice | output 1 **valid**, output 2 **duplicate** (refunded minus its 5,000 zat output fee) | [`37e5c2df…`](https://testnet.zecblock.com/tx/37e5c2df32f94bed8fea377d72babbc03974bf415e8baf2511fbf28f6e2662d0) | 4530273 |
+| bidder1's second bid, never revealed | **unrevealed: forfeited to the seller** (memo `forfeit:<deposit>`, 195,000 zat) | [`4462163e…`](https://testnet.zecblock.com/tx/4462163e69d228e6819f975c91cd0f1ccf66c2e2ae6a8ba9a4ee2377e92d1318) | 4530273 |
 
 | Reveal note (1 zat, memo sealed to the reveal key) | Status | Tx | Block |
 |---|---|---|---|
-| bidder1 (MCP `reveal`) | accepted | [`de23eaa8…`](https://testnet.zcashexplorer.app/transactions/de23eaa8dcc112543914187b0bf645e0f9e06444cecfbad8e8403263982147a1) | 4530297 |
-| bidder3 (MCP `reveal`, names `37e5c2df…:1`) | accepted | [`6b695300…`](https://testnet.zcashexplorer.app/transactions/6b695300bce63091bb95e30b7bc7fd1234b271e8a8cb8470c71730393f901bf3) | 4530306 |
-| bidder2 (MCP `reveal`) | accepted | [`6e9e9cf9…`](https://testnet.zcashexplorer.app/transactions/6e9e9cf97c662997b116e7cb20c9709f14433bea8591ab4d3c8659f46f1f7f5a) | 4530306 |
-| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`797e5467…`](https://testnet.zcashexplorer.app/transactions/797e5467cf766fe29f022797ee58be9ef3956aaf18793cc93be562fc0089c5a6) | 4530308 |
-| bidder1's reveal re-sent after the window | **late** | [`a7688be1…`](https://testnet.zcashexplorer.app/transactions/a7688be186c6f41871ca2d52da85eb2c88da61437b98e13dae820126e5a1a075) | 4530326 |
+| bidder1 (MCP `reveal`) | accepted | [`de23eaa8…`](https://testnet.zecblock.com/tx/de23eaa8dcc112543914187b0bf645e0f9e06444cecfbad8e8403263982147a1) | 4530297 |
+| bidder3 (MCP `reveal`, names `37e5c2df…:1`) | accepted | [`6b695300…`](https://testnet.zecblock.com/tx/6b695300bce63091bb95e30b7bc7fd1234b271e8a8cb8470c71730393f901bf3) | 4530306 |
+| bidder2 (MCP `reveal`) | accepted | [`6e9e9cf9…`](https://testnet.zecblock.com/tx/6e9e9cf97c662997b116e7cb20c9709f14433bea8591ab4d3c8659f46f1f7f5a) | 4530306 |
+| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`797e5467…`](https://testnet.zecblock.com/tx/797e5467cf766fe29f022797ee58be9ef3956aaf18793cc93be562fc0089c5a6) | 4530308 |
+| bidder1's reveal re-sent after the window | **late** | [`a7688be1…`](https://testnet.zecblock.com/tx/a7688be186c6f41871ca2d52da85eb2c88da61437b98e13dae820126e5a1a075) | 4530326 |
 
-**Settlement** [`2aefb90d…`](https://testnet.zcashexplorer.app/transactions/2aefb90dd67c42c9c674c4ef9eef5b5d8a3f0e734e2f146c6ff6c6a2d116e2ca)
+**Settlement** [`2aefb90d…`](https://testnet.zecblock.com/tx/2aefb90dd67c42c9c674c4ef9eef5b5d8a3f0e734e2f146c6ff6c6a2d116e2ca)
 (block 4,530,332, 21:52:20 UTC), 6 outputs, each memo naming what it pays, each matched by its
 recipient's own viewing key: seller 135,000 (`seller`) + 195,000 (`forfeit:4462163e…`); bidder2 (winner)
 5,000 change; bidder1 200,000; bidder3 200,000 (its bid) + 195,000 (its duplicate, minus its output fee).
@@ -69,7 +69,7 @@ The record says the auctioneer scanned to block 4,530,327 (`scannedTo`).
 
 **Dispute:** bidder2, the winner, filed a complaint with MCP `complain` **without a refund key**, so it
 publishes no viewing key (only its own opening, whose bid the proof already made public). Anchored at
-[`3bc6631d…`](https://testnet.zcashexplorer.app/transactions/3bc6631dc915f660b260796273d562da44e9fb8db2c20a51a63a9acca5031e0a) (block 4,530,338).
+[`3bc6631d…`](https://testnet.zecblock.com/tx/3bc6631dc915f660b260796273d562da44e9fb8db2c20a51a63a9acca5031e0a) (block 4,530,338).
 
 **Audit** (`pnpm --filter @sba/service run audit deployments/testnet-sale003.json deployments/complaints/131728459360241149736859342020074215002-*.complaint.json`):
 `✓ terms: the auction id is the hash of every term …`, every deposit and reveal note listed, the proof tied to the three revealed deposits,
@@ -91,28 +91,28 @@ reveal notes on chain.
 
 | Deposit | Status | Tx | Block |
 |---|---|---|---|
-| bidder1 sealed bid (MCP `bid`) | valid | [`b7511ee8…`](https://testnet.zcashexplorer.app/transactions/b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b) | 4526435 |
-| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`eb27d26d…`](https://testnet.zcashexplorer.app/transactions/eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768) | 4526435 |
-| bidder3: one transaction pays the auction twice | output 0 **valid**, output 2 **duplicate** (both refunded) | [`9bb4098e…`](https://testnet.zcashexplorer.app/transactions/9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c) | 4526438 |
-| bidder2's second bid, never revealed | **unrevealed** (listed in the outcome; not refunded: this sale predates the forfeit-to-seller rule, so it stayed in the auction wallet) | [`19029d77…`](https://testnet.zcashexplorer.app/transactions/19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66) | 4526439 |
+| bidder1 sealed bid (MCP `bid`) | valid | [`b7511ee8…`](https://testnet.zecblock.com/tx/b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b) | 4526435 |
+| bidder2 sealed bid (MCP `bid`) | **valid, wins (0.00135 TAZ)** | [`eb27d26d…`](https://testnet.zecblock.com/tx/eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768) | 4526435 |
+| bidder3: one transaction pays the auction twice | output 0 **valid**, output 2 **duplicate** (both refunded) | [`9bb4098e…`](https://testnet.zecblock.com/tx/9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c) | 4526438 |
+| bidder2's second bid, never revealed | **unrevealed** (listed in the outcome; not refunded: this sale predates the forfeit-to-seller rule, so it stayed in the auction wallet) | [`19029d77…`](https://testnet.zecblock.com/tx/19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66) | 4526439 |
 | 4 payments for an abandoned first attempt (below) | memo_mismatch (another auction's id) | `26f240bc…` ×2, `42ed60c8…`, `597be193…` | 4526425 |
 
 | Reveal note (1 zat, memo sealed to the reveal key) | Status | Tx | Block |
 |---|---|---|---|
-| bidder1 (MCP `reveal`) | accepted | [`332fbc3c…`](https://testnet.zcashexplorer.app/transactions/332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161) | 4526461 |
-| bidder2 (MCP `reveal`) | accepted | [`07ec9dcd…`](https://testnet.zcashexplorer.app/transactions/07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553) | 4526464 |
-| bidder3 (MCP `reveal`, names `9bb4098e…:0`) | accepted | [`80428975…`](https://testnet.zcashexplorer.app/transactions/804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7) | 4526465 |
-| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`ca315a6c…`](https://testnet.zcashexplorer.app/transactions/ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e) | 4526465 |
-| bidder1's reveal re-sent after the window | **late** | [`64de2707…`](https://testnet.zcashexplorer.app/transactions/64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a) | 4526489 |
+| bidder1 (MCP `reveal`) | accepted | [`332fbc3c…`](https://testnet.zecblock.com/tx/332fbc3c408d9086da29a81e85132b6863bbffef58d0bf7569fdac3d1c489161) | 4526461 |
+| bidder2 (MCP `reveal`) | accepted | [`07ec9dcd…`](https://testnet.zecblock.com/tx/07ec9dcd0814d5557ebf72932e1e4931c8ea944b5a8e87a641c2df45062d5553) | 4526464 |
+| bidder3 (MCP `reveal`, names `9bb4098e…:0`) | accepted | [`80428975…`](https://testnet.zecblock.com/tx/804289759a1962c4b47197b82d55e5f53d28d8857a8085b8fccc09db10d71bd7) | 4526465 |
+| bidder3's opening pointed at bidder2's deposit | **wrong_commitment** | [`ca315a6c…`](https://testnet.zecblock.com/tx/ca315a6cd6e05c01699dd2edd903caf7032ccfb1b8781ebd2de1fd8be7bf398e) | 4526465 |
+| bidder1's reveal re-sent after the window | **late** | [`64de2707…`](https://testnet.zecblock.com/tx/64de2707bf22b32ee3e3f49489e6f96b2700e7dffaeaa76811f66a2e6584a29a) | 4526489 |
 
-**Settlement** [`e84de386…`](https://testnet.zcashexplorer.app/transactions/e84de386e23fb514b7b329873d48a4b9316bc00984101f67b4167a9738746f5d)
+**Settlement** [`e84de386…`](https://testnet.zecblock.com/tx/e84de386e23fb514b7b329873d48a4b9316bc00984101f67b4167a9738746f5d)
 (block 4,526,493, 19:10:08 UTC), 5 outputs, each matched by its recipient's own viewing key: seller
 135,000 zat; bidder2 (winner) 5,000 change; bidder1 200,000; bidder3 200,000 + 200,000 (its bid and
 the duplicate second payment). The proof's slots are the three revealed valid deposits; the
 never-revealed one is declared `unrevealed`.
 
 **Dispute:** bidder2, the winner (its bid is already public), filed a complaint with MCP `complain`,
-anchored at [`f17193d5…`](https://testnet.zcashexplorer.app/transactions/f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb)
+anchored at [`f17193d5…`](https://testnet.zecblock.com/tx/f17193d5b7ccef68227e514ebd16c46bb28aa8d72f13a0937928ddc5a5d125fb)
 (block 4,526,500; file: [`deployments/complaints/`](deployments/complaints)). The audit checks it
 against the chain: `unfounded: reveal 07ec9dcd08 (block 4526464) was honoured`, and, summed per refund
 key because this settlement's memos predate per-deposit tags, `paid in full: the refund address
@@ -141,18 +141,18 @@ viewing key: [`deployments/testnet.json`](deployments/testnet.json).
 
 | Deposit | Service says | Tx | Block |
 |---|---|---|---|
-| bidder3 sealed bid | valid | [`06d12181…`](https://testnet.zcashexplorer.app/transactions/06d121813387444ca3ecc9720e73160b5b80645d9204c6c411e51cef3a190af1) | 4522268 |
-| bidder1 sealed bid | valid | [`3d104727…`](https://testnet.zcashexplorer.app/transactions/3d104727044cf3164fc8df304d8ea95d3307ca90f0b0d4c21d994a1f350b0890) | 4522268 |
-| bidder2 sealed bid | **valid, wins (0.0175 TAZ, opened by the proof)** | [`d910ebad…`](https://testnet.zcashexplorer.app/transactions/d910ebad413bf37c0ffb38f9032c61bb2d1b26ae54ca2422d3bdd2428bb3e1eb) | 4522268 |
-| bidder2 deposits 0.005 TAZ instead of 0.02 | **wrong_amount** | [`29c23b7d…`](https://testnet.zcashexplorer.app/transactions/29c23b7d99be5dc70e8b505fef16628454a32aed8189cf87ad375fd5c95bf1dc) | 4522275 |
-| bidder3 sends a memo that is not a bid | **memo_mismatch** | [`76b0b9bb…`](https://testnet.zcashexplorer.app/transactions/76b0b9bb76aee301fe5640fe7b1c3ff0746a999c743d9a4199dbf60375c39aa0) | 4522275 |
-| bidder1 re-sends the same commitment | **duplicate** | [`c1b89ecd…`](https://testnet.zcashexplorer.app/transactions/c1b89ecd0d0bbbbeaecc86ca3d353788e8c2e1f71ac99d8be87154ddef8d6503) | 4522275 |
-| bidder1 deposits after the close | **late** | [`c2e20a26…`](https://testnet.zcashexplorer.app/transactions/c2e20a26d0279db8c55d037068c83af5cef68a3227dab45f423ad622708387fc) | 4522283 |
+| bidder3 sealed bid | valid | [`06d12181…`](https://testnet.zecblock.com/tx/06d121813387444ca3ecc9720e73160b5b80645d9204c6c411e51cef3a190af1) | 4522268 |
+| bidder1 sealed bid | valid | [`3d104727…`](https://testnet.zecblock.com/tx/3d104727044cf3164fc8df304d8ea95d3307ca90f0b0d4c21d994a1f350b0890) | 4522268 |
+| bidder2 sealed bid | **valid, wins (0.0175 TAZ, opened by the proof)** | [`d910ebad…`](https://testnet.zecblock.com/tx/d910ebad413bf37c0ffb38f9032c61bb2d1b26ae54ca2422d3bdd2428bb3e1eb) | 4522268 |
+| bidder2 deposits 0.005 TAZ instead of 0.02 | **wrong_amount** | [`29c23b7d…`](https://testnet.zecblock.com/tx/29c23b7d99be5dc70e8b505fef16628454a32aed8189cf87ad375fd5c95bf1dc) | 4522275 |
+| bidder3 sends a memo that is not a bid | **memo_mismatch** | [`76b0b9bb…`](https://testnet.zecblock.com/tx/76b0b9bb76aee301fe5640fe7b1c3ff0746a999c743d9a4199dbf60375c39aa0) | 4522275 |
+| bidder1 re-sends the same commitment | **duplicate** | [`c1b89ecd…`](https://testnet.zecblock.com/tx/c1b89ecd0d0bbbbeaecc86ca3d353788e8c2e1f71ac99d8be87154ddef8d6503) | 4522275 |
+| bidder1 deposits after the close | **late** | [`c2e20a26…`](https://testnet.zecblock.com/tx/c2e20a26d0279db8c55d037068c83af5cef68a3227dab45f423ad622708387fc) | 4522283 |
 
 An **altered reveal** (bidder3 claiming 0.019 TAZ with its real salt) was refused: the opening
 matches no deposit commitment.
 
-**Settlement** [`89bf60fd…`](https://testnet.zcashexplorer.app/transactions/89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a)
+**Settlement** [`89bf60fd…`](https://testnet.zecblock.com/tx/89bf60fd905a1bdecea16c6ebe22018f1ddcbe0a43fca32c103c2b995e74820a)
 (block 4,522,291, 13:42:50 UTC), one transaction with seven shielded outputs, each checked by the recipient's own
 incoming viewing key:
 

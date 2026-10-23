@@ -9,7 +9,7 @@ export const root = resolve(import.meta.dirname, '../..');
 export const sale1 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet.json'), 'utf8'));
 export const sale2 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet-reveal.json'), 'utf8'));
 export const sale3 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet-sale003.json'), 'utf8'));
-export const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';
+export const EXPLORER = 'https://testnet.zecblock.com/tx/';
 export const REPO = 'https://github.com/nickthelegend/zec-sealed-bid-auction';
 export const fmt = (n: number | string) => Number(n).toLocaleString('en-US');
 

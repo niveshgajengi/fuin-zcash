@@ -84,7 +84,7 @@ const SALES: Sale[] = [
   { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit', legacy: true },
 ];
 
-const EXPLORER = 'https://testnet.zcashexplorer.app/transactions/';
+const EXPLORER = 'https://testnet.zecblock.com/tx/';
 const REPO = 'https://github.com/nickthelegend/zec-sealed-bid-auction';
 const taz = (z: string | number) => `${(Number(z) / 1e8).toLocaleString('en-US', { maximumFractionDigits: 6 })} TAZ`;
 const zat = (z: string | number) => Number(z).toLocaleString('en-US');
