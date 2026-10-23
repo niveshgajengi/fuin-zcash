@@ -75,10 +75,9 @@ machine), and 92 end-to-end tests in Google Chrome (46 per viewport: landing 19,
 ## Links
 - Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (not public yet, so this URL does not
   resolve: Nick creates it and pushes `main`).
-- Landing: https://nickthelegend.github.io/zec-sealed-bid-auction/ and saleroom:
-  https://nickthelegend.github.io/zec-sealed-bid-auction/saleroom/ (do not resolve yet: published by
-  `.github/workflows/pages.yml` once the repo is public and Pages is set to GitHub Actions). Locally:
-  `pnpm install && pnpm --filter @sba/dashboard dev`.
+- Landing: https://fuin-landing.vercel.app (saleroom at https://fuin-landing.vercel.app/saleroom/) and
+  the saleroom on its own: https://fuin-dashboard.vercel.app (static, over the published records).
+  Locally: `pnpm install && pnpm --filter @sba/dashboard dev`.
 - Video: none current. The only recording, `zec-sealed-bid-audit.mp4` (16 s, asciinema, captions
   marked ###, shared separately), shows the audit of Sale 001 at `58c2393`, before the chain-scanning
   audit, the reveal channel and Sales 002 and 003. A 2-minute walkthrough is still to be recorded.

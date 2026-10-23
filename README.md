@@ -1,13 +1,15 @@
 # Fuin — sealed-bid auctions on Zcash
 
-> **Not online yet.** The repository is not public and GitHub Pages is not on, so the planned URLs
-> below do not resolve today. Run it locally instead: `pnpm install && pnpm --filter @sba/dashboard dev`
-> (the saleroom, http://localhost:5178), or `pnpm build:site` and serve `site/`.
+> **Live:** landing https://fuin-landing.vercel.app (saleroom at https://fuin-landing.vercel.app/saleroom/),
+> saleroom on its own at https://fuin-dashboard.vercel.app. Both are the static `pnpm build:site` output
+> over the published records; the saleroom checks each sale's Groth16 result in the tab. There is no
+> hosted backend: the chain re-read is the audit CLI (`pnpm --filter @sba/service run audit`).
 >
-> Planned: landing `https://nickthelegend.github.io/zec-sealed-bid-auction/`, saleroom
-> `https://nickthelegend.github.io/zec-sealed-bid-auction/saleroom/`, code
-> `https://github.com/nickthelegend/zec-sealed-bid-auction` (`.github/workflows/pages.yml` publishes
-> `pnpm build:site` once Pages is set to "GitHub Actions"; `.github/workflows/ci.yml` runs `pnpm test`).
+> The code repository `https://github.com/nickthelegend/zec-sealed-bid-auction` is not public yet, so
+> the page's GitHub links do not resolve today. Locally: `pnpm install && pnpm --filter @sba/dashboard dev`
+> (the saleroom, http://localhost:5178), or `pnpm build:site` and serve `site/`. Once the repo is public,
+> `.github/workflows/pages.yml` can also publish `pnpm build:site` to GitHub Pages and
+> `.github/workflows/ci.yml` runs `pnpm test`.
 
 Fuin (封印, Japanese for "seal") is a sealed-bid auction where every bid is a **shielded Zcash deposit of the same size**, its memo a
 Poseidon commitment to the bid. After the close, each bidder **reveals through the chain**: a second
