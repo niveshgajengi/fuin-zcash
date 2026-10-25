@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import type { Page } from '@playwright/test';
-import { EXPLORER, LANDING, REPO, SALEROOM, expect, fmt, inView, isMobile, noHorizontalScroll, root, sale1, sale2, sale3, test } from './fixtures';
+import { EVIDENCE, EXPLORER, LANDING, REPO, SALEROOM, expect, fmt, inView, isMobile, noHorizontalScroll, root, sale1, sale2, sale3, test } from './fixtures';
 
 type Dep = { txid: string; output?: string; height: number; valueZat: string; status: string };
 const ref = (d: { txid: string; output?: string }) => (d.output === undefined ? d.txid : `${d.txid}:${d.output}`);
@@ -59,10 +59,10 @@ async function ledgerMatches(page: Page, ledger: string, rec: typeof sale1) {
   }
 }
 
-test.describe('landing', () => {
+test.describe('evidence page (the full catalogue, moved from the landing on Oct 25)', () => {
   test('the cover is Sale 003, bid through MCP by script-driven sba-mcp processes, with the record’s numbers; no horizontal scroll', async ({ page }, info) => {
-    await page.goto(LANDING);
-    await expect(page).toHaveTitle('Fuin · Sale 003, sealed bids on Zcash');
+    await page.goto(EVIDENCE);
+    await expect(page).toHaveTitle('Fuin · Evidence: Sale 003, sealed bids on Zcash');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Three sealed bids. One envelope opens.');
     await expect(page.locator('.cover .lotno')).toContainText(`SALE 003${sale3.auction.name}`);
     await expect(page.locator('.cover .lede')).toContainText('Each bidder was a separate sba-mcp server process with only its own wallet, driven over MCP by the reveal-run script (no language model chose a bid)');
@@ -82,7 +82,7 @@ test.describe('landing', () => {
   });
 
   test('the live clock counts from the Sale 003 settlement block header time', async ({ page }) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     const read = () => page.locator('#digits b').allTextContents();
     await expect.poll(async () => (await read()).join('')).not.toContain('--');
     const [d, h, m, s] = (await read()).map(Number);
@@ -94,7 +94,7 @@ test.describe('landing', () => {
   });
 
   test('the envelopes are the three revealed bids: only the winner’s seal breaks; the button seals and re-breaks it', async ({ page }, info) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     const stage = page.locator('#stage');
     const btn = page.getByRole('button', { name: /Break the seal|Seal it again/ });
     const labels = page.locator('.env-label');
@@ -125,7 +125,7 @@ test.describe('landing', () => {
     const page = await ctx.newPage();
     const errors: string[] = [];
     page.on('pageerror', (e) => errors.push(e.message));
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     await expect(page.locator('#stage')).toHaveClass(/is-open/, { timeout: 500 });
     await expect(page.getByRole('button', { name: 'Seal it again' })).toBeVisible();
     expect(await page.locator('.env.win .letter').evaluate((el) => getComputedStyle(el).transitionDuration)).toBe('0s');
@@ -135,7 +135,7 @@ test.describe('landing', () => {
   });
 
   test('nav anchors, cover CTAs, the wordmark and the skip link land on their sections; the saleroom links open it', async ({ page }, info) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     const nav = page.getByRole('navigation', { name: 'Sections' });
     if (!isMobile(info.project.name)) {
       for (const [name, id] of [['The lots', 'lots'], ['Reveals', 'reveals'], ['Provenance', 'provenance'], ['What is new', 'new']]) {
@@ -150,9 +150,8 @@ test.describe('landing', () => {
       await expect(nav.getByRole('link', { name: 'Code' })).toBeVisible();
     }
     await expect(nav.getByRole('link', { name: 'Code' })).toHaveAttribute('href', REPO);
-    await page.getByRole('link', { name: 'Fuin, home' }).click();
-    await expect(page).toHaveURL(/#cover$/);
-    await inView(page, '#cover');
+    // The wordmark goes back to the landing (the overview).
+    await expect(page.getByRole('link', { name: 'Fuin, home' })).toHaveAttribute('href', './');
     await page.getByRole('link', { name: 'See every lot' }).click();
     await expect(page).toHaveURL(/#lots$/);
     await inView(page, '#lots h2');
@@ -160,13 +159,13 @@ test.describe('landing', () => {
     await expect(page).toHaveURL(/#provenance$/);
     await inView(page, '#provenance h2');
     // "Verify it in the saleroom" opens the hosted saleroom next to this page, on Sale 003.
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     await page.getByRole('link', { name: 'Verify it in the saleroom' }).click();
     await expect(page).toHaveURL(SALEROOM);
     await expect(page.locator('.sale-meta code')).toHaveText(sale3.auction.name);
     await expect(page.locator('section.verify h2')).toHaveText('The result holds.', { timeout: 30_000 });
     // Keyboard: the first Tab shows the skip link, Enter jumps to the cover.
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to the sale' });
     await expect(skip).toBeFocused();
@@ -176,7 +175,7 @@ test.describe('landing', () => {
   });
 
   test('the first lot section is Sale 003: every deposit a lot card whose tx link is the recorded payment, in chain order', async ({ page }, info) => {
-    await page.goto(LANDING + '#lots');
+    await page.goto(EVIDENCE + '#lots');
     expect(await page.locator('ul.lots').first().evaluate((el) => el.closest('section')?.id)).toBe('lots');
     await expect(page.locator('#lots .sec-head')).toContainText(sale3.auction.name);
     await lotsMatch(page, '#lots', sale3, s3);
@@ -189,7 +188,7 @@ test.describe('landing', () => {
   });
 
   test('reveals and MCP bidders: every reveal note with its block, deposit and status; MCP tools; the anchored complaint', async ({ page }, info) => {
-    await page.goto(LANDING + '#reveals');
+    await page.goto(EVIDENCE + '#reveals');
     const sec = page.locator('#reveals');
     const rows = sec.getByRole('table', { name: 'Reveal notes on chain' }).locator('.rv');
     await expect(rows).toHaveCount(sale3.reveals.length);
@@ -214,7 +213,7 @@ test.describe('landing', () => {
   });
 
   test('provenance ledger: every Sale 003 recipient line matches what its key decrypted', async ({ page }, info) => {
-    await page.goto(LANDING + '#provenance');
+    await page.goto(EVIDENCE + '#provenance');
     const head = page.locator('#provenance .ledger-head');
     await expect(head).toContainText(`block ${fmt(sale3.settlement.height)}`);
     await expect(head.getByRole('link')).toHaveAttribute('href', EXPLORER + sale3.settlement.txid);
@@ -232,7 +231,7 @@ test.describe('landing', () => {
   });
 
   test('Sale 002 keeps its own section: lots, settlement ledger, record link and its complaint from testnet-reveal.json', async ({ page }, info) => {
-    await page.goto(LANDING + '#sale002');
+    await page.goto(EVIDENCE + '#sale002');
     await expect(page.locator('#sale002 h2')).toHaveText('The reveal-channel sale, before bound terms');
     await expect(page.locator('#sale002 .sec-head')).toContainText(sale2.auction.name);
     await expect(page.locator('#sale002 .sec-head')).toContainText(`for ${tazOf(sale2.outcome.winningBidZat)}`);
@@ -249,7 +248,7 @@ test.describe('landing', () => {
   });
 
   test('Sale 001 keeps its own section: lots, settlement ledger and record link from testnet.json', async ({ page }, info) => {
-    await page.goto(LANDING + '#sale001');
+    await page.goto(EVIDENCE + '#sale001');
     await expect(page.locator('#sale001 h2')).toHaveText('The first sale, before the reveal channel');
     await expect(page.locator('#sale001 .sec-head')).toContainText(sale1.auction.name);
     await expect(page.locator('#sale001 .sec-head')).toContainText(`for ${tazOf(sale1.outcome.winningBidZat)}`);
@@ -262,7 +261,7 @@ test.describe('landing', () => {
   });
 
   test('conditions of sale and condition report: bound terms, reveal channel, capacity, ties by txid, forfeits to the seller, disputes', async ({ page }) => {
-    await page.goto(LANDING + '#conditions');
+    await page.goto(EVIDENCE + '#conditions');
     const conds = page.locator('#conditions');
     await expect(conds.locator('.conds li')).toHaveCount(10);
     for (const text of [
@@ -284,7 +283,7 @@ test.describe('landing', () => {
   });
 
   test('what is new: the zkSNARKs ZEC auction is named with sources, and Fuin’s three differences', async ({ page }, info) => {
-    await page.goto(LANDING + '#new');
+    await page.goto(EVIDENCE + '#new');
     const sec = page.locator('#new');
     await expect(sec).toContainText('zkSNARKs ran a blind-bid ZEC auction in September 2026 (reported: 16,971 bids, cleared at 1.5 ZEC, settled through NEAR Intents)');
     await expect(sec).toContainText('Ethereum has many commit-reveal auctions with ZK proofs');
@@ -296,7 +295,7 @@ test.describe('landing', () => {
   });
 
   test('every control whose label contains "log" (and the ledger/provenance/record links) works', async ({ page }, info) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     // There is no button labelled "log" on the landing; assert it so a new one cannot ship untested.
     await expect(page.getByRole('button', { name: /log/i })).toHaveCount(0);
     const logLinks = page.getByRole('link', { name: /\blog\b|ledger|provenance|record/i });
@@ -319,7 +318,7 @@ test.describe('landing', () => {
   });
 
   test('the saleroom section opens the hosted saleroom, and gives the local route as a second way', async ({ page }, info) => {
-    await page.goto(LANDING + '#saleroom');
+    await page.goto(EVIDENCE + '#saleroom');
     const sec = page.locator('#saleroom');
     await expect(sec.getByRole('heading', { level: 2 })).toHaveText('Check the result in your own browser');
     await expect(sec).toContainText('re-checks any of the three sales in the tab');
@@ -341,7 +340,7 @@ test.describe('landing', () => {
   });
 
   test('masthead between the phone and desktop layouts: no horizontal scroll and no nav label broken across lines', async ({ page }) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     await page.evaluate(() => document.fonts.ready);
     for (const width of [641, 672, 700, 768, 820, 900, 901, 1040]) {
       await page.setViewportSize({ width, height: 800 });
@@ -361,7 +360,7 @@ test.describe('landing', () => {
   });
 
   test('no overclaimed agents: every use of "agent" on the page names the scripted MCP driver', async ({ page }) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     const text = await page.locator('body').innerText();
     expect(text).not.toMatch(/\bagents? bid|MCP agents?\b|independent agents?/i);
     const html = await page.content();
@@ -370,19 +369,20 @@ test.describe('landing', () => {
   });
 
   test('footer links point at the repository, record, docs, tests and the saleroom', async ({ page }) => {
-    await page.goto(LANDING);
+    await page.goto(EVIDENCE);
     const foot = page.getByRole('contentinfo').getByRole('navigation', { name: 'Links' });
     await expect(foot.getByRole('link', { name: 'Repository' })).toHaveAttribute('href', REPO);
     await expect(foot.getByRole('link', { name: 'Live record' })).toHaveAttribute('href', `${REPO}/blob/main/deployments/testnet-sale003.json`);
     await expect(foot.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', `${REPO}/tree/main/packages/docs`);
     await expect(foot.getByRole('link', { name: 'Tests' })).toHaveAttribute('href', `${REPO}/blob/main/TESTING.md`);
     await expect(foot.getByRole('link', { name: 'Saleroom' })).toHaveAttribute('href', 'saleroom/');
+    await expect(foot.getByRole('link', { name: 'Overview' })).toHaveAttribute('href', './');
     await expect(page.getByRole('contentinfo')).toContainText('Copyright (c) 2026 Nivesh Gajengi');
   });
 
   test('provenance log: every line shown is in a fresh live audit of the chain (Sale 003 and its complaint), and the command works', async ({ page }) => {
     test.setTimeout(300_000);
-    await page.goto(LANDING + '#provenance');
+    await page.goto(EVIDENCE + '#provenance');
     const term = page.getByLabel(/Audit output/);
     const cmd = (await term.locator('.c').innerText()).trim();
     expect(cmd).toBe(`$ pnpm --filter @sba/service run audit deployments/testnet-sale003.json deployments/${sale3.complaints[0].file}`);
@@ -403,5 +403,59 @@ test.describe('landing', () => {
     expect(err, 'audit exited 0 without a verifier').not.toBeNull();
     expect(err!.stdout + err!.stderr).toContain('Setup required: SBA_VERIFY_BIN');
     expect(err!.stdout).not.toContain('all checks pass');
+  });
+});
+
+test.describe('landing (one-screen overview)', () => {
+  test('first screen: the headline, one subline, two buttons and the envelopes; no horizontal scroll', async ({ page }, info) => {
+    await page.goto(LANDING);
+    await expect(page).toHaveTitle('Fuin · sealed-bid auctions on Zcash');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Three sealed bids. One envelope opens.');
+    await expect(page.locator('.sub')).toHaveText('Every bid is an equal shielded Zcash deposit. A zero-knowledge proof opens only the winner.');
+    const ctas = page.locator('.cover .cta a');
+    await expect(ctas).toHaveText(['Verify it in the saleroom', 'See the evidence']);
+    await expect(ctas.nth(0)).toHaveAttribute('href', 'saleroom/');
+    await expect(ctas.nth(1)).toHaveAttribute('href', 'evidence.html');
+    await expect(page.locator('#stage .env')).toHaveCount(s3.proven.length);
+    await expect(page.locator('#stage .env.win .letter strong')).toHaveText(winTaz);
+    await expect(page.locator('#stage')).toHaveClass(/is-open/);
+    await expect(page.locator('#win-note')).toHaveText('opened by the proof');
+    // No txids or block ranges on the landing: they live on the evidence page.
+    expect(await page.locator('body').innerText()).not.toMatch(/[0-9a-f]{8}…|blocks \d/);
+    await noHorizontalScroll(page);
+    await page.screenshot({ path: info.outputPath(`landing-first-screen-${info.project.name}.png`) });
+  });
+
+  test('reduced motion: the winner is open on load, with no transition', async ({ browser }, info) => {
+    const ctx = await browser.newContext({ reducedMotion: 'reduce', viewport: info.project.use.viewport! });
+    const page = await ctx.newPage();
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(LANDING);
+    await expect(page.locator('#stage')).toHaveClass(/is-open/, { timeout: 500 });
+    expect(await page.locator('.env.win .letter').evaluate((el) => getComputedStyle(el).transitionDuration)).toBe('0s');
+    expect(errors).toEqual([]);
+    await ctx.close();
+  });
+
+  test('proof numbers are real: three sale records, the TESTING.md total; the evidence link opens the catalogue', async ({ page }) => {
+    await page.goto(LANDING);
+    const testing = readFileSync(resolve(root, 'TESTING.md'), 'utf8');
+    const total = testing.match(/\*\*total\*\* \| \| \| \*\*(\d+) passed/)![1];
+    await expect(page.locator('.facts b')).toHaveText([String([sale1, sale2, sale3].length), total, '0']);
+    await expect(page.locator('.strip h3')).toHaveText(['Live', 'Setup required']);
+    await page.getByRole('link', { name: 'See the evidence' }).last().click();
+    await expect(page).toHaveURL(EVIDENCE);
+    await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');
+  });
+
+  test('footer CTA and links: saleroom, evidence, tests, repository', async ({ page }) => {
+    await page.goto(LANDING);
+    await expect(page.locator('.end').getByRole('link', { name: 'Open the saleroom' })).toHaveAttribute('href', 'saleroom/');
+    const foot = page.getByRole('contentinfo').getByRole('navigation', { name: 'Links' });
+    await expect(foot.getByRole('link', { name: 'Evidence' })).toHaveAttribute('href', 'evidence.html');
+    await expect(foot.getByRole('link', { name: 'Tests' })).toHaveAttribute('href', `${REPO}/blob/main/TESTING.md`);
+    await expect(foot.getByRole('link', { name: 'Repository' })).toHaveAttribute('href', REPO);
+    await expect(page.getByRole('contentinfo')).toContainText('Copyright (c) 2026 Nivesh Gajengi');
   });
 });

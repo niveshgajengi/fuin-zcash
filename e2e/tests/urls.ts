@@ -4,3 +4,5 @@ export const LANDING = process.env.FUIN_LANDING ?? `http://127.0.0.1:${process.e
 export const SALEROOM = process.env.FUIN_SALEROOM ?? new URL('saleroom/', LANDING).href;
 /** The saleroom's verification key, next to it (a relative fetch). */
 export const VK_PATH = new URL('verification_key.json', SALEROOM).pathname;
+/** The evidence page next to the landing: the full catalogue of all three sales (the landing before Oct 25). */
+export const EVIDENCE = new URL('evidence.html', LANDING).href;

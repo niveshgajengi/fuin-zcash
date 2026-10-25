@@ -4,7 +4,7 @@ import { test as base, expect, type Page } from '@playwright/test';
 
 import { LANDING, SALEROOM } from './urls';
 
-export { LANDING, SALEROOM, VK_PATH } from './urls';
+export { EVIDENCE, LANDING, SALEROOM, VK_PATH } from './urls';
 export const root = resolve(import.meta.dirname, '../..');
 export const sale1 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet.json'), 'utf8'));
 export const sale2 = JSON.parse(readFileSync(resolve(root, 'deployments/testnet-reveal.json'), 'utf8'));

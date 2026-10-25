@@ -69,7 +69,7 @@ Ironwood-only throughout. Record: deployments/testnet.json.
 ## Test coverage
 87 unit and live tests, 0 skipped (verifier 6, circuits 10, service 54, mcp 17; the service audit and
 mcp tests read live testnet, so `pnpm test` needs network access and takes about 10 minutes on this
-machine), and 92 end-to-end tests in Google Chrome (46 per viewport: landing 19, saleroom 27). CI
+machine), and 100 end-to-end tests in Google Chrome (50 per viewport: landing and evidence page 23, saleroom 27). CI
 (`.github/workflows/ci.yml`) runs `pnpm test` once the repository is on GitHub. See TESTING.md.
 
 ## Links

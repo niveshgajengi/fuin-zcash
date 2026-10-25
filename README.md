@@ -215,7 +215,7 @@ Protocol, what each party learns, rules and trusted setup: [packages/docs](packa
 | [`packages/mcp`](packages/mcp) | `sba-mcp`, the bidder's MCP server: `auction_status`, `bid` (refuses closed or unbound auctions and unrevealable refund addresses, warns at 8 valid deposits; saves the opening before sending), `reveal` (sealed note, refuses outside the window), `complain` (no viewing key unless asked), `verify_result`; `reveal-run`, the script that drove Sales 002 and 003 |
 | [`packages/dashboard`](packages/dashboard) | the saleroom: all three sales in tabs (Sale 003 first), lot cards, live clock since the hammer, in-browser checks (vk hash, Groth16 proof, `checkResult`) with two tamper buttons on any sale; the reveal notes and complaints of Sales 003 and 002 |
 | [`packages/docs`](packages/docs) | protocol, privacy table, rules (including no sale), trusted setup, a threshold-decryption sketch, what the audit trusts, prior art |
-| [`packages/landing`](packages/landing) | one-page catalogue landing: Sale 003 and its MCP bidders, the sealed-envelope reveal, Sales 002 and 001, what is new |
+| [`packages/landing`](packages/landing) | `index.html`: the one-screen landing (the sealed-envelope reveal, three steps, three numbers, what is live); `evidence.html`: the full catalogue (Sale 003 and its MCP bidders, reveals, provenance and audit log, Sales 002 and 001, conditions, limits, what is new) |
 | [`e2e`](e2e) | Playwright suite in Google Chrome over the landing and the saleroom as hosted (`pnpm test:e2e`) |
 
 ## Run it
@@ -235,7 +235,7 @@ pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
 pnpm test                      # verifier 6 (Rust) + circuits 10 + service 54 + mcp 17 = 87; needs network (the service audit and mcp tests read live testnet) and takes about 10 min (audit ~8 min, mcp ~1.5 min, plus the Rust build)
 pnpm build:site                # site/: the landing at /, the saleroom at /saleroom/, as GitHub Pages serves them
-pnpm test:e2e                  # Playwright in Google Chrome over that site (92 tests: 46 per viewport; about 4 min; see TESTING.md)
+pnpm test:e2e                  # Playwright in Google Chrome over that site (100 tests: 50 per viewport; about 4 min; see TESTING.md)
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
 SBA_SALE=004 pnpm --filter @sba/mcp reveal-run   # writes deployments/testnet-sale004.json (Sale 003: SBA_SALE=003)
 # re-check a published auction from the chain with only its incoming viewing key (and any complaint files)
