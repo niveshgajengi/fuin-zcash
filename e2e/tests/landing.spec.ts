@@ -441,7 +441,8 @@ test.describe('landing (one-screen overview)', () => {
   test('proof numbers are real: three sale records, the TESTING.md total; the evidence link opens the catalogue', async ({ page }) => {
     await page.goto(LANDING);
     const testing = readFileSync(resolve(root, 'TESTING.md'), 'utf8');
-    const total = testing.match(/\*\*total\*\* \| \| \| \*\*(\d+) passed/)![1];
+    // The landing's Tests figure is the fresh unit pass count (skipped seller-key audits are not counted).
+    const total = testing.match(/\*\*total\*\* \| \| \| \*\*(\d+) passed, 0 failed, \d+ skipped/)![1];
     await expect(page.locator('.facts b')).toHaveText([String([sale1, sale2, sale3].length), total, '0']);
     await expect(page.locator('.strip h3')).toHaveText(['Live', 'Setup required']);
     await page.getByRole('link', { name: 'See the evidence' }).last().click();
