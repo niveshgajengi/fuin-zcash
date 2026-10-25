@@ -20,3 +20,4 @@ playwright-report/
 site/
 # Loom's local state (event log, attachments, machine config)
 .loom/
+.impeccable/
