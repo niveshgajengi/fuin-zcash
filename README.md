@@ -233,7 +233,7 @@ Everything: Node 22+, pnpm 10, circom 2.2, Rust 1.89 (pinned in `packages/verifi
 ```sh
 pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
-pnpm test                      # verifier 6 (Rust) + circuits 10 + service 54 + mcp 17 = 87; needs network (the service audit and mcp tests read live testnet) and takes about 10 min (audit ~8 min, mcp ~1.5 min, plus the Rust build)
+pnpm test                      # verifier 6 (Rust) + circuits 10 + service 52 passed, 2 skipped (54) + mcp 17 = 85 passed, 0 failed, 2 skipped; needs network (the service audit and mcp tests read live testnet) and takes about 10 min (audit ~8 min, mcp ~1.5 min, plus the Rust build)
 pnpm build:site                # site/: the landing at /, the saleroom at /saleroom/, as GitHub Pages serves them
 pnpm test:e2e                  # Playwright in Google Chrome over that site (100 tests: 50 per viewport; about 4 min; see TESTING.md)
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
