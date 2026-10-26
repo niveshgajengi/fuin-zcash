@@ -1,0 +1,500 @@
+[
+  {
+    "id": "UI-D-001",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Fuin / Saleroom wordmark and explicit dev-origin Vite asset assertions. The suite requests the root verification key and checks its exact SHA-256."
+  },
+  {
+    "id": "UI-D-002",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exactly one selected tab, tabpanel label and Verify label after every sale switch."
+  },
+  {
+    "id": "UI-D-003",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Sale 002 selected-tab state and reload persistence."
+  },
+  {
+    "id": "UI-D-004",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Sale 001 selected-tab state after direct navigation, and settled verification after reload."
+  },
+  {
+    "id": "UI-D-005",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-006",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt; audit/ui-dev/catalogue-desktop.jpg; audit/ui-dev/catalogue-mobile.jpg",
+    "note": "saleroom.spec.ts:286; desktop=FAIL, mobile=FAIL. Not fully asserted by saleroom.spec.ts: Code target, no GitHub fetch on load, wordmark visible focus, keyboard skip behavior and explicit production-only Catalogue absence. The test stops at Catalogue before its skip-link assertions. Observed in both viewports: saleroom.spec.ts:300 waits for getByRole('link', { name: 'Catalogue' }).click() until the 60,000 ms test timeout; the production-only Catalogue link is absent under Vite dev (App.tsx:667 uses import.meta.env.PROD). This is the exact existing-suite/production-link mismatch, recorded as FAIL; the later built-site navigation and skip checks are not reached."
+  },
+  {
+    "id": "UI-D-007",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of losing bid amounts and privacy wording."
+  },
+  {
+    "id": "UI-D-008",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-D-009",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-D-010",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-011",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-D-012",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-D-013",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-D-014",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-015",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-016",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-D-017",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-018",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-019",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-020",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-021",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-022",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-D-023",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Separate valid/duplicate visible action suffixes, duplicate output fee and exact Never opened/forfeit-minus-fee text."
+  },
+  {
+    "id": "UI-D-024",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-025",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Visible browser-versus-chain limits, bound/legacy terms explanation and seller-payment-key disclosure in the audit section."
+  },
+  {
+    "id": "UI-D-026",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-027",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Explicit two-payment transaction = two deposits (valid and duplicate) explanation."
+  },
+  {
+    "id": "UI-D-028",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Winner/bidder2/MCP complain copy and absence of keys, openings or unified addresses in digest evidence."
+  },
+  {
+    "id": "UI-D-029",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exact unfounded verdict and honoured reveal text; the assertion compares the displayed verdict to the live audit dynamically. The no-refund-key disclosure is asserted."
+  },
+  {
+    "id": "UI-D-030",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of losing bid amounts and privacy wording."
+  },
+  {
+    "id": "UI-D-031",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-D-032",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-D-033",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-034",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-D-035",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-D-036",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-D-037",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-038",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-039",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-D-040",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-041",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-042",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-043",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-044",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-045",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-D-046",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Historical memo-mismatch and duplicate action suffixes, Never opened and explicit legacy non-refund wording."
+  },
+  {
+    "id": "UI-D-047",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-048",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Visible browser-versus-chain limits, bound/legacy terms explanation and seller-payment-key disclosure in the audit section."
+  },
+  {
+    "id": "UI-D-049",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-050",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Explicit two-payment transaction = two deposits (valid and duplicate) explanation."
+  },
+  {
+    "id": "UI-D-051",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Winner/bidder2/MCP complain copy and absence of keys, openings or unified addresses in digest evidence."
+  },
+  {
+    "id": "UI-D-052",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exact unfounded verdict, honoured reveal and full expected payment text; the assertion compares the displayed verdict to the live audit dynamically."
+  },
+  {
+    "id": "UI-D-053",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of reveal-channel or scripted MCP claims in the lede."
+  },
+  {
+    "id": "UI-D-054",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-D-055",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-D-056",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-057",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-D-058",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-D-059",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-D-060",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-061",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-062",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-D-063",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-064",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-065",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-066",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-D-067",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:142; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: No Unrevealed chip explicitly, and reset from Sale 003 Unrevealed to Sale 001 All 7."
+  },
+  {
+    "id": "UI-D-068",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-D-069",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-070",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-071",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Absence of reveal table and complaint card, and altered-reveal rejection text; only the reveal section is checked absent."
+  },
+  {
+    "id": "UI-D-072",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:273; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Sale 001/002 disclosure values, cannot-spend/never-shows-a-bid copy, and key isolation while switching sales. Sale 003 value is compared without copying it to evidence."
+  },
+  {
+    "id": "UI-D-073",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-074",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-075",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-076",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:313; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Four green checks, keyboard controls and health collection in the separately created reduced-motion context; it checks animationName on an inserted step and the settled heading."
+  },
+  {
+    "id": "UI-D-077",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:331; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: All three buttons re-enabled and zero green steps; only the retry button is checked enabled."
+  },
+  {
+    "id": "UI-D-078",
+    "status": "PASS",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:331; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-D-079",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-080",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/dev-spec.txt",
+    "note": "No matching test; desktop=NOT_COVERED, mobile=NOT_COVERED. Not fully asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-D-081",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:205, saleroom.spec.ts:273; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Full 375px overlap/clipping/readability checks, all control bounds and mobile expected/decrypted cell labels."
+  },
+  {
+    "id": "UI-D-082",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt; audit/ui-dev/catalogue-desktop.jpg; audit/ui-dev/catalogue-mobile.jpg",
+    "note": "saleroom.spec.ts:286; desktop=FAIL, mobile=FAIL. Not fully asserted by saleroom.spec.ts: Footer MIT/copyright/privacy copy and advertised result for every visible control. The test stops at Catalogue before its later assertions. Observed in both viewports: saleroom.spec.ts:300 waits for getByRole('link', { name: 'Catalogue' }).click() until the 60,000 ms test timeout; the production-only Catalogue link is absent under Vite dev (App.tsx:667 uses import.meta.env.PROD). This is the exact existing-suite/production-link mismatch, recorded as FAIL; the later built-site navigation and skip checks are not reached."
+  },
+  {
+    "id": "UI-D-083",
+    "status": "FAIL",
+    "evidence": "audit/ui-dev/test-map.json; audit/ui-dev/run.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:205; desktop=PASS, mobile=PASS. Not fully asserted by saleroom.spec.ts: Full 1280px overlap, three-column grid, verification sidebar/control bounds and scrolling to every lower section."
+  }
+]
