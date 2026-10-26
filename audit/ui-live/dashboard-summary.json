@@ -1,0 +1,59 @@
+{
+  "run": "dashboard",
+  "startTime": 1793023249170,
+  "durationMs": 196257.489,
+  "stats": {
+    "total": 54,
+    "expected": 52,
+    "unexpected": 2,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": false
+  },
+  "groups": {
+    "saleroom": {
+      "desktop": {
+        "passed": 26,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "mobile": {
+        "passed": 26,
+        "failed": 1,
+        "skipped": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "failures": [
+    {
+      "group": "saleroom",
+      "project": "desktop",
+      "file": "saleroom.spec.ts",
+      "line": 286,
+      "title": "every control whose label contains \"log\" works; header links, skip link",
+      "outcome": "unexpected",
+      "errors": [
+        "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"https://fuin-landing.vercel.app/\"\nReceived: \"https://fuin-dashboard.vercel.app/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    33 × locator resolved to <html lang=\"en\">…</html>\n       - unexpected value \"https://fuin-dashboard.vercel.app/\"\n\n\n  299 |     // The catalogue (landing) is one level up, as hosted.\n  300 |     await page.getByRole('link', { name: 'Catalogue' }).click();\n> 301 |     await expect(page).toHaveURL(LANDING);\n      |                        ^\n  302 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();\n  303 |     await page.goto(SALEROOM);\n  304 |     await page.keyboard.press('Tab');\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t21/e2e/tests/saleroom.spec.ts:301:24"
+      ],
+      "screenshots": [
+        "audit/ui-live/dashboard-saleroom-desktop-L286.jpg"
+      ]
+    },
+    {
+      "group": "saleroom",
+      "project": "mobile",
+      "file": "saleroom.spec.ts",
+      "line": 286,
+      "title": "every control whose label contains \"log\" works; header links, skip link",
+      "outcome": "unexpected",
+      "errors": [
+        "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"https://fuin-landing.vercel.app/\"\nReceived: \"https://fuin-dashboard.vercel.app/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    33 × locator resolved to <html lang=\"en\">…</html>\n       - unexpected value \"https://fuin-dashboard.vercel.app/\"\n\n\n  299 |     // The catalogue (landing) is one level up, as hosted.\n  300 |     await page.getByRole('link', { name: 'Catalogue' }).click();\n> 301 |     await expect(page).toHaveURL(LANDING);\n      |                        ^\n  302 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();\n  303 |     await page.goto(SALEROOM);\n  304 |     await page.keyboard.press('Tab');\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t21/e2e/tests/saleroom.spec.ts:301:24"
+      ],
+      "screenshots": [
+        "audit/ui-live/dashboard-saleroom-mobile-L286.jpg"
+      ]
+    }
+  ]
+}
