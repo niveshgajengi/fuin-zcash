@@ -1,0 +1,158 @@
+Command: pnpm test
+Source: isolated tracked-file copy at /var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv
+Unset: SBA_SELLER_UIVK, SBA_UIVK, SBA_UFVK, SBA_BIDDER_WALLET, SBA_AUDIT_UIVK (all inherited SBA_* removed).
+No .demo copied; guard denies opening .demo or home wallet state and denies real wallet/send executables.
+The existing nonexistent /nonexistent/zingo-cli fault injection cannot broadcast.
+Exit: 0
+Blocked: False
+
+
+> zec-sealed-bid-auction@ test /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv
+> pnpm test:verifier && pnpm --filter @sba/circuits --filter @sba/service build && pnpm -r --workspace-concurrency=1 --if-present test
+
+
+> zec-sealed-bid-auction@ test:verifier /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv
+> cd packages/verifier && cargo test --release && cargo build --release
+
+    Finished `release` profile [optimized] target(s) in 0.33s
+     Running unittests src/main.rs (target/release/deps/sba_verify-e7544c192383d93c)
+
+running 6 tests
+test tests::txids_parse_in_display_order_only_when_well_formed ... ok
+test tests::text_memos_decode_and_empty_is_null ... ok
+test tests::binary_memos_are_flagged_not_decoded ... ok
+test tests::scan_ranges_are_bounded_and_ordered ... ok
+test tests::owns_matches_any_diversified_address_of_the_key_and_nothing_else ... ok
+test tests::two_payments_to_one_key_in_one_bundle_are_two_outputs ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+    Finished `release` profile [optimized] target(s) in 0.08s
+Scope: 2 of 6 workspace projects
+packages/circuits build$ tsc -p tsconfig.json
+packages/circuits build: Done
+packages/service build$ tsc -p tsconfig.json
+packages/service build: Done
+Scope: 5 of 6 workspace projects
+
+> @sba/circuits@0.1.0 test /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/circuits
+> vitest run
+
+
+ RUN  v3.2.7 /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/circuits
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove a winner that is not the highest bid
+ERROR:  4 Error in template MaxBid_79 line: 68
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove a winning bid below the reserve
+ERROR:  4 Error in template MaxBid_79 line: 83
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove with an opening that does not match its commitment
+ERROR:  4 Error in template MaxBid_79 line: 29
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > ties go to the earliest deposit: the later slot cannot claim the win
+ERROR:  4 Error in template MaxBid_79 line: 76
+
+
+ ✓ test/maxbid.test.ts (6 tests) 1451ms
+   ✓ MaxBid(8) > proves the highest bid wins; the proof verifies and reveals only the winning bid  618ms
+   ✓ MaxBid(8) > a proof with a tampered public winner or winning bid does not verify  354ms
+   ✓ MaxBid(8) > ties go to the earliest deposit: the later slot cannot claim the win  387ms
+ ✓ test/result.test.ts (4 tests) 1512ms
+   ✓ checkResult > accepts the honest result: the three deposits in chain order, empty slots, the highest bid wins  623ms
+   ✓ checkResult > rejects a phantom bid: an invented commitment in a spare slot that "wins" with a verifying proof  351ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  17:52:26
+   Duration  1.85s (transform 39ms, setup 0ms, collect 305ms, tests 2.96s, environment 0ms, prepare 64ms)
+
+
+> @sba/service@0.1.0 test /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/service
+> vitest run
+
+
+ RUN  v3.2.7 /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/service
+
+ ✓ test/verifier.test.ts (2 tests) 413ms
+   ✓ scan windows > scan calls sba-verify once per window and joins what each window finds  412ms
+ ✓ test/reveal.test.ts (8 tests) 2492ms
+   ✓ ingestReveals (the auctioneer reads openings from the chain, not from a file) > accepts reveals in the window and decides the auction from them; a deposit with no reveal is listed unrevealed  661ms
+   ✓ ingestReveals (the auctioneer reads openings from the chain, not from a file) > a duplicate reveal is idempotent: the same opening twice decides exactly as once  1126ms
+   ✓ auditReveals (what the viewing key alone can check) > passes an honest reveal log and catches hidden, relabelled and contradictory reveals  535ms
+ ✓ test/dispute.test.ts (12 tests) 5040ms
+   ✓ checkComplaint > an honest auction: a refunded loser and the paid winner both get "unfounded, paid in full"  850ms
+   ✓ checkComplaint > upheld: a valid reveal the record calls tampered, and its deposit declared unrevealed, are both named  567ms
+   ✓ checkComplaint > upheld: the settlement paid the refund address less than it owes  557ms
+   ✓ checkComplaint > rejected: signed by any key but the one inside the reveal, or altered after signing  516ms
+   ✓ checkComplaint > rejected: a secret that does not open the named reveal, or a reveal that names another deposit  328ms
+   ✓ checkComplaint > rejected: not anchored on chain, or anchored outside the dispute window  356ms
+   ✓ checkComplaint > settlement memos name what each output pays, so one paid deposit cannot mask an unpaid one on the same refund address  375ms
+   ✓ checkComplaint > no sale: a revealed bidder is owed its deposit minus that refund output fee, and a shortfall is upheld  305ms
+   ✓ checkComplaint > current rules: a deposit outside the proof (over capacity or not a bid) is owed its value minus its own output fee; legacy sales are owed it in full  328ms
+ ✓ test/auction.test.ts (20 tests) 5345ms
+   ✓ reveals and settlement > picks the highest valid bid with a verifying proof, refunds losing bids in full and a revealed late deposit minus its output fee  666ms
+   ✓ no sale > the highest revealed bid is below the reserve: every revealed deposit is refunded minus its output fee, an unrevealed one is forfeited, and a reserve-0 proof shows the top bid is below the reserve  1028ms
+   ✓ no sale > a no-sale claim fails its check when the proven top bid meets the reserve, or when a revealed deposit is called unrevealed  861ms
+   ✓ capacity: the proof has 8 slots, taken by the first 8 revealed valid deposits > nine valid revealed bids: the first 8 in chain order compete, the 9th is over capacity and refunded; a proof over another 8 fails the slot check  614ms
+   ✓ unrevealed bids > a valid deposit with no reveal is declared unrevealed, so the outcome still passes its check; hiding it does not  349ms
+   ✓ auction terms bound to the id > a 127-bit terms id fits the deposit memo, a reveal memo naming a multi-output deposit, and a real MaxBid proof  317ms
+ ✓ test/audit.test.ts (12 tests | 2 skipped) 900042ms
+   ✓ audit (live testnet) > the published auction passes: the chain scan finds exactly the 7 recorded deposits  29273ms
+   ✓ audit (live testnet) > a record that hides a deposit fails: the late deposit, owed a refund, is found on chain anyway  32368ms
+   ✓ audit (live testnet) > a record that understates the settlement height, so the scan stops before the late deposit it hides, fails: the height comes from the chain  28598ms
+   ✓ audit of the reveal-channel auction (live testnet) > passes: the two-payment transaction reads as two deposits and the reveal log matches the reveal notes on chain  61139ms
+   ✓ audit of the reveal-channel auction (live testnet) > a record whose auction id matches neither its terms nor its name fails the terms check  72630ms
+   ✓ audit of the reveal-channel auction (live testnet) > fails when the record hides a reveal note or calls the late reveal tampered  77892ms
+   ✓ audit of the reveal-channel auction (live testnet) > a record naming an unrelated transaction as its settlement, with no complaint and no seller key, no longer ends "all checks pass": payments not checked  467714ms
+   ✓ audit of the reveal-channel auction (live testnet) > a note mined after the auctioneer's scan (scannedTo) is reported, not failed: anyone can pay the auction between the scan and the settlement  33503ms
+   ✓ audit of the reveal-channel auction (live testnet) > checks the winner's complaint against the chain: unfounded on the real settlement, upheld (names the shortfall) when the record points at another settlement  75028ms
+   ✓ audit of Sale 003, under the current rules (live testnet) > passes with bound terms, scannedTo, the forfeit declared and the winner's no-key complaint unfounded; without the seller's key it says payments were not checked  21898ms
+
+ Test Files  5 passed (5)
+      Tests  52 passed | 2 skipped (54)
+   Start at  17:52:28
+   Duration  900.26s (transform 127ms, setup 0ms, collect 695ms, tests 913.33s, environment 0ms, prepare 223ms)
+
+
+> @sba/mcp@0.1.0 test /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/mcp
+> vitest run
+
+
+ RUN  v3.2.7 /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-audit-empty-suite-30ufutdv/packages/mcp
+
+ ✓ test/mcp.test.ts (17 tests) 128454ms
+   ✓ sba-mcp > auction_status finds the deposits by scanning the auction blocks with its viewing key  9854ms
+   ✓ sba-mcp > verify_result checks the proof and that it is about exactly the on-chain deposits  10317ms
+   ✓ sba-mcp > bid refuses out-of-range bids before sending anything, and names missing settings  322ms
+   ✓ sba-mcp > bid refuses a deposit into an auction that has closed (live chain tip), before zingo-cli runs  739ms
+   ✓ sba-mcp > bid recomputes the auction id from the published terms before sending: a term changed after the id was fixed, or a legacy name-only id, is refused before zingo-cli runs  1673ms
+   ✓ sba-mcp > bid saves the opening before it sends (open auction, bound terms, live chain tip) > an openings folder that cannot be written fails before any wallet call  2300ms
+   ✓ sba-mcp > bid saves the opening before it sends (open auction, bound terms, live chain tip) > a send that fails keeps the opening (mode 0600) marked "send failed, may still be mined" (fault injection: zingo-cli path that does not exist)  2266ms
+   ✓ sba-mcp > reveal looks up an opening whose send reported no txid by its commitment on chain, and does not reveal one with no deposit (live chain tip)  2550ms
+   ✓ sba-mcp > reveal refuses outside the reveal window (live chain tip) and on an auction with no channel, before zingo-cli runs  1849ms
+   ✓ sba-mcp > complain refuses outside the dispute window (live chain tip) and on an auction with no dispute window, before zingo-cli runs  1767ms
+   ✓ sba-mcp > complain publishes no viewing key unless asked, and then only a separate refund wallet's: it refuses the bidding wallet before any wallet call  659ms
+   ✓ sba-mcp > verify_result reads the settlement height from the chain: a record that understates it, so the scan misses a deposit it leaves out, does not hold  12689ms
+   ✓ sba-mcp > verify_result: a record whose scannedTo stops inside the reveal window does not hold (live)  25412ms
+   ✓ sba-mcp > verify_result holds on Sale 003 (bound terms, forfeit, scannedTo): nothing after the record, one deposit unrevealed  17104ms
+   ✓ sba-mcp > verify_result holds on the reveal-channel auction: two-payment deposit read per payment, one deposit declared unrevealed  36115ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  18:07:29
+   Duration  129.07s (transform 41ms, setup 0ms, collect 429ms, tests 128.45s, environment 0ms, prepare 51ms)
+
+
+Final counts: 85 passed, 0 failed, 2 skipped (87 total).
+Verifier: (6, 0, 0); circuits: (10, 0, 0); service: (52, 0, 2); MCP: (17, 0, 0). Tuples are (passed, failed, skipped).
+
+The two skips are the only it.skipIf cases in packages/service/test/audit.test.ts:
+- with the seller's viewing key (local demo state): the real settlement paid the winning bid; a swapped settlement fails 'seller received 0 zat, owed 135000'
+- with the seller's viewing key (local demo state): the winning bid and the forfeit (memo forfeit:<deposit>) reached the seller, and the run ends all checks pass
+Both require the missing seller-key state (.demo/reveal-run-state.json and .demo/reveal-run-003-state.json respectively). The isolated tracked-file copy contains neither state file; sellerUivk and sellerUivk3 are undefined. No .demo file was opened, and no seller viewing key was supplied.
+Subprocess guard: zero blocked actions, zero real wallet executable calls. The suite ran its existing ENOENT fault injection against /nonexistent/zingo-cli; no executable or wallet was available and no transaction was broadcast.
+CLI-041: PASS; exact AUDIT.md baseline matched.

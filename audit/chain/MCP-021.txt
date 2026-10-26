@@ -1,4 +1,29 @@
 {
-  "executed": false,
-  "reason": "Guard requires SBA_BIDDER_WALLET; hard rule forbids setting it, including disposable paths."
+  "id": "MCP-021",
+  "date": "2026-10-26T12:22:29.720Z",
+  "published_file": "deployments/testnet.json",
+  "tool": "bid",
+  "arguments": {
+    "bid_zat": 1000000,
+    "refund_address": "utest1x"
+  },
+  "live_tip_preflight": 4543979,
+  "source_review": "packages/mcp/src/tools.ts read immediately before call",
+  "source_sha256": "c082253ba1d631ae21da87836abb1d788b0f251f8bc1aaeef0279a24e5cf73f9",
+  "standins": {
+    "wallet": "/tmp/fuin-audit-empty-t14-preefe/wallet",
+    "openings": "/tmp/fuin-audit-empty-t14-preefe/openings",
+    "refund_wallet": "unset"
+  },
+  "fixture": "empty",
+  "result": {
+    "isError": true,
+    "text": "the auction closed after block 4522278 and the chain is at 4543979; a deposit now would be late, so nothing was sent"
+  },
+  "assertions": {
+    "expected_refusal": true,
+    "wallet_directory_remained_empty": true,
+    "openings_unchanged": true
+  },
+  "safety": "Closed-chain preflight; reviewed guards precede quicksend/key export; subprocess guard rejects real wallet/send executables. No viewing-key environment supplied by driver."
 }
