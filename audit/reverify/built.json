@@ -1,0 +1,5291 @@
+{
+  "config": {
+    "argv": [
+      "/opt/homebrew/Cellar/node/26.5.0/bin/node",
+      "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/node_modules/@playwright/test/cli.js",
+      "test",
+      "tests/landing.spec.ts",
+      "tests/saleroom.spec.ts",
+      "tests/audit-contract.spec.ts",
+      "--reporter=list,json",
+      "--retries=0",
+      "--output=/tmp/fuin-t24-browser-artifacts/built"
+    ],
+    "configFile": "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/playwright.config.ts",
+    "rootDir": "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/fuin-t24-browser-artifacts/built",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/tmp/fuin-t24-browser-artifacts/built",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "audit-contract.spec.ts",
+      "file": "audit-contract.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "audit landing: masthead, artwork, steps, privacy, live/setup text and footer contract",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1608,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:43.840Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-5a11932500805d0f10c4",
+          "file": "audit-contract.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "audit landing keyboard navigation: hero saleroom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1011,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:45.861Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-4bc12d4fe7d692edc0a9",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit landing keyboard navigation: hero evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 696,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:46.924Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-24c330a652595d8dfcb6",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit landing keyboard navigation: footer saleroom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1059,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:47.659Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-e1626cadffca31f7abe9",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit envelope timing and interrupted reload: landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1174,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:48.758Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-a26ca0b4eda5046dc0f5",
+          "file": "audit-contract.spec.ts",
+          "line": 97,
+          "column": 3
+        },
+        {
+          "title": "audit reduced envelope motion: landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 792,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:50.010Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-1cf516902eef33ad4cb0",
+          "file": "audit-contract.spec.ts",
+          "line": 133,
+          "column": 3
+        },
+        {
+          "title": "audit envelope timing and interrupted reload: evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1494,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:50.854Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-aecbf7fe91325bf19f0a",
+          "file": "audit-contract.spec.ts",
+          "line": 97,
+          "column": 3
+        },
+        {
+          "title": "audit reduced envelope motion: evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 663,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:52.433Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-7664662b0cc7cb6ca068",
+          "file": "audit-contract.spec.ts",
+          "line": 133,
+          "column": 3
+        },
+        {
+          "title": "audit evidence: observer fallback, home activation and skip target",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 793,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:53.127Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-2496d4fafcfdac1b1f66",
+          "file": "audit-contract.spec.ts",
+          "line": 145,
+          "column": 1
+        },
+        {
+          "title": "audit evidence: labels, padded clock, catalogue details, provenance and exact log disclosures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 792,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:53.981Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-669138c79cc492446374",
+          "file": "audit-contract.spec.ts",
+          "line": 158,
+          "column": 1
+        },
+        {
+          "title": "audit evidence: full conditions, scan limit, prior art, tamper description and intermediate navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1132,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:54.802Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-49e3a6f00729887311d5",
+          "file": "audit-contract.spec.ts",
+          "line": 186,
+          "column": 1
+        },
+        {
+          "title": "audit Sale 003: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1152,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:55.969Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-530caa059a1624ef53d2",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1148,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:57.184Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-a66f85856d591c8ed4ab",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1101,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:58.398Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3edc6e95bdfd22187b12",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit unknown sale defaults safely: ?sale=unknown",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 694,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:42:59.558Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-a06041b50061095eda9c",
+          "file": "audit-contract.spec.ts",
+          "line": 256,
+          "column": 3
+        },
+        {
+          "title": "audit unknown sale defaults safely: ?sale=",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 672,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:00.291Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-8ce9eccd26ef1c33eace",
+          "file": "audit-contract.spec.ts",
+          "line": 256,
+          "column": 3
+        },
+        {
+          "title": "audit switching sales resets filters and removes unavailable Unrevealed chip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 849,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:00.997Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-d045afe4504a9e5cff87",
+          "file": "audit-contract.spec.ts",
+          "line": 263,
+          "column": 1
+        },
+        {
+          "title": "audit delayed verification: disabled actions, final sale owns results after old responses resolve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 887,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:01.886Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-868a5771ed7d8d2af1ff",
+          "file": "audit-contract.spec.ts",
+          "line": 275,
+          "column": 1
+        },
+        {
+          "title": "audit verification recovery from invalid JSON",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 936,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:02.820Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-cd590e509788117e1574",
+          "file": "audit-contract.spec.ts",
+          "line": 303,
+          "column": 3
+        },
+        {
+          "title": "audit verification recovery from HTTP 503",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 973,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:03.805Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-74ba7bb87766fa7a3425",
+          "file": "audit-contract.spec.ts",
+          "line": 303,
+          "column": 3
+        },
+        {
+          "title": "audit saleroom reduced motion keeps real verification and keyboard controls working",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 788,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:04.826Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-44d3f1bdb81cc907f435",
+          "file": "audit-contract.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1219,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:05.649Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3a79ef63a444657a5243",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/evidence.html",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3302,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:06.913Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-639b24e7e128959645b1",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/saleroom/",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1961,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:10.296Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-e87b0749b5ffb803b447",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit browser-only empty catalogue fixture restores the real published lots",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 928,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:12.317Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-e6809aac111cde7a0acd",
+          "file": "audit-contract.spec.ts",
+          "line": 352,
+          "column": 1
+        },
+        {
+          "title": "audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 759,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:13.293Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-370d63d274e03e932006",
+          "file": "audit-contract.spec.ts",
+          "line": 382,
+          "column": 1
+        },
+        {
+          "title": "audit Sale 003: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 707,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:14.093Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3f54502367e1dbbc2607",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 003: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 864,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:14.840Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3f2ff82f0e8b1c613a1b",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 782,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:15.749Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-0e6064826836d1053824",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 841,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:16.563Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-475e20e84d5b9e844833",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 766,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:17.448Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-80195d09b2ee9f49b84c",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 766,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:18.250Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-79690d5ab3d1f1e69e99",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit static pages remain usable without a Rust verifier and do not relabel the recorded audit as fresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2236,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:43:19.059Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-35a3eab8cc9158818890",
+          "file": "audit-contract.spec.ts",
+          "line": 440,
+          "column": 1
+        },
+        {
+          "title": "audit landing: masthead, artwork, steps, privacy, live/setup text and footer contract",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1737,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:40.875Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-0f5fe9d5e16b32a50148",
+          "file": "audit-contract.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "audit landing keyboard navigation: hero saleroom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1008,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:43.090Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-864e28241bc93c552328",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit landing keyboard navigation: hero evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 723,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:44.126Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-e6d0543768f66b10b06f",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit landing keyboard navigation: footer saleroom",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1044,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:44.884Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-7ba5ad8c44c1847de926",
+          "file": "audit-contract.spec.ts",
+          "line": 79,
+          "column": 3
+        },
+        {
+          "title": "audit envelope timing and interrupted reload: landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1135,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:45.966Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3a6072c45c77f49a6c1c",
+          "file": "audit-contract.spec.ts",
+          "line": 97,
+          "column": 3
+        },
+        {
+          "title": "audit reduced envelope motion: landing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 633,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:47.163Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-49655db906cde099e0c6",
+          "file": "audit-contract.spec.ts",
+          "line": 133,
+          "column": 3
+        },
+        {
+          "title": "audit envelope timing and interrupted reload: evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1501,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:47.829Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-7eccebaa9a47addf4bdc",
+          "file": "audit-contract.spec.ts",
+          "line": 97,
+          "column": 3
+        },
+        {
+          "title": "audit reduced envelope motion: evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 709,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:49.389Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-14ab9faa8fa21559ab8c",
+          "file": "audit-contract.spec.ts",
+          "line": 133,
+          "column": 3
+        },
+        {
+          "title": "audit evidence: observer fallback, home activation and skip target",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 756,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:50.130Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-111b2676cf3197fa8e49",
+          "file": "audit-contract.spec.ts",
+          "line": 145,
+          "column": 1
+        },
+        {
+          "title": "audit evidence: labels, padded clock, catalogue details, provenance and exact log disclosures",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 820,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:50.925Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-39cba6fc0209dc8a25f0",
+          "file": "audit-contract.spec.ts",
+          "line": 158,
+          "column": 1
+        },
+        {
+          "title": "audit evidence: full conditions, scan limit, prior art, tamper description and intermediate navigation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 907,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:51.784Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-4847a8b60adf4ba09b18",
+          "file": "audit-contract.spec.ts",
+          "line": 186,
+          "column": 1
+        },
+        {
+          "title": "audit Sale 003: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1117,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:52.725Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-eb126d5c3f8e46145e05",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1148,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:53.883Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-b48596331b48ea0609a4",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: direct/reload, tabs, exact audit setup, disclosure isolation and footer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1078,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:55.068Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-71eeeb2207d67351e8ad",
+          "file": "audit-contract.spec.ts",
+          "line": 212,
+          "column": 3
+        },
+        {
+          "title": "audit unknown sale defaults safely: ?sale=unknown",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 632,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:56.179Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-a8d6652afe66bec7a6f9",
+          "file": "audit-contract.spec.ts",
+          "line": 256,
+          "column": 3
+        },
+        {
+          "title": "audit unknown sale defaults safely: ?sale=",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 701,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:56.838Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-e0e6874e6df87cb786a4",
+          "file": "audit-contract.spec.ts",
+          "line": 256,
+          "column": 3
+        },
+        {
+          "title": "audit switching sales resets filters and removes unavailable Unrevealed chip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 892,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:57.560Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-8dea6f157f2d1c4fcca4",
+          "file": "audit-contract.spec.ts",
+          "line": 263,
+          "column": 1
+        },
+        {
+          "title": "audit delayed verification: disabled actions, final sale owns results after old responses resolve",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 958,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:58.487Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-935a6052ca439762ec22",
+          "file": "audit-contract.spec.ts",
+          "line": 275,
+          "column": 1
+        },
+        {
+          "title": "audit verification recovery from invalid JSON",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 920,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:45:59.476Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-adb12beb761e204c63c3",
+          "file": "audit-contract.spec.ts",
+          "line": 303,
+          "column": 3
+        },
+        {
+          "title": "audit verification recovery from HTTP 503",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 917,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:00.432Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-c9ef80f385220eecd7c2",
+          "file": "audit-contract.spec.ts",
+          "line": 303,
+          "column": 3
+        },
+        {
+          "title": "audit saleroom reduced motion keeps real verification and keyboard controls working",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 865,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:01.384Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-3efa3f00aa5ce7c23869",
+          "file": "audit-contract.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1286,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:02.280Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-1002586dbe87e0c3afaa",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/evidence.html",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3356,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:03.606Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-a60ffaabd19d1ebf0fc2",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit full layout and reachable lower sections: http://127.0.0.1:4284/saleroom/",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2117,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:07.066Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-ecac7b96b52ad2757de7",
+          "file": "audit-contract.spec.ts",
+          "line": 335,
+          "column": 3
+        },
+        {
+          "title": "audit browser-only empty catalogue fixture restores the real published lots",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 837,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:09.235Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-516832d597e2d84b5296",
+          "file": "audit-contract.spec.ts",
+          "line": 352,
+          "column": 1
+        },
+        {
+          "title": "audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 690,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:10.108Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-92e5d589c95b3fcd3093",
+          "file": "audit-contract.spec.ts",
+          "line": 382,
+          "column": 1
+        },
+        {
+          "title": "audit Sale 003: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 654,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:10.832Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-f21355d0c27af346cf1c",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 003: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 855,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:11.516Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-9babfb6218268a58b971",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 648,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:12.404Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-0bc74cfe6bfafa24967d",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 002: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 860,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:13.075Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-7b2e5d4c38eb37b56ce0",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: timer advances exactly once per second and never goes negative",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 665,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:13.968Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-ce4e5ad74223c34183a1",
+          "file": "audit-contract.spec.ts",
+          "line": 411,
+          "column": 3
+        },
+        {
+          "title": "audit Sale 001: all actions disable throughout a recheck and re-enable on completion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 874,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:14.658Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-319e3cc8d6d77ede706b",
+          "file": "audit-contract.spec.ts",
+          "line": 427,
+          "column": 3
+        },
+        {
+          "title": "audit static pages remain usable without a Rust verifier and do not relabel the recorded audit as fresh",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1701,
+                  "errors": [],
+                  "retry": 0,
+                  "startTime": "2026-10-26T14:46:15.566Z",
+                  "annotations": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72a782ae486fd3d793cb-1ff6b9b91c566ea47378",
+          "file": "audit-contract.spec.ts",
+          "line": 440,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "landing.spec.ts",
+      "file": "landing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "evidence page (the full catalogue, moved from the landing on Oct 25)",
+          "file": "landing.spec.ts",
+          "line": 62,
+          "column": 6,
+          "specs": [
+            {
+              "title": "the cover is Sale 003, bid through MCP by script-driven sba-mcp processes, with the record\u2019s numbers; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 602,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:21.350Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-2a8f5d559e037fcf541d",
+              "file": "landing.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "the live clock counts from the Sale 003 settlement block header time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1548,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:21.983Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-36a26bd8d861c30d80c6",
+              "file": "landing.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "the envelopes are the three revealed bids: only the winner\u2019s seal breaks; the button seals and re-breaks it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1780,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:23.579Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-708da9f768c05b8f9b7f",
+              "file": "landing.spec.ts",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: the result is open on load with no transition",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 749,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:25.412Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-e94e97bfd0c67c2d0abd",
+              "file": "landing.spec.ts",
+              "line": 123,
+              "column": 3
+            },
+            {
+              "title": "nav anchors, cover CTAs, the wordmark and the skip link land on their sections; the saleroom links open it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10861,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:26.186Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-44d8cb597b6697c149d7",
+              "file": "landing.spec.ts",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "the first lot section is Sale 003: every deposit a lot card whose tx link is the recorded payment, in chain order",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1717,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:37.602Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-23ae6ed24f19cd084ff2",
+              "file": "landing.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "reveals and MCP bidders: every reveal note with its block, deposit and status; MCP tools; the anchored complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1798,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:39.392Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-95c45f1d9d5e32f32cde",
+              "file": "landing.spec.ts",
+              "line": 190,
+              "column": 3
+            },
+            {
+              "title": "provenance ledger: every Sale 003 recipient line matches what its key decrypted",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2283,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:41.281Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-fef914535a79a004e26e",
+              "file": "landing.spec.ts",
+              "line": 215,
+              "column": 3
+            },
+            {
+              "title": "Sale 002 keeps its own section: lots, settlement ledger, record link and its complaint from testnet-reveal.json",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2315,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:43.655Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-29b7d5e16d7268da26d8",
+              "file": "landing.spec.ts",
+              "line": 233,
+              "column": 3
+            },
+            {
+              "title": "Sale 001 keeps its own section: lots, settlement ledger and record link from testnet.json",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2455,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:46.072Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-6d9fdf93ca5bd33732f6",
+              "file": "landing.spec.ts",
+              "line": 250,
+              "column": 3
+            },
+            {
+              "title": "conditions of sale and condition report: bound terms, reveal channel, capacity, ties by txid, forfeits to the seller, disputes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 616,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:48.632Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-9c67affab16bb7e7ce6e",
+              "file": "landing.spec.ts",
+              "line": 263,
+              "column": 3
+            },
+            {
+              "title": "what is new: the zkSNARKs ZEC auction is named with sources, and Fuin\u2019s three differences",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2201,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:49.289Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-d7d11442597777f75fc7",
+              "file": "landing.spec.ts",
+              "line": 285,
+              "column": 3
+            },
+            {
+              "title": "every control whose label contains \"log\" (and the ledger/provenance/record links) works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1675,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:51.577Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-4057b483945036240460",
+              "file": "landing.spec.ts",
+              "line": 297,
+              "column": 3
+            },
+            {
+              "title": "the saleroom section opens the hosted saleroom, and gives the local route as a second way",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2544,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:53.371Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-a53fe9f06a4d43bd67ae",
+              "file": "landing.spec.ts",
+              "line": 320,
+              "column": 3
+            },
+            {
+              "title": "masthead between the phone and desktop layouts: no horizontal scroll and no nav label broken across lines",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 738,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:56.002Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-dec4e3955b8ac7a0de62",
+              "file": "landing.spec.ts",
+              "line": 342,
+              "column": 3
+            },
+            {
+              "title": "no overclaimed agents: every use of \"agent\" on the page names the scripted MCP driver",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 663,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:56.768Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-02bf6fab1999b4f7c08a",
+              "file": "landing.spec.ts",
+              "line": 362,
+              "column": 3
+            },
+            {
+              "title": "footer links point at the repository, record, docs, tests and the saleroom",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 596,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:57.460Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-c08e7932a43f2f570d8b",
+              "file": "landing.spec.ts",
+              "line": 371,
+              "column": 3
+            },
+            {
+              "title": "provenance log: every line shown is in a fresh live audit of the chain (Sale 003 and its complaint), and the command works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20177,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:43:58.084Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-9a9a2adf939ab153d579",
+              "file": "landing.spec.ts",
+              "line": 383,
+              "column": 3
+            },
+            {
+              "title": "audit without the verifier binary says \"Setup required\" and fails (no fake pass)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 727,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:18.365Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-fffb8a757bac56051dcc",
+              "file": "landing.spec.ts",
+              "line": 397,
+              "column": 3
+            },
+            {
+              "title": "the cover is Sale 003, bid through MCP by script-driven sba-mcp processes, with the record\u2019s numbers; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 754,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:17.316Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-31660d0b449e6550d6e6",
+              "file": "landing.spec.ts",
+              "line": 63,
+              "column": 3
+            },
+            {
+              "title": "the live clock counts from the Sale 003 settlement block header time",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1572,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:18.102Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-f061b6eb7093cdf0b142",
+              "file": "landing.spec.ts",
+              "line": 84,
+              "column": 3
+            },
+            {
+              "title": "the envelopes are the three revealed bids: only the winner\u2019s seal breaks; the button seals and re-breaks it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2176,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:19.702Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-e77639af7fe9d9fb78ad",
+              "file": "landing.spec.ts",
+              "line": 96,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: the result is open on load with no transition",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 913,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:21.913Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-3556086053dace3fb18f",
+              "file": "landing.spec.ts",
+              "line": 123,
+              "column": 3
+            },
+            {
+              "title": "nav anchors, cover CTAs, the wordmark and the skip link land on their sections; the saleroom links open it",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3612,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:22.855Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-5dabe9a330979df2fa72",
+              "file": "landing.spec.ts",
+              "line": 137,
+              "column": 3
+            },
+            {
+              "title": "the first lot section is Sale 003: every deposit a lot card whose tx link is the recorded payment, in chain order",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1789,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:26.633Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-10d807dcd4384fd051dc",
+              "file": "landing.spec.ts",
+              "line": 177,
+              "column": 3
+            },
+            {
+              "title": "reveals and MCP bidders: every reveal note with its block, deposit and status; MCP tools; the anchored complaint",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2290,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:28.499Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-256dc3861b55128ca1f9",
+              "file": "landing.spec.ts",
+              "line": 190,
+              "column": 3
+            },
+            {
+              "title": "provenance ledger: every Sale 003 recipient line matches what its key decrypted",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2318,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:30.867Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-e72b6911f2af2883e8d1",
+              "file": "landing.spec.ts",
+              "line": 215,
+              "column": 3
+            },
+            {
+              "title": "Sale 002 keeps its own section: lots, settlement ledger, record link and its complaint from testnet-reveal.json",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2436,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:33.274Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-4f59cd7d8cdde8db996a",
+              "file": "landing.spec.ts",
+              "line": 233,
+              "column": 3
+            },
+            {
+              "title": "Sale 001 keeps its own section: lots, settlement ledger and record link from testnet.json",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2371,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:35.810Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-1ccb980ddf033e920175",
+              "file": "landing.spec.ts",
+              "line": 250,
+              "column": 3
+            },
+            {
+              "title": "conditions of sale and condition report: bound terms, reveal channel, capacity, ties by txid, forfeits to the seller, disputes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 709,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:38.274Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-c63f4ca5049610745059",
+              "file": "landing.spec.ts",
+              "line": 263,
+              "column": 3
+            },
+            {
+              "title": "what is new: the zkSNARKs ZEC auction is named with sources, and Fuin\u2019s three differences",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2121,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:39.020Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-44d3cb46d97daddf6acf",
+              "file": "landing.spec.ts",
+              "line": 285,
+              "column": 3
+            },
+            {
+              "title": "every control whose label contains \"log\" (and the ledger/provenance/record links) works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 681,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:41.220Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-3349df610047cb65c259",
+              "file": "landing.spec.ts",
+              "line": 297,
+              "column": 3
+            },
+            {
+              "title": "the saleroom section opens the hosted saleroom, and gives the local route as a second way",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2517,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:41.928Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-58a5ac995183e65f789b",
+              "file": "landing.spec.ts",
+              "line": 320,
+              "column": 3
+            },
+            {
+              "title": "masthead between the phone and desktop layouts: no horizontal scroll and no nav label broken across lines",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 826,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:44.528Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-7cfcbbb1817539f8dae0",
+              "file": "landing.spec.ts",
+              "line": 342,
+              "column": 3
+            },
+            {
+              "title": "no overclaimed agents: every use of \"agent\" on the page names the scripted MCP driver",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 689,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:45.390Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-b7829705c87dbbdbca2f",
+              "file": "landing.spec.ts",
+              "line": 362,
+              "column": 3
+            },
+            {
+              "title": "footer links point at the repository, record, docs, tests and the saleroom",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 733,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:46.111Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-80e1aa858904b1a2b0dc",
+              "file": "landing.spec.ts",
+              "line": 371,
+              "column": 3
+            },
+            {
+              "title": "provenance log: every line shown is in a fresh live audit of the chain (Sale 003 and its complaint), and the command works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 20592,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:46:46.881Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-129d2b9b7f7d81cc6656",
+              "file": "landing.spec.ts",
+              "line": 383,
+              "column": 3
+            },
+            {
+              "title": "audit without the verifier binary says \"Setup required\" and fails (no fake pass)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 589,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:07.558Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-566b263a91030d14ca35",
+              "file": "landing.spec.ts",
+              "line": 397,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "landing (one-screen overview)",
+          "file": "landing.spec.ts",
+          "line": 409,
+          "column": 6,
+          "specs": [
+            {
+              "title": "first screen: the headline, one subline, two buttons and the envelopes; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1767,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:19.102Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-db7cf154e3ad65758481",
+              "file": "landing.spec.ts",
+              "line": 410,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: the winner is open on load, with no transition",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 750,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:20.983Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-5c2d7e579818cff67610",
+              "file": "landing.spec.ts",
+              "line": 429,
+              "column": 3
+            },
+            {
+              "title": "proof numbers are real: three sale records, the TESTING.md total; the evidence link opens the catalogue",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 721,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:21.784Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-fbd9652f013da4ac66bd",
+              "file": "landing.spec.ts",
+              "line": 441,
+              "column": 3
+            },
+            {
+              "title": "footer CTA and links: saleroom, evidence, tests, repository",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 708,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:22.542Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-1c8c352722e61b5bb809",
+              "file": "landing.spec.ts",
+              "line": 453,
+              "column": 3
+            },
+            {
+              "title": "first screen: the headline, one subline, two buttons and the envelopes; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1624,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:08.156Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-2ce7f74e1224bf5c9370",
+              "file": "landing.spec.ts",
+              "line": 410,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: the winner is open on load, with no transition",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 774,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:09.855Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-9c74d513e72bf23ccf2a",
+              "file": "landing.spec.ts",
+              "line": 429,
+              "column": 3
+            },
+            {
+              "title": "proof numbers are real: three sale records, the TESTING.md total; the evidence link opens the catalogue",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 684,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:10.669Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-5f26a0e6ef90ba22ac04",
+              "file": "landing.spec.ts",
+              "line": 441,
+              "column": 3
+            },
+            {
+              "title": "footer CTA and links: saleroom, evidence, tests, repository",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 706,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:11.390Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4e5b49d369fd48ca0656-1d9e40d4625650d847f0",
+              "file": "landing.spec.ts",
+              "line": 453,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "saleroom.spec.ts",
+      "file": "saleroom.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "saleroom",
+          "file": "saleroom.spec.ts",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1154,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:23.306Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-11d34517b5e84c6a8280",
+              "file": "saleroom.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1616,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:24.528Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0470484ba2625e5ecab2",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 859,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:26.185Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-44affa81d14c8fa2468d",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1140,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:27.077Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b7b52e4caf2d0e9e7f21",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1317,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:28.263Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-6730466f669c83a5037a",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 729,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:29.630Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-a6470fd4e5dad80ed457",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 816,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:30.399Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-ff84dcbfe261eb5d067c",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1680,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:31.254Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-cd9d8e9eae04a9f1f266",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 808,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:32.971Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-a7ac9cc6984711cc52b1",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1059,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:33.812Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-150c541699eba726be30",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1485,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:34.926Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-ed22ab4ab77757675d27",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 782,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:36.459Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-3d52653c827a901dc25d",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 775,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:37.287Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-6a3b86302368f3b7f992",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1663,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:38.102Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-56dd9bdf0f350a6b3095",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 798,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:39.798Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-93df7c007147a36bd7d1",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1052,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:40.623Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-732ba9b81d0463438c8c",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1143,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:41.722Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-fe47cab1a8d42b619e7b",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 813,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:42.914Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-ee388fc1c73820b744bd",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 755,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:43.758Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0725127ead6c676e4cf0",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 918,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:44.546Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-50e3fb590831d8ff0f0a",
+              "file": "saleroom.spec.ts",
+              "line": 226,
+              "column": 3
+            },
+            {
+              "title": "Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 857,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:45.505Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0a7870de5976dad5c531",
+              "file": "saleroom.spec.ts",
+              "line": 226,
+              "column": 3
+            },
+            {
+              "title": "Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 21261,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:44:46.407Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-2a0014ca8c9ae7e75e5d",
+              "file": "saleroom.spec.ts",
+              "line": 255,
+              "column": 3
+            },
+            {
+              "title": "Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28503,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:45:07.754Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-3f2501fa454f1b7fe0f1",
+              "file": "saleroom.spec.ts",
+              "line": 255,
+              "column": 3
+            },
+            {
+              "title": "audit: the viewing-key disclosure opens and closes and shows the published key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 724,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:45:36.352Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0c0f452450e560fe32a5",
+              "file": "saleroom.spec.ts",
+              "line": 294,
+              "column": 3
+            },
+            {
+              "title": "every control whose label contains \"log\" works; header links, skip link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1034,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:45:37.114Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-24cb0f45dbffc61dea43",
+              "file": "saleroom.spec.ts",
+              "line": 307,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: no spinner animation while the checks run",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1149,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:45:38.209Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-f8b2f4dcbd7a15c92e7f",
+              "file": "saleroom.spec.ts",
+              "line": 337,
+              "column": 3
+            },
+            {
+              "title": "error state (fault injection on the page\u2019s own static file): verification key unavailable or altered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1003,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:45:39.384Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b283ea10dc6efaefafab",
+              "file": "saleroom.spec.ts",
+              "line": 355,
+              "column": 3
+            },
+            {
+              "title": "Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1111,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:12.138Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-8eb1f2844b301523db34",
+              "file": "saleroom.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1663,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:13.283Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0873108fc4716ce33317",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 787,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:14.980Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b7c46f111b23f27a40df",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1097,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:15.791Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-e8ede1c337d25b1b0ae1",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1381,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:16.918Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-d09aea1ed2868c8c4ff2",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 726,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:18.332Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-4956504566974f29df3a",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 003 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 773,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:19.084Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-c6658fbcbca177535058",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1626,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:19.883Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-5085dbbaf0dc18d9d677",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 737,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:21.541Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-82e7fd5d03fbe22aaa5c",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1155,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:22.309Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-69beeec670e512a729bb",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1394,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:23.494Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-98b886d1799c614bbfb0",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 856,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:24.923Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-0e07a54a3b44e87791e6",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 002 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 754,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:25.810Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b65f09e58414c44aad36",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1689,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:26.595Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-44eb951405036695034b",
+              "file": "saleroom.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 verify in this tab: the record passes all four checks against the served verification key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 740,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:28.315Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-05ca0531a279e3619770",
+              "file": "saleroom.spec.ts",
+              "line": 106,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1143,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:29.086Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-3e0818914c08f46515fe",
+              "file": "saleroom.spec.ts",
+              "line": 121,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 lot filters: each chip shows exactly its lots and its count",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1299,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:30.259Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-099c05d7bb7702f39f12",
+              "file": "saleroom.spec.ts",
+              "line": 149,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 735,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:31.594Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b20e983fc079a721c516",
+              "file": "saleroom.spec.ts",
+              "line": 172,
+              "column": 5
+            },
+            {
+              "title": "Sale 001 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 828,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:32.354Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-265e2870e7950bc6cbea",
+              "file": "saleroom.spec.ts",
+              "line": 204,
+              "column": 5
+            },
+            {
+              "title": "Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 860,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:33.209Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-25c11eabfd769e01ffea",
+              "file": "saleroom.spec.ts",
+              "line": 226,
+              "column": 3
+            },
+            {
+              "title": "Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 803,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:34.096Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-a96dd5385fcea9f068d1",
+              "file": "saleroom.spec.ts",
+              "line": 226,
+              "column": 3
+            },
+            {
+              "title": "Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 22782,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:34.922Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-f95c1bc9b44cbad69f02",
+              "file": "saleroom.spec.ts",
+              "line": 255,
+              "column": 3
+            },
+            {
+              "title": "Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 44823,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:47:57.770Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-ffe8c64f032d33920828",
+              "file": "saleroom.spec.ts",
+              "line": 255,
+              "column": 3
+            },
+            {
+              "title": "audit: the viewing-key disclosure opens and closes and shows the published key",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 714,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:48:42.694Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-b293dc47083d63f83a15",
+              "file": "saleroom.spec.ts",
+              "line": 294,
+              "column": 3
+            },
+            {
+              "title": "every control whose label contains \"log\" works; header links, skip link",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1058,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:48:43.436Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-1b7d27fbba22ccc33ed8",
+              "file": "saleroom.spec.ts",
+              "line": 307,
+              "column": 3
+            },
+            {
+              "title": "reduced motion: no spinner animation while the checks run",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 904,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:48:44.524Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-4ef9997f5757664efb62",
+              "file": "saleroom.spec.ts",
+              "line": 337,
+              "column": 3
+            },
+            {
+              "title": "error state (fault injection on the page\u2019s own static file): verification key unavailable or altered",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "mobile",
+                  "projectName": "mobile",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1036,
+                      "errors": [],
+                      "retry": 0,
+                      "startTime": "2026-10-26T14:48:45.448Z",
+                      "annotations": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "40cb7a7d202310908d04-a84b96ce615cf8d05c09",
+              "file": "saleroom.spec.ts",
+              "line": 355,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-26T14:42:43.548Z",
+    "duration": 363171.88399999996,
+    "expected": 166,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

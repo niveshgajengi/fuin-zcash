@@ -1,0 +1,5 @@
+Scope: 2 of 6 workspace projects
+packages/circuits build$ tsc -p tsconfig.json
+packages/circuits build: Done
+packages/service build$ tsc -p tsconfig.json
+packages/service build: Done

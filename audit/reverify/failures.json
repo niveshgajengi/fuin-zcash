@@ -1,0 +1,56 @@
+[
+  {
+    "suite": "dev",
+    "test": "audit landing keyboard navigation: hero saleroom",
+    "project": "desktop",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:5178/\"\nReceived: \"http://127.0.0.1:4284/saleroom/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    - waiting for \"http://127.0.0.1:4284/saleroom/\" navigation to finish...\n    - navigated to \"http://127.0.0.1:4284/saleroom/\"\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"http://127.0.0.1:4284/saleroom/\"\n\n\n  87 |       await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');\n  88 |     } else {\n> 89 |       await expect(page).toHaveURL(SALEROOM);\n     |                          ^\n  90 |       await expect(page.locator('[role=tab][aria-selected=true]')).toHaveText('Sale 003 \u00b7 current rules');\n  91 |       await holds(page);\n  92 |     }\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/audit-contract.spec.ts:89:26"
+    ],
+    "resolution": "Resolved: the exact landing CTA destination is derived from FUIN_LANDING. Fresh built-contract-final (72/72) and dev-final (126/126) passed with zero retries."
+  },
+  {
+    "suite": "dev",
+    "test": "audit landing keyboard navigation: footer saleroom",
+    "project": "desktop",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:5178/\"\nReceived: \"http://127.0.0.1:4284/saleroom/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    - waiting for \"http://127.0.0.1:4284/saleroom/\" navigation to finish...\n    - navigated to \"http://127.0.0.1:4284/saleroom/\"\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"http://127.0.0.1:4284/saleroom/\"\n\n\n  87 |       await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');\n  88 |     } else {\n> 89 |       await expect(page).toHaveURL(SALEROOM);\n     |                          ^\n  90 |       await expect(page.locator('[role=tab][aria-selected=true]')).toHaveText('Sale 003 \u00b7 current rules');\n  91 |       await holds(page);\n  92 |     }\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/audit-contract.spec.ts:89:26"
+    ],
+    "resolution": "Resolved: the exact landing CTA destination is derived from FUIN_LANDING. Fresh built-contract-final (72/72) and dev-final (126/126) passed with zero retries."
+  },
+  {
+    "suite": "dev",
+    "test": "audit landing keyboard navigation: hero saleroom",
+    "project": "mobile",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:5178/\"\nReceived: \"http://127.0.0.1:4284/saleroom/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    - waiting for \"http://127.0.0.1:4284/saleroom/\" navigation to finish...\n    - navigated to \"http://127.0.0.1:4284/saleroom/\"\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"http://127.0.0.1:4284/saleroom/\"\n\n\n  87 |       await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');\n  88 |     } else {\n> 89 |       await expect(page).toHaveURL(SALEROOM);\n     |                          ^\n  90 |       await expect(page.locator('[role=tab][aria-selected=true]')).toHaveText('Sale 003 \u00b7 current rules');\n  91 |       await holds(page);\n  92 |     }\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/audit-contract.spec.ts:89:26"
+    ],
+    "resolution": "Resolved: the exact landing CTA destination is derived from FUIN_LANDING. Fresh built-contract-final (72/72) and dev-final (126/126) passed with zero retries."
+  },
+  {
+    "suite": "dev",
+    "test": "audit landing keyboard navigation: footer saleroom",
+    "project": "mobile",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"http://127.0.0.1:5178/\"\nReceived: \"http://127.0.0.1:4284/saleroom/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    - waiting for \"http://127.0.0.1:4284/saleroom/\" navigation to finish...\n    - navigated to \"http://127.0.0.1:4284/saleroom/\"\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"http://127.0.0.1:4284/saleroom/\"\n\n\n  87 |       await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');\n  88 |     } else {\n> 89 |       await expect(page).toHaveURL(SALEROOM);\n     |                          ^\n  90 |       await expect(page.locator('[role=tab][aria-selected=true]')).toHaveText('Sale 003 \u00b7 current rules');\n  91 |       await holds(page);\n  92 |     }\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/audit-contract.spec.ts:89:26"
+    ],
+    "resolution": "Resolved: the exact landing CTA destination is derived from FUIN_LANDING. Fresh built-contract-final (72/72) and dev-final (126/126) passed with zero retries."
+  },
+  {
+    "suite": "live-standalone",
+    "test": "every control whose label contains \"log\" works; header links, skip link",
+    "project": "desktop",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"https://fuin-landing.vercel.app/\"\nReceived: \"https://fuin-dashboard.vercel.app/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"https://fuin-dashboard.vercel.app/\"\n\n\n  322 |     else {\n  323 |       await page.getByRole('link', { name: 'Catalogue' }).click();\n> 324 |       await expect(page).toHaveURL(LANDING);\n      |                          ^\n  325 |       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();\n  326 |     }\n  327 |     await page.goto(SALEROOM);\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/saleroom.spec.ts:324:26"
+    ],
+    "resolution": "UI-V-004 UNTESTED: needs a deploy of the current dashboard to https://fuin-dashboard.vercel.app; this audit must not deploy."
+  },
+  {
+    "suite": "live-standalone",
+    "test": "every control whose label contains \"log\" works; header links, skip link",
+    "project": "mobile",
+    "error": [
+      "Error: expect(page).toHaveURL(expected) failed\n\nExpected: \"https://fuin-landing.vercel.app/\"\nReceived: \"https://fuin-dashboard.vercel.app/\"\nTimeout:  15000ms\n\nCall log:\n  - Expect \"toHaveURL\" with timeout 15000ms\n    33 \u00d7 locator resolved to <html lang=\"en\">\u2026</html>\n       - unexpected value \"https://fuin-dashboard.vercel.app/\"\n\n\n  322 |     else {\n  323 |       await page.getByRole('link', { name: 'Catalogue' }).click();\n> 324 |       await expect(page).toHaveURL(LANDING);\n      |                          ^\n  325 |       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();\n  326 |     }\n  327 |     await page.goto(SALEROOM);\n    at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/e2e/tests/saleroom.spec.ts:324:26"
+    ],
+    "resolution": "UI-V-004 UNTESTED: needs a deploy of the current dashboard to https://fuin-dashboard.vercel.app; this audit must not deploy."
+  }
+]

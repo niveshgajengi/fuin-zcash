@@ -1,0 +1,46 @@
+{
+  "built": {
+    "exit": 0,
+    "stats": {
+      "startTime": "2026-10-26T14:42:43.548Z",
+      "duration": 363171.88399999996,
+      "expected": 166,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "dev": {
+    "exit": 1,
+    "stats": {
+      "startTime": "2026-10-26T14:48:47.859Z",
+      "duration": 345953.771,
+      "expected": 116,
+      "skipped": 0,
+      "unexpected": 4,
+      "flaky": 0
+    }
+  },
+  "live-nested": {
+    "exit": 0,
+    "stats": {
+      "startTime": "2026-10-26T14:54:34.404Z",
+      "duration": 365842.264,
+      "expected": 100,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "live-standalone": {
+    "exit": 1,
+    "stats": {
+      "startTime": "2026-10-26T15:00:40.828Z",
+      "duration": 190229.877,
+      "expected": 52,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    }
+  }
+}
