@@ -651,9 +651,6 @@ export function App() {
   ];
   return (
     <div className="page">
-      <a className="skip" href="#main">
-        Skip to the saleroom
-      </a>
       <header className="bar">
         <div className="bar-in">
           <a className="word" href="#main" aria-label="Fuin saleroom">
@@ -664,7 +661,7 @@ export function App() {
             <span className="net">
               <i aria-hidden="true" /> Zcash testnet
             </span>
-            {import.meta.env.PROD && <a href="../">Catalogue</a>}
+            {import.meta.env.PROD && <a href={import.meta.env.VITE_CATALOGUE_URL || (window.location.hostname === 'fuin-dashboard.vercel.app' ? 'https://fuin-landing.vercel.app/' : '../')}>Catalogue</a>}
             <a href={REPO} target="_blank" rel="noreferrer">
               Code ↗
             </a>
@@ -672,7 +669,7 @@ export function App() {
         </div>
       </header>
 
-      <main id="main" className="main">
+      <main id="main" className="main" tabIndex={-1}>
         <div className="sales" role="tablist" aria-label="Sales">
           {SALES.map((s) => (
             <button key={s.id} type="button" role="tab" id={`tab-${s.id}`} aria-selected={s.id === saleId} aria-controls="sale-panel" className="sale-tab" onClick={() => choose(s.id)}>
