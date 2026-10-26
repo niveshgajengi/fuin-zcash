@@ -1,0 +1,122 @@
+[
+  {
+    "id": "CLI-001",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-001.txt",
+    "note": "Built static artifact and checked required files and relative links."
+  },
+  {
+    "id": "CLI-002",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-002.txt",
+    "note": "Free-port lifecycle, PID ownership/termination, isolated build/readiness failure cleanup and unrelated listener preservation checked."
+  },
+  {
+    "id": "CLI-003",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-003.txt",
+    "note": "Occupied port refused; existing listener stayed alive."
+  },
+  {
+    "id": "CLI-004",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-004.txt",
+    "note": "Nonnumeric, below-1024, and every listed blocked port refused before any server start."
+  },
+  {
+    "id": "CLI-005",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-005.txt",
+    "note": "exit=0; expected output checked"
+  },
+  {
+    "id": "CLI-006",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-006.txt",
+    "note": "exit=0; expected output checked"
+  },
+  {
+    "id": "CLI-007",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-007.txt",
+    "note": "exit=1; expected output checked"
+  },
+  {
+    "id": "CLI-008",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-008.txt",
+    "note": "exit=1; expected output checked"
+  },
+  {
+    "id": "CLI-009",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-009.txt",
+    "note": "Error: sba-verify failed: Setup required: SBA_VERIFY_BIN (sba-verify not built at /nonexistent/sba-verify; run pnpm build:verifier)"
+  },
+  {
+    "id": "CLI-020",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-020.txt",
+    "note": "Error: sba-verify failed: error: cannot connect to lightwalletd: http://127.0.0.1:1: transport error"
+  },
+  {
+    "id": "CLI-016",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-reveal.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-017",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-reveal.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-018",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-019",
+    "status": "FAIL",
+    "evidence": "audit/chain/audit-testnet.txt",
+    "note": "Exact required final line differs from actual final line."
+  },
+  {
+    "id": "CLI-010",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-011",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-012",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-013",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-014",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-015",
+    "status": "FAIL",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Exact required final line differs from actual final line."
+  }
+]

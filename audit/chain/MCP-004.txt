@@ -1,0 +1,44 @@
+{
+  "auction": "fuin-sale003-2026-10-22T21:24",
+  "deposit_zat": "200000",
+  "reserve_zat": "50000",
+  "close_height": 4530294,
+  "blocks_scanned": "4530264-4530332",
+  "deposits": [
+    {
+      "txid": "372e205ce0e039f8219a3e2d099ba00c7b91d122ff28235ba266b4b2af137756",
+      "height": 4530270,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "dc95f63d121f62a0a8ef7f2b6505c8be5d1ef20748dec60c0fd580731014bafa",
+      "height": 4530270,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "37e5c2df32f94bed8fea377d72babbc03974bf415e8baf2511fbf28f6e2662d0",
+      "output": "1",
+      "height": 4530273,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "37e5c2df32f94bed8fea377d72babbc03974bf415e8baf2511fbf28f6e2662d0",
+      "output": "2",
+      "height": 4530273,
+      "status": "duplicate",
+      "reason": "commitment already used by an earlier deposit"
+    },
+    {
+      "txid": "4462163e69d228e6819f975c91cd0f1ccf66c2e2ae6a8ba9a4ee2377e92d1318",
+      "height": 4530273,
+      "status": "valid",
+      "reason": null
+    }
+  ],
+  "missing_from_published_record": [],
+  "after_the_record": [],
+  "settlement_problems": []
+}

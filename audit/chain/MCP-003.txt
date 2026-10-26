@@ -1,0 +1,10 @@
+[
+  {
+    "isError": true,
+    "text": "Setup required: SBA_AUCTION_FILE (/nonexistent/fuin-audit-public-record.json does not exist)"
+  },
+  {
+    "isError": true,
+    "text": "Setup required: SBA_AUCTION_FILE (/nonexistent/fuin-audit-public-record.json does not exist)"
+  }
+]

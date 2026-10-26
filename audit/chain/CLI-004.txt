@@ -1,0 +1,28 @@
+FUIN_PORT=abc; exit=1
+FUIN_PORT must be a number from 1024 up (got abc)
+FUIN_PORT=1023; exit=1
+FUIN_PORT must be a number from 1024 up (got 1023)
+FUIN_PORT=4190; exit=1
+port 4190 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=5060; exit=1
+port 5060 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=5061; exit=1
+port 5061 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6000; exit=1
+port 6000 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6566; exit=1
+port 6566 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6665; exit=1
+port 6665 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6666; exit=1
+port 6666 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6667; exit=1
+port 6667 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6668; exit=1
+port 6668 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6669; exit=1
+port 6669 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=6697; exit=1
+port 6697 is one browsers and Node's fetch block; set FUIN_PORT to another
+FUIN_PORT=10080; exit=1
+port 10080 is one browsers and Node's fetch block; set FUIN_PORT to another

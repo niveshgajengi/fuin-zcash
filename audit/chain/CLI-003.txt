@@ -1,0 +1,2 @@
+occupied FUIN_PORT=55947; exit=1; existing listener alive=True
+port 55947 is already in use by another process; set FUIN_PORT to a free port

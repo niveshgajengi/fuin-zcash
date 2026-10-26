@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "this auction has no published result yet"
+}

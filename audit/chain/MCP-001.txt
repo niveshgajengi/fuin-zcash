@@ -1,0 +1,59 @@
+[
+  {
+    "name": "auction_status",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "bid",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "bid_zat": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "refund_address": {
+          "type": "string",
+          "pattern": "^utest1",
+          "description": "a unified address of at most 150 characters (Orchard-only) that receives the refund or the winner change"
+        }
+      },
+      "required": [
+        "bid_zat",
+        "refund_address"
+      ],
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "reveal",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "complain",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "include_refund_key": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$schema": "http://json-schema.org/draft-07/schema#"
+    }
+  },
+  {
+    "name": "verify_result",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "auction": "fuin-reveal-2026-10-21T18:43",
+  "deposit_zat": "200000",
+  "reserve_zat": "50000",
+  "close_height": 4526455,
+  "blocks_scanned": "4526425-4526493",
+  "deposits": [
+    {
+      "txid": "26f240bcd25d08769b860211335000f5b7f7a5f0872b76606ac33e85dde36426",
+      "output": "0",
+      "height": 4526425,
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518"
+    },
+    {
+      "txid": "26f240bcd25d08769b860211335000f5b7f7a5f0872b76606ac33e85dde36426",
+      "output": "1",
+      "height": 4526425,
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518"
+    },
+    {
+      "txid": "42ed60c8d02d06284009561b1d9a15c126b2c2c7e1fddcb995b70e196648586f",
+      "height": 4526425,
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518"
+    },
+    {
+      "txid": "597be193b2f14d2b38a80687079d5d80d91e8c0aee4320c76a33591b6312c4cc",
+      "height": 4526425,
+      "status": "memo_mismatch",
+      "reason": "memo is for auction 4193641125122731518"
+    },
+    {
+      "txid": "b7511ee8836566793f9d687468293e2cae371273b265877aadf8dc410d8f846b",
+      "height": 4526435,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+      "height": 4526435,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c",
+      "output": "0",
+      "height": 4526438,
+      "status": "valid",
+      "reason": null
+    },
+    {
+      "txid": "9bb4098e6428c1ce3ceac1d568c2a7875cb5ec9c22c30c86516f42f42b85e74c",
+      "output": "2",
+      "height": 4526438,
+      "status": "duplicate",
+      "reason": "commitment already used by an earlier deposit"
+    },
+    {
+      "txid": "19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66",
+      "height": 4526439,
+      "status": "valid",
+      "reason": null
+    }
+  ],
+  "missing_from_published_record": [],
+  "after_the_record": [],
+  "settlement_problems": []
+}

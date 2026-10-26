@@ -1,0 +1,10 @@
+command: pnpm --filter @sba/service run audit deployments/testnet-sale003.json deployments/complaints/131728459360241149736859342020074215002-6e9e9cf97c662997b116e7cb20c9709f14433bea8591ab4d3c8659f46f1f7f5a.complaint.json
+exit=0
+terms: ✓ terms: the auction id is the hash of every term (name, address, uivk, depositZat, reserveZat, openHeight, closeHeight, revealCloseHeight, disputeBlocks, revealKey, seller), so none of them can change after the bids
+last nonempty stdout: chain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund
+CLI-010 expected assertions: PASS
+CLI-011 expected assertions: PASS
+CLI-012 expected assertions: PASS
+CLI-013 expected assertions: PASS
+CLI-014 expected assertions: PASS
+CLI-015 expected assertions: FAIL

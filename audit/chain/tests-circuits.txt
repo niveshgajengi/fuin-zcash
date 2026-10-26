@@ -1,0 +1,40 @@
+command: pnpm --filter @sba/circuits test
+exit=0
+
+> @sba/circuits@0.1.0 test /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t3/packages/circuits
+> vitest run
+
+
+ RUN  v3.2.7 /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t3/packages/circuits
+
+ ✓ test/maxbid.test.ts (6 tests) 1369ms
+   ✓ MaxBid(8) > proves the highest bid wins; the proof verifies and reveals only the winning bid  629ms
+   ✓ MaxBid(8) > a proof with a tampered public winner or winning bid does not verify  326ms
+   ✓ MaxBid(8) > ties go to the earliest deposit: the later slot cannot claim the win  331ms
+ ✓ test/result.test.ts (4 tests) 1539ms
+   ✓ checkResult > accepts the honest result: the three deposits in chain order, empty slots, the highest bid wins  635ms
+   ✓ checkResult > rejects a phantom bid: an invented commitment in a spare slot that "wins" with a verifying proof  338ms
+   ✓ checkResult > rejects a proof that leaves out a valid deposit unless it is declared unrevealed, and only valid deposits can be declared  324ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  16:28:49
+   Duration  1.92s (transform 159ms, setup 0ms, collect 417ms, tests 2.91s, environment 0ms, prepare 92ms)
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove a winner that is not the highest bid
+ERROR:  [33m4[39m Error in template MaxBid_79 line: 68
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove a winning bid below the reserve
+ERROR:  [33m4[39m Error in template MaxBid_79 line: 83
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > cannot prove with an opening that does not match its commitment
+ERROR:  [33m4[39m Error in template MaxBid_79 line: 29
+
+
+stderr | test/maxbid.test.ts > MaxBid(8) > ties go to the earliest deposit: the later slot cannot claim the win
+ERROR:  [33m4[39m Error in template MaxBid_79 line: 76
+
+

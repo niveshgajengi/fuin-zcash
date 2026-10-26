@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "bid 1940001 zat is above the deposit (2000000) minus the fee budget; nothing was sent"
+}

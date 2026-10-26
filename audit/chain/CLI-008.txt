@@ -1,0 +1,6 @@
+sba-verify 
+exit=1
+stdout:
+
+stderr:
+error: usage: sba-verify tx <txid>... | scan <from> <to> | owns <address>   (SBA_UIVK)   |   tip   |   block <height>...   |   derive   (SBA_UFVK)

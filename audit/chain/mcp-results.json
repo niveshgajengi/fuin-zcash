@@ -1,0 +1,248 @@
+[
+  {
+    "id": "MCP-001",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-001.txt",
+    "note": "Real initialization/listTools; built server uses StdioServerTransport."
+  },
+  {
+    "id": "MCP-002",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-002.txt",
+    "note": "Both read-only tools refuse missing record setting."
+  },
+  {
+    "id": "MCP-003",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-003.txt",
+    "note": "Both read-only tools refuse nonexistent public file."
+  },
+  {
+    "id": "MCP-012",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-012.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-004",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-004.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-005",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-005.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-010",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-010.txt",
+    "note": "Sale 003 scan boundary checked live."
+  },
+  {
+    "id": "MCP-013",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-013.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-014",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-014.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-022",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-022.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-023",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-023.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-024",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-024.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-025",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-025.txt",
+    "note": "All five schema-invalid input cases refused before handler/wallet."
+  },
+  {
+    "id": "MCP-006",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-006.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-007",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-007.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-016",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-016.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-017",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-017.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-008",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-008.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-009",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-009.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-019",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-019.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-020",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-020.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-030",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-030.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-031",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-031.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-015",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-015.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-018",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-018.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-021",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-021.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-026",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-026.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-027",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-027.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-028",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-028.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-029",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-029.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-032",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-032.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-033",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-033.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-034",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-034.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-035",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-035.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-011",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-011.txt",
+    "note": "Full existing pnpm test not run because it attempts a wallet call and sets prohibited wallet configuration."
+  },
+  {
+    "id": "MCP-036",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-036.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-037",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-037.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-038",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-038.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-039",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-039.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-040",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-040.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-041",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-041.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  }
+]

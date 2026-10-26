@@ -1,0 +1,3 @@
+UNTESTED
+needs a funded Zcash testnet send; this audit must not send
+No runner, wallet command, key export or send was invoked.

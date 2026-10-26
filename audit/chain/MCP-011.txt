@@ -1,0 +1,4 @@
+{
+  "executed": false,
+  "reason": "Existing full test file includes wallet configuration/send-attempt cases; no product/test source changed."
+}
