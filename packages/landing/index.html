@@ -153,7 +153,10 @@
         .end .wrap { padding-top: 80px; padding-bottom: 80px; }
         .end .btn { width: 100%; }
       }
-      @media (prefers-reduced-motion: reduce) {
+            /* motion: a slow camera drift and one soft light sweep across the art (off with reduced motion) */
+      .art::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: screen; background: linear-gradient(105deg, transparent 38%, rgba(255, 170, 170, 0.18) 50%, transparent 62%) no-repeat; background-size: 260% 100%; background-position: 150% 0; }
+      @media (prefers-reduced-motion: no-preference) { .art { animation: fu-drift 24s ease-in-out infinite alternate; } .art::before { animation: fu-sweep 9s cubic-bezier(0.45, 0, 0.25, 1) 2.6s infinite; } @keyframes fu-drift { from { transform: scale(1) translate3d(0, 0, 0); } to { transform: scale(1.05) translate3d(-1.2%, -0.8%, 0); } } @keyframes fu-sweep { 0% { background-position: 150% 0; } 55%, 100% { background-position: -50% 0; } } }
+@media (prefers-reduced-motion: reduce) {
         .letter, .flap, .wax, .env-note { transition: none !important; }
       }
     </style>
