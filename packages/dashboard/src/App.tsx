@@ -307,9 +307,11 @@ function Verify({ sale }: { sale: Sale }) {
         const res = await fetch(VK_URL);
         if (!res.ok) throw new Error(`verification_key.json: HTTP ${res.status}`);
         const buf = await res.arrayBuffer();
+        // Keep this step running through parsing, so malformed JSON reports its
+        // actual error here and every later check remains explicitly unrun.
+        const vk = JSON.parse(new TextDecoder().decode(buf));
         const hex = await sha256Hex(buf);
         set('vk', hex === r.verificationKeySha256 ? 'ok' : 'bad', `sha256 ${hex.slice(0, 12)}… ${hex === r.verificationKeySha256 ? 'matches' : 'does not match'} the record`);
-        const vk = JSON.parse(new TextDecoder().decode(buf));
 
         set('proof', 'run', '');
         const ok = await snarkjs.groth16.verify(vk, signals, r.outcome.proof);
