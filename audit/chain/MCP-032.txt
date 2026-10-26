@@ -1,4 +1,28 @@
 {
-  "executed": false,
-  "reason": "Guard requires SBA_BIDDER_WALLET; hard rule forbids setting it, including disposable paths."
+  "id": "MCP-032",
+  "date": "2026-10-26T12:22:40.337Z",
+  "published_file": "deployments/testnet-sale003.json",
+  "tool": "complain",
+  "arguments": {
+    "include_refund_key": true
+  },
+  "live_tip_preflight": 4543979,
+  "source_review": "packages/mcp/src/tools.ts read immediately before call",
+  "source_sha256": "c082253ba1d631ae21da87836abb1d788b0f251f8bc1aaeef0279a24e5cf73f9",
+  "standins": {
+    "wallet": "/tmp/fuin-audit-empty-t14-preefe/wallet",
+    "openings": "/tmp/fuin-audit-empty-t14-preefe/openings",
+    "refund_wallet": "/tmp/fuin-audit-empty-t14-preefe/wallet"
+  },
+  "fixture": "empty",
+  "result": {
+    "isError": true,
+    "text": "SBA_REFUND_WALLET is the bidding wallet: its incoming viewing key would publish every payment the bidder ever receives; use a wallet that receives only refunds; nothing was sent"
+  },
+  "assertions": {
+    "expected_refusal": true,
+    "wallet_directory_remained_empty": true,
+    "openings_unchanged": true
+  },
+  "safety": "Closed-chain preflight; reviewed guards precede quicksend/key export; subprocess guard rejects real wallet/send executables. No viewing-key environment supplied by driver."
 }

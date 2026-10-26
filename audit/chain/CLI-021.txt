@@ -1,0 +1,5 @@
+UNTESTED
+Covering existing unit tests: packages/service/test/audit.test.ts.
+Lines 21-24 load seller-key state from .demo/reveal-run-state.json and .demo/reveal-run-003-state.json at module import if present.
+Per the row-specific instruction, no targeted tests from this module were run in the worktree. No .demo file was opened.
+The separate CLI-041 full-suite run uses an isolated tracked-file copy containing no .demo state; it is not substituted for this row's requested safe existing unit tests.

@@ -1,0 +1,19 @@
+Command: pnpm --filter @sba/service test test/verifier.test.ts -t 1..12001 is three windows
+Exit: 0
+
+
+> @sba/service@0.1.0 test /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/service
+> vitest run test/verifier.test.ts -t '1..12001 is three windows'
+
+
+ RUN  v3.2.7 /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/service
+
+ ✓ test/verifier.test.ts (2 tests | 1 skipped) 1ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 1 skipped (2)
+   Start at  17:51:51
+   Duration  201ms (transform 23ms, setup 0ms, collect 16ms, tests 1ms, environment 0ms, prepare 38ms)
+
+
+Wrapper case not run: packages/service/test/verifier.test.ts calls scan('uivk', ...) and packages/service/src/verifier.ts sets SBA_UIVK in the child environment. Only the safe pure boundary unit test ran.

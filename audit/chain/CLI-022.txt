@@ -1,0 +1,4 @@
+UNTESTED
+The only existing covering test is packages/service/test/audit.test.ts:157 (scannedTo late-note and inside-window cases).
+Lines 21-24 load .demo seller-key state at module import if present. Per the row-specific instruction this module was not run as a targeted test in the worktree. No .demo file was opened.
+The separate CLI-041 full-suite run uses an isolated tracked-file copy containing no .demo state; it is not substituted for this row's requested safe existing unit test.

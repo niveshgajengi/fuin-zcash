@@ -320,14 +320,14 @@
   {
     "id": "CLI-021",
     "status": "UNTESTED",
-    "evidence": "audit/chain/test-scope.txt",
-    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+    "evidence": "audit/chain/CLI-021.txt",
+    "note": "Only covering existing tests are in packages/service/test/audit.test.ts, which loads .demo seller-key state at import; targeted module not run."
   },
   {
     "id": "CLI-022",
     "status": "UNTESTED",
-    "evidence": "audit/chain/test-scope.txt",
-    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+    "evidence": "audit/chain/CLI-022.txt",
+    "note": "Only covering test is packages/service/test/audit.test.ts:157; module loads .demo seller-key state at import and was not run as a targeted test."
   },
   {
     "id": "CLI-023",
@@ -338,8 +338,8 @@
   {
     "id": "CLI-024",
     "status": "UNTESTED",
-    "evidence": "audit/chain/tests-service-safe.txt",
-    "note": "Pure scanWindows boundary test passed. Wrapper test skipped because it sets SBA_UIVK internally; full row is untested."
+    "evidence": "audit/chain/CLI-024.txt",
+    "note": "Safe pure scanWindows unit test passed (1 passed, 0 failed, 1 filtered skip). Wrapper case in packages/service/test/verifier.test.ts sets SBA_UIVK internally and was not run for this row."
   },
   {
     "id": "CLI-025",
@@ -439,9 +439,9 @@
   },
   {
     "id": "CLI-041",
-    "status": "UNTESTED",
-    "evidence": "audit/chain/test-scope.txt",
-    "note": "Full pnpm test conflicts with forbidden wallet settings/wallet-call attempt and .demo access. Safe subset: 57 passed, 0 failed, 1 skipped; baseline 85/0/2 not established. Live seller-key tests remain UNTESTED."
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-041.txt",
+    "note": "pnpm test in isolated tracked-file copy: 85 passed, 0 failed, 2 skipped; matches 85/0/2 baseline. Both skips require missing .demo seller-key state; no .demo opened, inherited SBA key/wallet settings unset, no broadcast."
   },
   {
     "id": "CLI-042",
@@ -553,9 +553,9 @@
   },
   {
     "id": "MCP-011",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-011.txt",
-    "note": "Full existing pnpm test not run because it attempts a wallet call and sets prohibited wallet configuration."
+    "note": "Both safe existing altered-metadata tests passed independently: understated mined settlement height and scannedTo before reveal-close; 2 passed, 0 failed; no .demo import or wallet/send case selected."
   },
   {
     "id": "MCP-012",
@@ -577,9 +577,9 @@
   },
   {
     "id": "MCP-015",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-015.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the auction closed after block 4530294 and the chain is at 4543979; a deposit now would be late, so nothing was sent"
   },
   {
     "id": "MCP-016",
@@ -595,9 +595,9 @@
   },
   {
     "id": "MCP-018",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-018.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the auction closed after block 4526455 and the chain is at 4543979; a deposit now would be late, so nothing was sent"
   },
   {
     "id": "MCP-019",
@@ -613,9 +613,9 @@
   },
   {
     "id": "MCP-021",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-021.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the auction closed after block 4522278 and the chain is at 4543979; a deposit now would be late, so nothing was sent"
   },
   {
     "id": "MCP-022",
@@ -643,27 +643,27 @@
   },
   {
     "id": "MCP-026",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-026.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the reveal window closed at block 4530318 and the chain is at 4543979; a reveal now would be late, so nothing was sent"
   },
   {
     "id": "MCP-027",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-027.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the dispute window closed at block 4530392 and the chain is at 4543981; nothing was sent"
   },
   {
     "id": "MCP-028",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-028.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the reveal window closed at block 4526479 and the chain is at 4543981; a reveal now would be late, so nothing was sent"
   },
   {
     "id": "MCP-029",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-029.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "the dispute window closed at block 4526553 and the chain is at 4543981; nothing was sent"
   },
   {
     "id": "MCP-030",
@@ -679,27 +679,27 @@
   },
   {
     "id": "MCP-032",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-032.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "SBA_REFUND_WALLET is the bidding wallet: its incoming viewing key would publish every payment the bidder ever receives; use a wallet that receives only refunds; nothing was sent"
   },
   {
     "id": "MCP-033",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-033.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "Setup required: SBA_REFUND_WALLET (a wallet that receives only this auction's refunds; its incoming viewing key is published with the complaint)"
   },
   {
     "id": "MCP-034",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-034.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "no unrevealed opening for auction 131728459360241149736859342020074215002 in SBA_BIDDER_DIR; nothing was sent"
   },
   {
     "id": "MCP-035",
-    "status": "UNTESTED",
+    "status": "PASS",
     "evidence": "audit/chain/MCP-035.txt",
-    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+    "note": "no revealed opening for auction 131728459360241149736859342020074215002 in SBA_BIDDER_DIR; nothing was sent"
   },
   {
     "id": "MCP-036",

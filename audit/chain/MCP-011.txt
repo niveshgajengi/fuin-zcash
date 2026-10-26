@@ -1,4 +1,41 @@
-{
-  "executed": false,
-  "reason": "Existing full test file includes wallet configuration/send-attempt cases; no product/test source changed."
-}
+Command: pnpm --filter @sba/mcp test test/mcp.test.ts -t verify_result reads the settlement height from the chain:
+Exit: 0
+Source reviewed immediately before this single-call test: packages/mcp/src/tools.ts
+
+
+> @sba/mcp@0.1.0 test /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/mcp
+> vitest run test/mcp.test.ts -t 'verify_result reads the settlement height from the chain:'
+
+
+ RUN  v3.2.7 /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/mcp
+
+ ✓ test/mcp.test.ts (17 tests | 16 skipped) 33028ms
+   ✓ sba-mcp > verify_result reads the settlement height from the chain: a record that understates it, so the scan misses a deposit it leaves out, does not hold  32674ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 16 skipped (17)
+   Start at  17:53:01
+   Duration  33.38s (transform 36ms, setup 0ms, collect 197ms, tests 33.03s, environment 0ms, prepare 29ms)
+
+
+Command: pnpm --filter @sba/mcp test test/mcp.test.ts -t verify_result: a record whose scannedTo stops inside the reveal window
+Exit: 0
+Source reviewed immediately before this single-call test: packages/mcp/src/tools.ts
+
+
+> @sba/mcp@0.1.0 test /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/mcp
+> vitest run test/mcp.test.ts -t 'verify_result: a record whose scannedTo stops inside the reveal window'
+
+
+ RUN  v3.2.7 /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t14/packages/mcp
+
+ ✓ test/mcp.test.ts (17 tests | 16 skipped) 50629ms
+   ✓ sba-mcp > verify_result: a record whose scannedTo stops inside the reveal window does not hold (live)  50271ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 16 skipped (17)
+   Start at  17:53:35
+   Duration  51.05s (transform 38ms, setup 0ms, collect 266ms, tests 50.63s, environment 0ms, prepare 42ms)
+
+
+Row result: PASS. Both existing altered-metadata tests passed; 2 passed, 0 failed, 32 filtered skips across two separate invocations. The skips are non-selected tests, not missing seller-key tests. No .demo import, viewing-key setup or wallet/send case selected.
