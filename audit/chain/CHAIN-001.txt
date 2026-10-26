@@ -1,11 +1,4 @@
-GET https://testnet.zecblock.com/tx/372e205ce0e039f8219a3e2d099ba00c7b91d122ff28235ba266b4b2af137756
-Status: FAIL
-Attempt count: 5
-HTTP 429; attempts: 5; body contains txid: False; curl exit 0
-Policy: sequential browser User-Agent GET; 3 seconds between URLs; HTTP 429 waits 20 seconds with up to 4 retries after the initial request.
-Attempt 1: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:31:21.640954+00:00
-Attempt 2: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:31:41.752991+00:00
-Attempt 3: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:32:01.874044+00:00
-Attempt 4: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:32:22.046945+00:00
-Attempt 5: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:32:42.160137+00:00
-Response bodies were checked in memory and were not saved.
+URL: https://blockexplorer.one/zcash/testnet/tx/372e205ce0e039f8219a3e2d099ba00c7b91d122ff28235ba266b4b2af137756
+HTTP status: 200
+Attempt count: 1
+Body contains txid: True
