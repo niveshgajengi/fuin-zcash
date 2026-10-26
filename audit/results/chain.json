@@ -1,201 +1,201 @@
 [
   {
     "id": "CHAIN-001",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-001.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-002",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-002.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-003",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-003.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-004",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-004.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-005",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-005.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-006",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-006.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-007",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-007.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-008",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-008.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-009",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-009.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-010",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-010.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-011",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-011.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-012",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-012.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-013",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-013.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-014",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-014.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-015",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-015.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-016",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-016.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-017",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-017.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-018",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-018.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-019",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-019.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-020",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-020.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-021",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-021.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-022",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-022.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-023",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-023.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-024",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-024.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-025",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-025.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-026",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-026.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-027",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-027.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-028",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-028.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-029",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-029.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-030",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-030.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-031",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-031.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-032",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-032.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CHAIN-033",
-    "status": "FAIL",
+    "status": "PASS",
     "evidence": "audit/chain/CHAIN-033.txt",
-    "note": "HTTP 429; attempts: 5; body contains txid: False; curl exit 0"
+    "note": "HTTP 200; attempts: 1; body contains txid: True"
   },
   {
     "id": "CLI-001",
@@ -319,15 +319,15 @@
   },
   {
     "id": "CLI-021",
-    "status": "UNTESTED",
-    "evidence": "audit/chain/CLI-021.txt",
-    "note": "Only covering existing tests are in packages/service/test/audit.test.ts, which loads .demo seller-key state at import; targeted module not run."
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-041.txt",
+    "note": "test/audit.test.ts ran inside pnpm test with .demo absent. Hidden-deposit, understated-height, terms, hidden-reveal, and scannedTo tests passed. The only skips are the two seller-key cases."
   },
   {
     "id": "CLI-022",
-    "status": "UNTESTED",
-    "evidence": "audit/chain/CLI-022.txt",
-    "note": "Only covering test is packages/service/test/audit.test.ts:157; module loads .demo seller-key state at import and was not run as a targeted test."
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-041.txt",
+    "note": "test/audit.test.ts ran inside pnpm test with .demo absent. The scannedTo test passed: a note mined after the scan is outside the record and cannot affect the outcome, and a scan inside the reveal window fails. The only skips are the two seller-key cases."
   },
   {
     "id": "CLI-023",
