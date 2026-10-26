@@ -1,0 +1,58 @@
+{
+  "run": "landing",
+  "startTime": 1793022967495,
+  "durationMs": 280957.467,
+  "stats": {
+    "total": 100,
+    "expected": 100,
+    "unexpected": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "ok": true
+  },
+  "groups": {
+    "evidence": {
+      "desktop": {
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "mobile": {
+        "passed": 19,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      }
+    },
+    "landing": {
+      "desktop": {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "mobile": {
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      }
+    },
+    "saleroom": {
+      "desktop": {
+        "passed": 27,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "mobile": {
+        "passed": 27,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "failures": []
+}

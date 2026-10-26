@@ -1,0 +1,26 @@
+[
+  {
+    "id": "UI-V-001",
+    "status": "PASS",
+    "evidence": "audit/ui-live/landing-list.txt; audit/ui-live/landing-summary.json",
+    "note": "https://fuin-landing.vercel.app/: all 8 landing tests passed (4 desktop, 4 mobile). Expected copy assertions passed unchanged."
+  },
+  {
+    "id": "UI-V-002",
+    "status": "PASS",
+    "evidence": "audit/ui-live/landing-list.txt; audit/ui-live/landing-summary.json",
+    "note": "https://fuin-landing.vercel.app/evidence.html: all 38 evidence tests passed (19 desktop, 19 mobile), including the read-only live-chain provenance audit. Expected copy assertions passed unchanged."
+  },
+  {
+    "id": "UI-V-003",
+    "status": "PASS",
+    "evidence": "audit/ui-live/landing-list.txt; audit/ui-live/landing-summary.json",
+    "note": "https://fuin-landing.vercel.app/saleroom/: all 54 saleroom tests passed (27 desktop, 27 mobile), including published-record verification, tampering, complaints and navigation. Expected copy assertions passed unchanged."
+  },
+  {
+    "id": "UI-V-004",
+    "status": "FAIL",
+    "evidence": "audit/ui-live/dashboard-list.txt; audit/ui-live/dashboard-summary.json; audit/ui-live/dashboard-saleroom-desktop-L286.jpg; audit/ui-live/dashboard-saleroom-mobile-L286.jpg",
+    "note": "https://fuin-dashboard.vercel.app/: 52 passed, 2 failed (26 passed and 1 failed in each viewport). In the existing header/navigation test, clicking Catalogue leaves the page at https://fuin-dashboard.vercel.app/ instead of the expected https://fuin-landing.vercel.app/; saleroom.spec.ts:301 times out after 15,000 ms. Later skip-link assertions in that test were not reached. No assertion or expected copy was relaxed."
+  }
+]
