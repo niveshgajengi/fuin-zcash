@@ -1,0 +1,77 @@
+Dashboard Vite existing-suite audit — 2026-10-26
+
+Target: http://127.0.0.1:5178/ for both FUIN_LANDING and FUIN_SALEROOM.
+Started: 2026-10-26T13:41:06.615Z; duration: 274.085 seconds; exit 1.
+Chrome channel, one worker, zero retries, zero skipped or flaky tests.
+Desktop 1280x800: 26 passed, 1 timed out.
+Mobile 375x812, deviceScaleFactor=2, isMobile/hasTouch: 26 passed, 1 timed out.
+All three sales were exercised in both projects, including their browser proofs,
+tamper/recovery, filters, provenance, reveals and read-only complaint audits.
+
+Commands:
+  /Volumes/Extreme SSD/Projects/grokbot/tools/heavy-slot.sh acquire fuin-e2e-dev
+  pnpm --filter @sba/dashboard dev --host 127.0.0.1
+  cd e2e
+  FUIN_LANDING=http://127.0.0.1:5178/ FUIN_SALEROOM=http://127.0.0.1:5178/ npx playwright test tests/saleroom.spec.ts --config audit-dev.config.ts --list
+  FUIN_LANDING=http://127.0.0.1:5178/ FUIN_SALEROOM=http://127.0.0.1:5178/ npx playwright test tests/saleroom.spec.ts --config audit-dev.config.ts
+  /Volumes/Extreme SSD/Projects/grokbot/tools/heavy-slot.sh release fuin-e2e-dev
+
+Launch detail:
+The first unmodified pnpm dev command bound only [::1]:5178. localhost returned
+HTTP 200 but 127.0.0.1 refused the connection. That attempt ran no tests; its
+owned dev process tree was stopped and its slot released by the shell trap.
+The successful launch added only --host 127.0.0.1; no app config was patched.
+Root and /verification_key.json returned HTTP 200 before the suite ran.
+All three exact-key-byte SHA-256 checks passed in both viewports. No
+/saleroom/ verification-key path mismatch occurred.
+
+Execution details:
+A temporary config imported the existing Playwright config unchanged apart from
+artifact settings: list and temporary JSON reporters, temporary output directory,
+video/trace off and automatic screenshots only on failure. Explicit screenshots
+and the reduced-motion context's explicit video option in the spec were unchanged.
+The spec, fixtures, setup, assertions, browser, viewports, workers and retries were
+unchanged. Temporary config and bulky artifacts were removed after evidence extraction.
+Existing shared node_modules and prebuilt SBA_VERIFY_BIN were reused; no install,
+compilation, stack.sh or additional spec was run. SBA_VERIFY_BIN was
+/Volumes/Extreme SSD/Projects/grokbot/projects/zec-sealed-bid-auction/packages/verifier/target/release/sba-verify.
+Its complaint paths were tx/scan/read-only audit, with published record viewing keys.
+The existing dev predev hook copied the published verification key into public/.
+Generated key and task-created dependency symlinks were removed after shutdown.
+
+Observed failures:
+Both failures are the original navigation test (test declaration line 286), at
+saleroom.spec.ts:300:57. It waits for getByRole('link', { name: 'Catalogue' }).click()
+until the 60,000 ms test timeout. App.tsx:667 renders that link only when
+import.meta.env.PROD is true. UI-D-006 explicitly expects Catalogue absent in dev.
+This exact production-link expectation mismatch remains FAIL, as requested,
+and maps to UI-D-006/UI-D-082. Wordmark navigation reaches #main before the
+failure; Catalogue destination and later skip-link assertions are never reached.
+No app or test fix was applied, and no later skip-focus failure is inferred.
+Failure PNGs were converted to JPEG at their original screenshot dimensions:
+  catalogue-desktop.jpg: 117,841 bytes
+  catalogue-mobile.jpg: 116,927 bytes
+
+Audit mapping:
+audit/results/ui-dev.json contains exactly UI-D-001 through UI-D-083, each with
+id, status, evidence and note. test-map.json contains all 54 fresh runtime
+outcomes and their applicable rows; dev-spec.txt is the Playwright --list output.
+PASS requires assertion coverage of the complete expected row and passing tests
+in BOTH viewports. 15 rows PASS; 68 FAIL. Notes distinguish observed failures
+from incomplete or absent assertion coverage. These 68 row failures do not mean
+68 failed Playwright tests. The mapping follows the existing saleroom audit's
+full-row policy; the dev-only entry/navigation criteria were reviewed separately.
+The reduced-motion test creates a separate context outside page health collection;
+its unasserted health, keyboard operation and four-green-check requirements remain
+explicit coverage gaps. No unrun behavior is represented as a pass.
+
+Cleanup and scope:
+EXIT/INT/TERM traps stopped only the owned dev PID/process tree and released
+fuin-e2e-dev. Final pnpm dev PID: 21299; child PIDs: 21400, 21406.
+No app, AUDIT.md or existing spec changes; no sends, wallet access, .demo/.env,
+deploys or pushes. No commit was created because Loom session memory reserves
+committing/merging to Loom. Requested Loom commit message:
+Record dashboard dev Playwright results
+
+Original/final saleroom.spec.ts SHA-256:
+39c9bd08d629935a59f037a79374cc7843d3157d9748ba85f540c625c1751a5d

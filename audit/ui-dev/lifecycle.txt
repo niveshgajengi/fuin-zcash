@@ -1,0 +1,4 @@
+Acquired fuin-e2e-dev at 2026-10-26T13:41:04Z
+pnpm dev PID 21299
+Playwright exit 1
+Runner exit 1; dev PID stopped; heavy slot released.

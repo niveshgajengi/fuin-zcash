@@ -1,0 +1,15 @@
+
+> @sba/dashboard@0.1.0 predev /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t20/packages/dashboard
+> mkdir -p public && cp ../circuits/build/verification_key.json public/verification_key.json
+
+
+> @sba/dashboard@0.1.0 dev /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t20/packages/dashboard
+> vite --host 127.0.0.1
+
+
+  VITE v7.3.7  ready in 77 ms
+
+  ➜  Local:   http://127.0.0.1:5178/
+/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t20/packages/dashboard:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @sba/dashboard@0.1.0 dev: `vite --host 127.0.0.1`
+Command failed with signal "SIGTERM"

@@ -1,0 +1,119 @@
+
+Running 54 tests using 1 worker
+
+(node:21632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › tests/saleroom.spec.ts:38:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales (1.2s)
+  ✓   2 [desktop] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.6s)
+  ✓   3 [desktop] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key (876ms)
+  ✓   4 [desktop] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.3s)
+  ✓   5 [desktop] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count (1.1s)
+  ✓   6 [desktop] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (653ms)
+  ✓   7 [desktop] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link (852ms)
+  ✓   8 [desktop] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.6s)
+  ✓   9 [desktop] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key (828ms)
+  ✓  10 [desktop] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.2s)
+  ✓  11 [desktop] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count (1.2s)
+  ✓  12 [desktop] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (765ms)
+  ✓  13 [desktop] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link (764ms)
+  ✓  14 [desktop] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.7s)
+  ✓  15 [desktop] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key (912ms)
+  ✓  16 [desktop] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.1s)
+  ✓  17 [desktop] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count (1.1s)
+  ✓  18 [desktop] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (800ms)
+  ✓  19 [desktop] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link (747ms)
+  ✓  20 [desktop] › tests/saleroom.spec.ts:205:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks (746ms)
+  ✓  21 [desktop] › tests/saleroom.spec.ts:205:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks (763ms)
+  ✓  22 [desktop] › tests/saleroom.spec.ts:234:3 › saleroom › Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s (20.6s)
+  ✓  23 [desktop] › tests/saleroom.spec.ts:234:3 › saleroom › Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s (30.7s)
+  ✓  24 [desktop] › tests/saleroom.spec.ts:273:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key (738ms)
+  ✘  25 [desktop] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link (1.0m)
+(node:75985) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  26 [desktop] › tests/saleroom.spec.ts:313:3 › saleroom › reduced motion: no spinner animation while the checks run (919ms)
+  ✓  27 [desktop] › tests/saleroom.spec.ts:331:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered (1.0s)
+(node:78624) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  28 [mobile] › tests/saleroom.spec.ts:38:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales (1.3s)
+  ✓  29 [mobile] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.6s)
+  ✓  30 [mobile] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key (859ms)
+  ✓  31 [mobile] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.2s)
+  ✓  32 [mobile] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count (1.4s)
+  ✓  33 [mobile] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (750ms)
+  ✓  34 [mobile] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link (749ms)
+  ✓  35 [mobile] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.7s)
+  ✓  36 [mobile] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key (895ms)
+  ✓  37 [mobile] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.3s)
+  ✓  38 [mobile] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count (1.3s)
+  ✓  39 [mobile] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (712ms)
+  ✓  40 [mobile] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link (802ms)
+  ✓  41 [mobile] › tests/saleroom.spec.ts:68:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll (1.7s)
+  ✓  42 [mobile] › tests/saleroom.spec.ts:99:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key (932ms)
+  ✓  43 [mobile] › tests/saleroom.spec.ts:114:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores (1.3s)
+  ✓  44 [mobile] › tests/saleroom.spec.ts:142:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count (1.3s)
+  ✓  45 [mobile] › tests/saleroom.spec.ts:162:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons (681ms)
+  ✓  46 [mobile] › tests/saleroom.spec.ts:183:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link (832ms)
+  ✓  47 [mobile] › tests/saleroom.spec.ts:205:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks (774ms)
+  ✓  48 [mobile] › tests/saleroom.spec.ts:205:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks (910ms)
+  ✓  49 [mobile] › tests/saleroom.spec.ts:234:3 › saleroom › Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s (19.4s)
+  ✓  50 [mobile] › tests/saleroom.spec.ts:234:3 › saleroom › Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s (30.0s)
+  ✓  51 [mobile] › tests/saleroom.spec.ts:273:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key (859ms)
+  ✘  52 [mobile] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link (1.0m)
+(node:26826) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  53 [mobile] › tests/saleroom.spec.ts:313:3 › saleroom › reduced motion: no spinner animation while the checks run (1.0s)
+  ✓  54 [mobile] › tests/saleroom.spec.ts:331:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered (968ms)
+
+
+  1) [desktop] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Catalogue' })
+
+
+      298 |     await expect(page).toHaveURL(/#main$/);
+      299 |     // The catalogue (landing) is one level up, as hosted.
+    > 300 |     await page.getByRole('link', { name: 'Catalogue' }).click();
+          |                                                         ^
+      301 |     await expect(page).toHaveURL(LANDING);
+      302 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      303 |     await page.goto(SALEROOM);
+        at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t20/e2e/tests/saleroom.spec.ts:300:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/fuin-e2e-dev.xvDB0o/results/saleroom-saleroom-every-co-f0b3e-orks-header-links-skip-link-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../../../tmp/fuin-e2e-dev.xvDB0o/results/saleroom-saleroom-every-co-f0b3e-orks-header-links-skip-link-desktop/error-context.md
+
+  2) [mobile] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link 
+
+    Test timeout of 60000ms exceeded.
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('link', { name: 'Catalogue' })
+
+
+      298 |     await expect(page).toHaveURL(/#main$/);
+      299 |     // The catalogue (landing) is one level up, as hosted.
+    > 300 |     await page.getByRole('link', { name: 'Catalogue' }).click();
+          |                                                         ^
+      301 |     await expect(page).toHaveURL(LANDING);
+      302 |     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      303 |     await page.goto(SALEROOM);
+        at /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t20/e2e/tests/saleroom.spec.ts:300:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../../../tmp/fuin-e2e-dev.xvDB0o/results/saleroom-saleroom-every-co-f0b3e-orks-header-links-skip-link-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../../../tmp/fuin-e2e-dev.xvDB0o/results/saleroom-saleroom-every-co-f0b3e-orks-header-links-skip-link-mobile/error-context.md
+
+  2 failed
+    [desktop] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link 
+    [mobile] › tests/saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link 
+  52 passed (4.6m)
