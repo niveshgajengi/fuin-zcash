@@ -1,4 +1,11 @@
 GET https://testnet.zecblock.com/tx/dc95f63d121f62a0a8ef7f2b6505c8be5d1ef20748dec60c0fd580731014bafa
-HTTP 429; body contains txid: False; curl exit 0
-
-elapsed_seconds=0.10
+Status: FAIL
+Attempt count: 5
+HTTP 429; attempts: 5; body contains txid: False; curl exit 0
+Policy: sequential browser User-Agent GET; 3 seconds between URLs; HTTP 429 waits 20 seconds with up to 4 retries after the initial request.
+Attempt 1: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:32:45.428486+00:00
+Attempt 2: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:33:05.601755+00:00
+Attempt 3: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:33:25.707949+00:00
+Attempt 4: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:33:45.832605+00:00
+Attempt 5: HTTP 429; body contains txid: False; curl exit 0; requested_at=2026-10-26T11:34:05.928274+00:00
+Response bodies were checked in memory and were not saved.
