@@ -100,6 +100,29 @@
       footer a { text-decoration: none; }
       footer a:hover { color: var(--ink); }
 
+
+      /* cinematic cover: an envelope sealed in coral wax on oxblood velvet (generated art, assets/hero.*) */
+      .mast { position: absolute; inset: 0 0 auto; z-index: 3; color: var(--rose); }
+      .mast .word span { color: rgba(251, 233, 236, 0.6); }
+      .mast .btn-ox { background: transparent; box-shadow: inset 0 0 0 1px rgba(251, 233, 236, 0.35); }
+      .mast .btn-ox:hover { box-shadow: inset 0 0 0 1px var(--coral); background: transparent; }
+      .cover { position: relative; isolation: isolate; overflow: hidden; background: var(--ox-deep); color: var(--rose); min-height: min(100svh, 960px); display: flex; align-items: center; }
+      .cover > .wrap { width: 100%; padding-top: 148px; align-items: end; }
+      .art { position: absolute; inset: 0; z-index: -1; }
+      .art img, .art video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+      .art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #2a0610 0%, rgba(42, 6, 16, 0.88) 30%, rgba(42, 6, 16, 0.25) 60%, rgba(42, 6, 16, 0) 82%), linear-gradient(0deg, #2a0610 0%, rgba(42, 6, 16, 0) 36%); }
+      .cover h1 { color: #fff; }
+      .cover .sub { color: rgba(251, 233, 236, 0.74); }
+      .cover .eyebrow { color: rgba(251, 233, 236, 0.7); }
+      .cover .btn-ox { background: var(--coral); color: var(--ox-deep); }
+      .cover .btn-ox:hover { background: #ff7a7e; }
+      .cover .btn-line { color: #fff; box-shadow: inset 0 0 0 1px rgba(251, 233, 236, 0.35); }
+      .cover .btn-line:hover { box-shadow: inset 0 0 0 1px var(--coral); }
+      .cover .stage { margin-top: 200px; padding: 8px 24px 20px; border-radius: 18px; background: rgba(42, 6, 16, 0.55); -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); box-shadow: inset 0 0 0 1px rgba(251, 233, 236, 0.1), 0 40px 120px -40px rgba(0, 0, 0, 0.85); }
+      .cover .stage .envs { margin-top: 28px; }
+      .cover figcaption { color: rgba(251, 233, 236, 0.66); }
+      @media (prefers-reduced-motion: no-preference) { .art img, .art video { animation: fu-settle 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; } @keyframes fu-settle { from { transform: scale(1.06); opacity: 0; } to { transform: none; opacity: 1; } } }
+      @media (max-width: 1040px) { .cover { min-height: 0; display: block; } .cover > .wrap { padding-top: 116px; } .art { bottom: auto; height: min(84vw, 660px); } .art img, .art video { object-position: 70% 50%; } .art::after { background: linear-gradient(90deg, rgba(42, 6, 16, 0.9) 0%, rgba(42, 6, 16, 0.35) 75%), linear-gradient(0deg, #2a0610 0%, rgba(42, 6, 16, 0) 45%); } .cover .stage { margin-top: 8px; } }
       @media (max-width: 1040px) {
         .cover .wrap { grid-template-columns: minmax(0, 1fr); gap: 56px; padding-bottom: 96px; }
         .steps { grid-template-columns: minmax(0, 1fr); gap: 32px; }
@@ -111,7 +134,7 @@
         .mast nav { gap: 14px; }
         .mast nav .hide-sm { display: none; }
         .word b { font-size: 26px; }
-        .cover .wrap { padding-top: 24px; padding-bottom: 80px; gap: 44px; }
+        .cover .wrap { padding-top: 96px; padding-bottom: 72px; gap: 40px; }
         .sub { font-size: 18px; margin-top: 20px; }
         .cta { margin-top: 30px; }
         .cta .btn { flex: 1 1 auto; }
@@ -149,6 +172,7 @@
 
     <main>
       <section class="cover" aria-labelledby="title">
+        <div class="art" aria-hidden="true"><img src="assets/hero.webp" alt="" width="1600" height="900" fetchpriority="high" decoding="async" /></div>
         <div class="wrap">
           <div>
             <div class="lotno"><b>SALE 003</b><span class="eyebrow">Zcash testnet</span></div>

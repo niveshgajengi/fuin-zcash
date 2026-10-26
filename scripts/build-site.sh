@@ -9,6 +9,7 @@ pnpm --filter @sba/dashboard build
 rm -rf site
 mkdir -p site/saleroom
 cp packages/landing/index.html packages/landing/evidence.html site/
+cp -R packages/landing/assets site/assets
 cp -R packages/dashboard/dist/. site/saleroom/
 touch site/.nojekyll
 echo "site/ ready: $(find site -type f | wc -l | tr -d ' ') files"
