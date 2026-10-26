@@ -81,7 +81,7 @@ const SALES: Sale[] = [
       note: "Filing it made bidder2's own bid public (it is the winning bid). It was filed before the refund key became opt-in, so it also carries the incoming viewing key of bidder2's whole demo wallet: every testnet payment to that wallet is readable with it.",
     },
   },
-  { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit', legacy: true },
+  { id: '001', tab: 'Sale 001 · first sale', r: run1 as unknown as SaleRecord, audit: 'pnpm --filter @sba/service run audit deployments/testnet.json', legacy: true },
 ];
 
 const EXPLORER = 'https://testnet.zecblock.com/tx/';
@@ -307,9 +307,11 @@ function Verify({ sale }: { sale: Sale }) {
         const res = await fetch(VK_URL);
         if (!res.ok) throw new Error(`verification_key.json: HTTP ${res.status}`);
         const buf = await res.arrayBuffer();
+        // Keep this step running through parsing, so malformed JSON reports its
+        // actual error here and every later check remains explicitly unrun.
+        const vk = JSON.parse(new TextDecoder().decode(buf));
         const hex = await sha256Hex(buf);
         set('vk', hex === r.verificationKeySha256 ? 'ok' : 'bad', `sha256 ${hex.slice(0, 12)}… ${hex === r.verificationKeySha256 ? 'matches' : 'does not match'} the record`);
-        const vk = JSON.parse(new TextDecoder().decode(buf));
 
         set('proof', 'run', '');
         const ok = await snarkjs.groth16.verify(vk, signals, r.outcome.proof);
@@ -464,7 +466,7 @@ function Audit({ sale }: { sale: Sale }) {
         <li>
           It says whether the auction id commits to the terms. {sale.legacy ? 'This sale predates that, so its windows and reserve are read from the record ("legacy").' : "This sale's id is the hash of every term on its card (\"bound\")."}
         </li>
-        <li>Given the seller&apos;s incoming viewing key it checks the seller was paid the winning bid and every forfeit; without it the run ends &quot;payments not checked&quot;.</li>
+        <li>Given the seller&apos;s incoming viewing key (<code>SBA_SELLER_UIVK</code>) it checks the seller was paid the winning bid and every forfeit; without it the run ends &quot;payments not checked&quot;.</li>
         <li>On an auction with the reveal channel it checks the reveal log: every reveal note on chain is listed, and every status the chain alone decides (window, auction, named deposit) is right.</li>
         <li>
           Given a bidder&apos;s complaint file, it opens that bidder&apos;s reveal with the published secret and says <b>rejected</b>, <b>unfounded</b> or <b>upheld</b>, naming what the auctioneer did wrong.
@@ -507,7 +509,9 @@ function ComplaintCard({ sale }: { sale: Sale }) {
   const [digest, setDigest] = useState<string | null>(null);
   useEffect(() => {
     setDigest(null);
-    if (complaint) void complaintDigest(complaint).then(setDigest);
+    let current = true;
+    if (complaint) void complaintDigest(complaint).then((value) => { if (current) setDigest(value); });
+    return () => { current = false; };
   }, [complaint]);
   if (!meta || !complaint || !v) return null;
   return (
@@ -651,9 +655,6 @@ export function App() {
   ];
   return (
     <div className="page">
-      <a className="skip" href="#main">
-        Skip to the saleroom
-      </a>
       <header className="bar">
         <div className="bar-in">
           <a className="word" href="#main" aria-label="Fuin saleroom">
@@ -664,7 +665,7 @@ export function App() {
             <span className="net">
               <i aria-hidden="true" /> Zcash testnet
             </span>
-            {import.meta.env.PROD && <a href="../">Catalogue</a>}
+            {import.meta.env.PROD && <a href={import.meta.env.VITE_CATALOGUE_URL || (window.location.hostname === 'fuin-dashboard.vercel.app' ? 'https://fuin-landing.vercel.app/' : '../')}>Catalogue</a>}
             <a href={REPO} target="_blank" rel="noreferrer">
               Code ↗
             </a>
@@ -672,7 +673,7 @@ export function App() {
         </div>
       </header>
 
-      <main id="main" className="main">
+      <main id="main" className="main" tabIndex={-1}>
         <div className="sales" role="tablist" aria-label="Sales">
           {SALES.map((s) => (
             <button key={s.id} type="button" role="tab" id={`tab-${s.id}`} aria-selected={s.id === saleId} aria-controls="sale-panel" className="sale-tab" onClick={() => choose(s.id)}>
@@ -716,7 +717,7 @@ export function App() {
               <Catalogue key={`lots-${sale.id}`} sale={sale} />
               <Provenance sale={sale} />
               <RevealChannel sale={sale} />
-              <Audit sale={sale} />
+              <Audit key={`audit-${sale.id}`} sale={sale} />
             </div>
             <aside className="side">
               <Verify key={`verify-${sale.id}`} sale={sale} />

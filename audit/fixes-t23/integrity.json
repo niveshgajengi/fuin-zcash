@@ -1,0 +1,13 @@
+{
+  "rows": 324,
+  "expected_results_unchanged": 324,
+  "existing_pass_rows_unchanged": 124,
+  "untested_rows_unchanged": 13,
+  "statuses": {
+    "PASS": 124,
+    "FIXED-PENDING-REVERIFY": 187,
+    "UNTESTED": 13
+  },
+  "protected_circuit_and_build_artifacts_unchanged": true,
+  "evidence_page_including_full_final_line_unchanged": true
+}

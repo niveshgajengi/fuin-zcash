@@ -1,0 +1,100 @@
+
+Running 88 tests using 1 worker
+
+(node:66485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/88] [desktop] › tests/audit-contract.spec.ts:212:3 › audit Sale 003: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[2/88] [desktop] › tests/audit-contract.spec.ts:212:3 › audit Sale 002: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[3/88] [desktop] › tests/audit-contract.spec.ts:212:3 › audit Sale 001: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[4/88] [desktop] › tests/audit-contract.spec.ts:256:3 › audit unknown sale defaults safely: ?sale=unknown
+[5/88] [desktop] › tests/audit-contract.spec.ts:256:3 › audit unknown sale defaults safely: ?sale=
+[6/88] [desktop] › tests/audit-contract.spec.ts:263:1 › audit switching sales resets filters and removes unavailable Unrevealed chip
+[7/88] [desktop] › tests/audit-contract.spec.ts:275:1 › audit delayed verification: disabled actions, final sale owns results after old responses resolve
+[8/88] [desktop] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from invalid JSON
+[9/88] [desktop] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from HTTP 503
+[10/88] [desktop] › tests/audit-contract.spec.ts:319:1 › audit saleroom reduced motion keeps real verification and keyboard controls working
+[11/88] [desktop] › tests/audit-contract.spec.ts:335:3 › audit full layout and reachable lower sections: http://127.0.0.1:5178/
+[12/88] [desktop] › tests/audit-contract.spec.ts:352:1 › audit browser-only empty catalogue fixture restores the real published lots
+[13/88] [desktop] › tests/audit-contract.spec.ts:382:1 › audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus
+[14/88] [desktop] › tests/audit-contract.spec.ts:411:3 › audit Sale 003: timer advances exactly once per second and never goes negative
+[15/88] [desktop] › tests/audit-contract.spec.ts:427:3 › audit Sale 003: all actions disable throughout a recheck and re-enable on completion
+[16/88] [desktop] › tests/audit-contract.spec.ts:411:3 › audit Sale 002: timer advances exactly once per second and never goes negative
+[17/88] [desktop] › tests/audit-contract.spec.ts:427:3 › audit Sale 002: all actions disable throughout a recheck and re-enable on completion
+[18/88] [desktop] › tests/audit-contract.spec.ts:411:3 › audit Sale 001: timer advances exactly once per second and never goes negative
+[19/88] [desktop] › tests/audit-contract.spec.ts:427:3 › audit Sale 001: all actions disable throughout a recheck and re-enable on completion
+[20/88] [desktop] › tests/saleroom.spec.ts:39:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales
+[21/88] [desktop] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[22/88] [desktop] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key
+[23/88] [desktop] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[24/88] [desktop] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count
+[25/88] [desktop] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[26/88] [desktop] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[27/88] [desktop] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[28/88] [desktop] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key
+[29/88] [desktop] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[30/88] [desktop] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count
+[31/88] [desktop] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[32/88] [desktop] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[33/88] [desktop] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[34/88] [desktop] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key
+[35/88] [desktop] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[36/88] [desktop] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count
+[37/88] [desktop] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[38/88] [desktop] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[39/88] [desktop] › tests/saleroom.spec.ts:226:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+[40/88] [desktop] › tests/saleroom.spec.ts:226:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+[41/88] [desktop] › tests/saleroom.spec.ts:294:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+[42/88] [desktop] › tests/saleroom.spec.ts:307:3 › saleroom › every control whose label contains "log" works; header links, skip link
+[43/88] [desktop] › tests/saleroom.spec.ts:337:3 › saleroom › reduced motion: no spinner animation while the checks run
+[44/88] [desktop] › tests/saleroom.spec.ts:355:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+(node:87711) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[45/88] [mobile] › tests/audit-contract.spec.ts:212:3 › audit Sale 003: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[46/88] [mobile] › tests/audit-contract.spec.ts:212:3 › audit Sale 002: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[47/88] [mobile] › tests/audit-contract.spec.ts:212:3 › audit Sale 001: direct/reload, tabs, exact audit setup, disclosure isolation and footer
+[48/88] [mobile] › tests/audit-contract.spec.ts:256:3 › audit unknown sale defaults safely: ?sale=unknown
+[49/88] [mobile] › tests/audit-contract.spec.ts:256:3 › audit unknown sale defaults safely: ?sale=
+[50/88] [mobile] › tests/audit-contract.spec.ts:263:1 › audit switching sales resets filters and removes unavailable Unrevealed chip
+[51/88] [mobile] › tests/audit-contract.spec.ts:275:1 › audit delayed verification: disabled actions, final sale owns results after old responses resolve
+[52/88] [mobile] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from invalid JSON
+[53/88] [mobile] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from HTTP 503
+[54/88] [mobile] › tests/audit-contract.spec.ts:319:1 › audit saleroom reduced motion keeps real verification and keyboard controls working
+[55/88] [mobile] › tests/audit-contract.spec.ts:335:3 › audit full layout and reachable lower sections: http://127.0.0.1:5178/
+[56/88] [mobile] › tests/audit-contract.spec.ts:352:1 › audit browser-only empty catalogue fixture restores the real published lots
+[57/88] [mobile] › tests/audit-contract.spec.ts:382:1 › audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus
+[58/88] [mobile] › tests/audit-contract.spec.ts:411:3 › audit Sale 003: timer advances exactly once per second and never goes negative
+[59/88] [mobile] › tests/audit-contract.spec.ts:427:3 › audit Sale 003: all actions disable throughout a recheck and re-enable on completion
+[60/88] [mobile] › tests/audit-contract.spec.ts:411:3 › audit Sale 002: timer advances exactly once per second and never goes negative
+[61/88] [mobile] › tests/audit-contract.spec.ts:427:3 › audit Sale 002: all actions disable throughout a recheck and re-enable on completion
+[62/88] [mobile] › tests/audit-contract.spec.ts:411:3 › audit Sale 001: timer advances exactly once per second and never goes negative
+[63/88] [mobile] › tests/audit-contract.spec.ts:427:3 › audit Sale 001: all actions disable throughout a recheck and re-enable on completion
+[64/88] [mobile] › tests/saleroom.spec.ts:39:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales
+[65/88] [mobile] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[66/88] [mobile] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key
+[67/88] [mobile] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[68/88] [mobile] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count
+[69/88] [mobile] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[70/88] [mobile] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[71/88] [mobile] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[72/88] [mobile] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key
+[73/88] [mobile] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[74/88] [mobile] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count
+[75/88] [mobile] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[76/88] [mobile] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[77/88] [mobile] › tests/saleroom.spec.ts:69:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+[78/88] [mobile] › tests/saleroom.spec.ts:106:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key
+[79/88] [mobile] › tests/saleroom.spec.ts:121:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+[80/88] [mobile] › tests/saleroom.spec.ts:149:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count
+[81/88] [mobile] › tests/saleroom.spec.ts:172:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+[82/88] [mobile] › tests/saleroom.spec.ts:204:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link
+[83/88] [mobile] › tests/saleroom.spec.ts:226:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+[84/88] [mobile] › tests/saleroom.spec.ts:226:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+[85/88] [mobile] › tests/saleroom.spec.ts:294:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+[86/88] [mobile] › tests/saleroom.spec.ts:307:3 › saleroom › every control whose label contains "log" works; header links, skip link
+[87/88] [mobile] › tests/saleroom.spec.ts:337:3 › saleroom › reduced motion: no spinner animation while the checks run
+[88/88] [mobile] › tests/saleroom.spec.ts:355:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+  88 passed (1.7m)
