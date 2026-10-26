@@ -509,7 +509,9 @@ function ComplaintCard({ sale }: { sale: Sale }) {
   const [digest, setDigest] = useState<string | null>(null);
   useEffect(() => {
     setDigest(null);
-    if (complaint) void complaintDigest(complaint).then(setDigest);
+    let current = true;
+    if (complaint) void complaintDigest(complaint).then((value) => { if (current) setDigest(value); });
+    return () => { current = false; };
   }, [complaint]);
   if (!meta || !complaint || !v) return null;
   return (
@@ -715,7 +717,7 @@ export function App() {
               <Catalogue key={`lots-${sale.id}`} sale={sale} />
               <Provenance sale={sale} />
               <RevealChannel sale={sale} />
-              <Audit sale={sale} />
+              <Audit key={`audit-${sale.id}`} sale={sale} />
             </div>
             <aside className="side">
               <Verify key={`verify-${sale.id}`} sale={sale} />
