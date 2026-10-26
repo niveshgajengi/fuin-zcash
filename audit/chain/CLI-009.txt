@@ -1,0 +1,3 @@
+exit=1
+✓ terms: the auction id is the hash of every term (name, address, uivk, depositZat, reserveZat, openHeight, closeHeight, revealCloseHeight, disputeBlocks, revealKey, seller), so none of them can change after the bids
+Error: sba-verify failed: Setup required: SBA_VERIFY_BIN (sba-verify not built at /nonexistent/sba-verify; run pnpm build:verifier)

@@ -1,0 +1,6 @@
+sba-verify tip
+exit=0
+stdout:
+4543785
+
+stderr:

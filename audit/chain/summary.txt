@@ -1,0 +1,31 @@
+Read-only chain/CLI/MCP audit completed 2026-10-26T11:04:09.920122+00:00.
+
+Coverage: 123 assigned rows; 59 PASS, 36 FAIL, 28 UNTESTED.
+
+Failures:
+- CHAIN-001 through CHAIN-033: every mandated explorer GET returned HTTP 429; no HTTP 200/txid-body success.
+- CLI-015 and CLI-019: audits exit 0, but actual final line appends payment-check instructions; it is not exactly "chain checks pass; payments not checked".
+- CLI-043: README/submission say the repository is private/unresolved; its public GET returned HTTP 200. README lacks the submission draft's explicit portfolio-only entry scope. Hosted/local links checked successfully.
+
+Successful checks:
+- pnpm install --frozen-lockfile and pnpm build, including sba-verify and @sba/mcp.
+- Static site artifact, local judge lifecycle, occupied/invalid/blocked ports; isolated build/readiness failure cleanup preserves unrelated listener.
+- Default testnet.zec.rocks tip and block 4530332 header; height/time/hash checked.
+- All three public audit commands with exact published complaint paths where specified. Sale 003 bound terms, proof, completeness and no-key complaint; Sale 002 legacy refund complaint; Sale 001 legacy result. Logs retain terms/final line and assertion outcomes only.
+- Real MCP SDK stdio initialization, status/result for all three closed sales, schema and wallet-independent refusal cases.
+- Safe component tests: Rust 6 passed, circuits 10 passed, service 41 passed / 1 skipped. Total 57 passed / 0 failed / 1 skipped. No browser row executed or inferred.
+
+Untested:
+- CLI-021/022: existing live audit test module probes .demo at import; not loaded.
+- CLI-024: pure window boundary test passed; wrapper skipped because it sets SBA_UIVK internally.
+- CLI-041: root pnpm test not executed; original full suite configures SBA_BIDDER_WALLET and includes a quicksend wallet-call attempt. Both live seller-key tests remain untested. Safe counts are not the 85/0/2 baseline.
+- CLI-044: seller-key dependency prohibited; no .demo state loaded.
+- CLI-045 through CLI-049 and MCP-036 through MCP-041: needs a funded Zcash testnet send; this audit must not send.
+- MCP-011: original altered-record test cases not run as part of the unsafe full module.
+- MCP-015/018/021/026/027/028/029/032/033/034/035: specified refusal requires prohibited SBA_BIDDER_WALLET setting; no wallet directory supplied.
+
+Safety and scope:
+Driver subprocesses received an allowlisted environment with no key/wallet settings. Public records were supplied only as paths to the permitted audit/server. No .env, .demo, complaint JSON, wallet or deployment uivk field was opened by the driver. Audit/server internal read-only decryption is required by the expressly permitted checks. No direct sba-verify tx/scan/owns/derive command, wallet command, send, mainnet operation, deploy or push. AUDIT.md and product source unchanged. Saved evidence scan found no encoded key/address or secret assignment. No commit made per Loom worker instruction.
+
+Reproduction:
+run-cli.py and run-mcp.mjs document the permitted commands. Component commands are recorded in tests-*.txt; scope/count caveats are in test-scope.txt. Schema, exact ID coverage, evidence paths and sanitization verified.

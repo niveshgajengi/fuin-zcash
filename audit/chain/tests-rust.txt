@@ -1,0 +1,35 @@
+command: cargo test --release
+exit=0
+
+running 6 tests
+test tests::binary_memos_are_flagged_not_decoded ... ok
+test tests::text_memos_decode_and_empty_is_null ... ok
+test tests::scan_ranges_are_bounded_and_ordered ... ok
+test tests::txids_parse_in_display_order_only_when_well_formed ... ok
+test tests::owns_matches_any_diversified_address_of_the_key_and_nothing_else ... ok
+test tests::two_payments_to_one_key_in_one_bundle_are_two_outputs ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+   Compiling chacha20 v0.10.2
+   Compiling getrandom v0.4.3
+   Compiling chacha20poly1305 v0.11.0
+   Compiling zcash_note_encryption v0.5.1
+   Compiling rand v0.10.3
+   Compiling pasta_curves v0.6.1
+   Compiling groth16 v0.2.0
+   Compiling reddsa v0.6.1
+   Compiling sinsemilla v0.2.0
+   Compiling halo2_proofs v0.4.0
+   Compiling halo2_poseidon v0.2.0
+   Compiling redjubjub v0.9.0
+   Compiling sapling-crypto v0.9.0
+   Compiling halo2_gadgets v0.6.0
+   Compiling orchard v0.16.0
+   Compiling zcash_keys v0.17.0-pre.2
+   Compiling zcash_primitives v0.31.0-pre.2
+   Compiling zcash_client_backend v0.25.0-pre.2
+   Compiling sba-verify v0.1.0 (/Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t3/packages/verifier)
+    Finished `release` profile [optimized] target(s) in 18.27s
+     Running unittests src/main.rs (target/release/deps/sba_verify-e7544c192383d93c)

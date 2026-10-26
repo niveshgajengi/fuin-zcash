@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "bid 49999 zat is below the reserve 50000; nothing was sent"
+}

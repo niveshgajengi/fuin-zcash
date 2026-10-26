@@ -1,0 +1,18 @@
+{
+  "result_holds": true,
+  "settlement_mined_as_recorded": true,
+  "record_lists_every_chain_deposit": true,
+  "proof_verifies": true,
+  "auction_id_matches": true,
+  "slots_are_the_chain_deposits": true,
+  "winner_is_a_deposit": true,
+  "winning_bid_zat": "135000",
+  "winner_deposit": "eb27d26d5b30353021585db730bb90d3cd42e1158748a29a463103410569b768",
+  "no_sale": null,
+  "unrevealed": [
+    "19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66"
+  ],
+  "deposits_after_the_record": [],
+  "failed": [],
+  "losing_bids_revealed": false
+}

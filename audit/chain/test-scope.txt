@@ -1,0 +1,9 @@
+Root pnpm test NOT EXECUTED.
+packages/service/test/audit.test.ts:21-24 probes .demo seller state at import; two seller-key tests depend on forbidden local state and remain UNTESTED.
+packages/mcp/test/mcp.test.ts sets SBA_BIDDER_WALLET in multiple cases and includes a quicksend wallet-call attempt with a nonexistent executable. The full suite conflicts with hard rules.
+Safe components instead: cargo test --release: 6 passed / 0 failed / 0 ignored.
+pnpm --filter @sba/circuits test: 10 passed / 0 failed / 0 skipped.
+pnpm --filter @sba/service test test/auction.test.ts test/reveal.test.ts test/dispute.test.ts test/verifier.test.ts -t "^(?!.*scan calls sba-verify)": 41 passed / 0 failed / 1 skipped.
+Safe component total: 57 passed / 0 failed / 1 skipped.
+The skipped scan-wrapper test calls scan with a placeholder key, which sets SBA_UIVK internally; only the pure scanWindows test ran. This is not a full baseline result.
+The 12 service live-audit test cases and 17 original MCP test cases were not run. Published records were audited through the permitted CLI; MCP read-only checks and wallet-independent refusals ran through the real SDK in run-mcp.mjs. No green component test is evidence for a browser row.

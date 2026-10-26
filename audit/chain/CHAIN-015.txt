@@ -1,0 +1,4 @@
+GET https://testnet.zecblock.com/tx/19029d771d63cb844ecd5746098b9eb02a9d6f50067563d1a5b22fe7d6a55e66
+HTTP 429; body contains txid: False; curl exit 0
+
+elapsed_seconds=0.14

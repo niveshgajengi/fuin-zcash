@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "this auction has no reveal channel (auction.revealKey and auction.revealCloseHeight are missing); nothing was sent"
+}

@@ -1,0 +1,13 @@
+GET https://fuin-landing.vercel.app: HTTP 200; curl exit=0; 
+GET https://fuin-landing.vercel.app/saleroom/: HTTP 200; curl exit=0; 
+GET https://fuin-dashboard.vercel.app: HTTP 200; curl exit=0; 
+GET https://github.com/nickthelegend/zec-sealed-bid-auction: HTTP 200; curl exit=0; 
+Sources inspected: README.md, TESTING.md, HACKATHON_SUBMISSION_FORM.md, docs/CHANGELOG.md, packages/docs/README.md
+Current Sale 003 versus legacy Sales 001/002: documented in README, submission, changelog and protocol; TESTING distinguishes historical cases.
+Single-party setup, unbuilt threshold and trusted lightwalletd: explicit in README, submission and protocol; changelog records wording.
+No hosted backend: explicit in README. Portfolio-only Zecathon scope: explicit in submission; README has no portfolio/entry statement.
+No current walkthrough: explicit in README and submission.
+Repository private/unresolved status is explicitly disclosed in README and submission.
+Build and public-audit local commands resolved and ran in CLI-001/010/016/018. Funded/key commands were reviewed as text only, never run.
+Unresolved local Markdown paths: []
+FAIL: README.md:8-9 and HACKATHON_SUBMISSION_FORM.md:76-77 claim the repository is not public/unresolved, contrary to fresh public GET HTTP 200. README lacks explicit portfolio-only entry scope.

@@ -1,0 +1,16 @@
+free FUIN_PORT=55931; start exit=0
+landing   http://127.0.0.1:55931/
+saleroom  http://127.0.0.1:55931/saleroom/
+site 77573
+GET /: 200; exit=0
+GET /saleroom/: 200; exit=0
+GET /saleroom/verification_key.json: 200; exit=0
+stop exit=0
+stopped site (77573)
+recorded server PID terminated=True; pid file removed=True
+isolated build failure exit=1; no server PID=True
+site build failed: /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-stack-audit-oogryni6/e2e/.run/site-build.log
+isolated readiness failure exit=1; own server terminated=True; unrelated listener alive=True; PID file removed=True
+stopped site (77707)
+not up: http://127.0.0.1:55946/ (see /private/var/folders/tp/gcpvr1451r350sq27v4csrq40000gn/T/fuin-readiness-audit-ki801yqq/e2e/.run/site.log)
+e2e/stack.sh: line 17: 77707 Terminated: 15          python3 -m http.server "$port" --bind 127.0.0.1 -d "$root/site" > "$run/site.log" 2>&1

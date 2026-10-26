@@ -1,0 +1,44 @@
+command: pnpm --filter @sba/service test test/auction.test.ts test/reveal.test.ts test/dispute.test.ts test/verifier.test.ts -t ^(?!.*scan calls sba-verify)
+exit=0
+
+> @sba/service@0.1.0 test /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t3/packages/service
+> vitest run test/auction.test.ts test/reveal.test.ts test/dispute.test.ts test/verifier.test.ts -t '^(?!.*scan calls sba-verify)'
+
+
+ RUN  v3.2.7 /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t3/packages/service
+
+ ✓ test/verifier.test.ts (2 tests | 1 skipped) 1ms
+ ✓ test/reveal.test.ts (8 tests) 2294ms
+   ✓ ingestReveals (the auctioneer reads openings from the chain, not from a file) > accepts reveals in the window and decides the auction from them; a deposit with no reveal is listed unrevealed  695ms
+   ✓ ingestReveals (the auctioneer reads openings from the chain, not from a file) > a duplicate reveal is idempotent: the same opening twice decides exactly as once  967ms
+   ✓ auditReveals (what the viewing key alone can check) > passes an honest reveal log and catches hidden, relabelled and contradictory reveals  456ms
+ ✓ test/dispute.test.ts (12 tests) 4981ms
+   ✓ checkComplaint > an honest auction: a refunded loser and the paid winner both get "unfounded, paid in full"  855ms
+   ✓ checkComplaint > upheld: a valid reveal the record calls tampered, and its deposit declared unrevealed, are both named  509ms
+   ✓ checkComplaint > upheld: the settlement paid the refund address less than it owes  481ms
+   ✓ checkComplaint > rejected: signed by any key but the one inside the reveal, or altered after signing  463ms
+   ✓ checkComplaint > rejected: a secret that does not open the named reveal, or a reveal that names another deposit  343ms
+   ✓ checkComplaint > rejected: not anchored on chain, or anchored outside the dispute window  320ms
+   ✓ checkComplaint > unfounded: a reveal sent after the window was rightly ignored, even though the deposit is unrevealed  328ms
+   ✓ checkComplaint > settlement memos name what each output pays, so one paid deposit cannot mask an unpaid one on the same refund address  364ms
+   ✓ checkComplaint > legacy settlement memos (`sba1:<id>:settlement`) name nothing: every complaint with the same refund key is summed, and a shortfall is upheld  323ms
+   ✓ checkComplaint > no sale: a revealed bidder is owed its deposit minus that refund output fee, and a shortfall is upheld  344ms
+   ✓ checkComplaint > current rules: a deposit outside the proof (over capacity or not a bid) is owed its value minus its own output fee; legacy sales are owed it in full  317ms
+   ✓ checkComplaint > a complaint without a refund viewing key is still verified: authentic, anchored and honoured, payment not checked  331ms
+ ✓ test/auction.test.ts (20 tests) 5367ms
+   ✓ reveals and settlement > picks the highest valid bid with a verifying proof, refunds losing bids in full and a revealed late deposit minus its output fee  716ms
+   ✓ no sale > the highest revealed bid is below the reserve: every revealed deposit is refunded minus its output fee, an unrevealed one is forfeited, and a reserve-0 proof shows the top bid is below the reserve  953ms
+   ✓ no sale > a no-sale claim fails its check when the proven top bid meets the reserve, or when a revealed deposit is called unrevealed  805ms
+   ✓ ties > two equal bids in one block: the lexically lower txid takes the earlier slot and wins, whatever order the block holds them in  301ms
+   ✓ capacity: the proof has 8 slots, taken by the first 8 revealed valid deposits > nine valid revealed bids: the first 8 in chain order compete, the 9th is over capacity and refunded; a proof over another 8 fails the slot check  630ms
+   ✓ capacity: the proof has 8 slots, taken by the first 8 revealed valid deposits > a squatter cannot freeze the auction: 8 earlier deposits nobody can open take no slot, and the honest revealed bid wins  315ms
+   ✓ unrevealed bids > a valid deposit with no reveal is declared unrevealed, so the outcome still passes its check; hiding it does not  347ms
+   ✓ multi-payment deposits > a transaction that pays the auction twice is two deposits, each named by its output  327ms
+   ✓ multi-payment deposits > a second payment with the same commitment in the same transaction is a duplicate and is refunded  318ms
+
+ Test Files  4 passed (4)
+      Tests  41 passed | 1 skipped (42)
+   Start at  16:28:51
+   Duration  5.75s (transform 115ms, setup 0ms, collect 617ms, tests 12.64s, environment 0ms, prepare 149ms)
+
+

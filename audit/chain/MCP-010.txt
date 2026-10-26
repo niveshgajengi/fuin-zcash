@@ -1,0 +1,4 @@
+{
+  "deposits_after_the_record": [],
+  "no_sale": null
+}

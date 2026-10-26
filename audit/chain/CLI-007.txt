@@ -1,0 +1,6 @@
+sba-verify block invalid
+exit=1
+stdout:
+
+stderr:
+error: bad height invalid

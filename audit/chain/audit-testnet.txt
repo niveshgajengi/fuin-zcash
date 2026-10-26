@@ -1,0 +1,6 @@
+command: pnpm --filter @sba/service run audit deployments/testnet.json
+exit=0
+terms: ! terms: legacy: the auction id hashes only its name, so the open, close and reveal heights, the reserve, the deposit and the dispute window are read from the record and are not bound to the bids
+last nonempty stdout: chain checks pass; payments not checked: give the seller's incoming viewing key (SBA_SELLER_UIVK) to check the seller's payout, and a complaint with a refund key to check a refund
+CLI-018 expected assertions: PASS
+CLI-019 expected assertions: FAIL

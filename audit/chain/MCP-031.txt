@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "this auction has no reveal channel or dispute window; nothing was sent"
+}

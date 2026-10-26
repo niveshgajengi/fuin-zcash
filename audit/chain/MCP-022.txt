@@ -1,0 +1,4 @@
+{
+  "isError": true,
+  "text": "refund address is 151 characters; a reveal holds at most 150 (an Orchard-only unified address fits, one with a Sapling or transparent receiver does not), so this deposit could never be revealed or refunded; nothing was sent"
+}

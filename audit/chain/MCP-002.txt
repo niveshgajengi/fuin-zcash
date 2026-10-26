@@ -1,0 +1,10 @@
+[
+  {
+    "isError": true,
+    "text": "Setup required: SBA_AUCTION_FILE"
+  },
+  {
+    "isError": true,
+    "text": "Setup required: SBA_AUCTION_FILE"
+  }
+]

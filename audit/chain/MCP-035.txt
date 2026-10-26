@@ -1,0 +1,4 @@
+{
+  "executed": false,
+  "reason": "Guard requires SBA_BIDDER_WALLET; hard rule forbids setting it, including disposable paths."
+}

@@ -1,0 +1,6 @@
+sba-verify block 4530332
+exit=0
+stdout:
+{"hash":"000000c40ba20ada4f68b43a24ff833a09a414c0f9f42be5e1535c93449356b5","height":4530332,"time":1792705940}
+
+stderr:

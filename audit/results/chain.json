@@ -1,0 +1,740 @@
+[
+  {
+    "id": "CHAIN-001",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-001.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-002",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-002.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-003",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-003.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-004",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-004.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-005",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-005.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-006",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-006.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-007",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-007.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-008",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-008.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-009",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-009.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-010",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-010.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-011",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-011.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-012",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-012.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-013",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-013.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-014",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-014.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-015",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-015.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-016",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-016.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-017",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-017.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-018",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-018.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-019",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-019.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-020",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-020.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-021",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-021.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-022",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-022.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-023",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-023.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-024",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-024.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-025",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-025.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-026",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-026.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-027",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-027.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-028",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-028.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-029",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-029.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-030",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-030.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-031",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-031.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-032",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-032.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CHAIN-033",
+    "status": "FAIL",
+    "evidence": "audit/chain/CHAIN-033.txt",
+    "note": "HTTP 429; body contains txid: False; curl exit 0"
+  },
+  {
+    "id": "CLI-001",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-001.txt",
+    "note": "Built static artifact and checked required files and relative links."
+  },
+  {
+    "id": "CLI-002",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-002.txt",
+    "note": "Free-port lifecycle, PID ownership/termination, isolated build/readiness failure cleanup and unrelated listener preservation checked."
+  },
+  {
+    "id": "CLI-003",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-003.txt",
+    "note": "Occupied port refused; existing listener stayed alive."
+  },
+  {
+    "id": "CLI-004",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-004.txt",
+    "note": "Nonnumeric, below-1024, and every listed blocked port refused before any server start."
+  },
+  {
+    "id": "CLI-005",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-005.txt",
+    "note": "exit=0; expected output checked"
+  },
+  {
+    "id": "CLI-006",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-006.txt",
+    "note": "exit=0; expected output checked"
+  },
+  {
+    "id": "CLI-007",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-007.txt",
+    "note": "exit=1; expected output checked"
+  },
+  {
+    "id": "CLI-008",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-008.txt",
+    "note": "exit=1; expected output checked"
+  },
+  {
+    "id": "CLI-009",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-009.txt",
+    "note": "Error: sba-verify failed: Setup required: SBA_VERIFY_BIN (sba-verify not built at /nonexistent/sba-verify; run pnpm build:verifier)"
+  },
+  {
+    "id": "CLI-010",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-011",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-012",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-013",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-014",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-015",
+    "status": "FAIL",
+    "evidence": "audit/chain/audit-testnet-sale003.txt",
+    "note": "Exact required final line differs from actual final line."
+  },
+  {
+    "id": "CLI-016",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-reveal.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-017",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet-reveal.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-018",
+    "status": "PASS",
+    "evidence": "audit/chain/audit-testnet.txt",
+    "note": "Live public audit assertions checked; only terms/final line retained."
+  },
+  {
+    "id": "CLI-019",
+    "status": "FAIL",
+    "evidence": "audit/chain/audit-testnet.txt",
+    "note": "Exact required final line differs from actual final line."
+  },
+  {
+    "id": "CLI-020",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-020.txt",
+    "note": "Error: sba-verify failed: error: cannot connect to lightwalletd: http://127.0.0.1:1: transport error"
+  },
+  {
+    "id": "CLI-021",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+  },
+  {
+    "id": "CLI-022",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+  },
+  {
+    "id": "CLI-023",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-rust.txt",
+    "note": "All six Rust component tests passed; no wallet or send."
+  },
+  {
+    "id": "CLI-024",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Pure scanWindows boundary test passed. Wrapper test skipped because it sets SBA_UIVK internally; full row is untested."
+  },
+  {
+    "id": "CLI-025",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-circuits.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-026",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-circuits.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-027",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-028",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-029",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-030",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-031",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-032",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-033",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-034",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-035",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-036",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-037",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-038",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-039",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-040",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Local synthetic seller payout accounting test passed. Both live seller-key tests remain UNTESTED; no seller key supplied or local demo state loaded."
+  },
+  {
+    "id": "CLI-041",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Full pnpm test conflicts with forbidden wallet settings/wallet-call attempt and .demo access. Safe subset: 57 passed, 0 failed, 1 skipped; baseline 85/0/2 not established. Live seller-key tests remain UNTESTED."
+  },
+  {
+    "id": "CLI-042",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-042.txt",
+    "note": "Source configuration and documented browser baseline checked; no browser result inferred."
+  },
+  {
+    "id": "CLI-043",
+    "status": "FAIL",
+    "evidence": "audit/chain/CLI-043.txt",
+    "note": "README.md:8 and HACKATHON_SUBMISSION_FORM.md:76 say the repository is not public and links do not resolve, but the public repository GET returned HTTP 200. README also lacks the submission draft's explicit portfolio-only entry scope. Hosted/local links checked successfully; no product/docs edited."
+  },
+  {
+    "id": "CLI-044",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-044.txt",
+    "note": "Needs SBA_SELLER_UIVK from forbidden .demo; this audit must not load it."
+  },
+  {
+    "id": "CLI-045",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-045.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-046",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-046.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-047",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-047.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-048",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-048.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-049",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-049.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-001",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-001.txt",
+    "note": "Real initialization/listTools; built server uses StdioServerTransport."
+  },
+  {
+    "id": "MCP-002",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-002.txt",
+    "note": "Both read-only tools refuse missing record setting."
+  },
+  {
+    "id": "MCP-003",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-003.txt",
+    "note": "Both read-only tools refuse nonexistent public file."
+  },
+  {
+    "id": "MCP-004",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-004.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-005",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-005.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-006",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-006.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-007",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-007.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-008",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-008.txt",
+    "note": "Live scan of published closed sale via real stdio server; no wallet settings."
+  },
+  {
+    "id": "MCP-009",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-009.txt",
+    "note": "Live proof/deposit/winner/completeness assertions checked."
+  },
+  {
+    "id": "MCP-010",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-010.txt",
+    "note": "Sale 003 scan boundary checked live."
+  },
+  {
+    "id": "MCP-011",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-011.txt",
+    "note": "Full existing pnpm test not run because it attempts a wallet call and sets prohibited wallet configuration."
+  },
+  {
+    "id": "MCP-012",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-012.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-013",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-013.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-014",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-014.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-015",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-015.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-016",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-016.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-017",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-017.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-018",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-018.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-019",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-019.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-020",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-020.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-021",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-021.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-022",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-022.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-023",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-023.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-024",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-024.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-025",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-025.txt",
+    "note": "All five schema-invalid input cases refused before handler/wallet."
+  },
+  {
+    "id": "MCP-026",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-026.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-027",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-027.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-028",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-028.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-029",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-029.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-030",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-030.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-031",
+    "status": "PASS",
+    "evidence": "audit/chain/MCP-031.txt",
+    "note": "Real stdio SDK refusal; no wallet settings supplied."
+  },
+  {
+    "id": "MCP-032",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-032.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-033",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-033.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-034",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-034.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-035",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-035.txt",
+    "note": "Requires prohibited SBA_BIDDER_WALLET setting before the specified refusal."
+  },
+  {
+    "id": "MCP-036",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-036.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-037",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-037.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-038",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-038.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-039",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-039.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-040",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-040.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "MCP-041",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/MCP-041.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  }
+]

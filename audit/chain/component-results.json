@@ -1,0 +1,176 @@
+[
+  {
+    "id": "CLI-021",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+  },
+  {
+    "id": "CLI-022",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Existing live audit test module probes forbidden .demo seller state at import; full pnpm test was not executed."
+  },
+  {
+    "id": "CLI-023",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-rust.txt",
+    "note": "All six Rust component tests passed; no wallet or send."
+  },
+  {
+    "id": "CLI-024",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Pure scanWindows boundary test passed. Wrapper test skipped because it sets SBA_UIVK internally; full row is untested."
+  },
+  {
+    "id": "CLI-025",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-circuits.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-026",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-circuits.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-027",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-028",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-029",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-030",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-031",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-032",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-033",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-034",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-035",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-036",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-037",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-038",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-039",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Existing safe component tests passed with real Groth16 proofs; see test-scope.txt for counts and exclusions."
+  },
+  {
+    "id": "CLI-040",
+    "status": "PASS",
+    "evidence": "audit/chain/tests-service-safe.txt",
+    "note": "Local synthetic seller payout accounting test passed. Both live seller-key tests remain UNTESTED; no seller key supplied or local demo state loaded."
+  },
+  {
+    "id": "CLI-041",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/test-scope.txt",
+    "note": "Full pnpm test conflicts with forbidden wallet settings/wallet-call attempt and .demo access. Safe subset: 57 passed, 0 failed, 1 skipped; baseline 85/0/2 not established. Live seller-key tests remain UNTESTED."
+  },
+  {
+    "id": "CLI-042",
+    "status": "PASS",
+    "evidence": "audit/chain/CLI-042.txt",
+    "note": "Source configuration and documented browser baseline checked; no browser result inferred."
+  },
+  {
+    "id": "CLI-043",
+    "status": "FAIL",
+    "evidence": "audit/chain/CLI-043.txt",
+    "note": "README.md:8 and HACKATHON_SUBMISSION_FORM.md:76 say the repository is not public and links do not resolve, but the public repository GET returned HTTP 200. README also lacks the submission draft's explicit portfolio-only entry scope. Hosted/local links checked successfully; no product/docs edited."
+  },
+  {
+    "id": "CLI-044",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-044.txt",
+    "note": "Needs SBA_SELLER_UIVK from forbidden .demo; this audit must not load it."
+  },
+  {
+    "id": "CLI-045",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-045.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-046",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-046.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-047",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-047.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-048",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-048.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  },
+  {
+    "id": "CLI-049",
+    "status": "UNTESTED",
+    "evidence": "audit/chain/CLI-049.txt",
+    "note": "needs a funded Zcash testnet send; this audit must not send"
+  }
+]

@@ -1,0 +1,11 @@
+Source-only configuration check; no browser rows executed.
+installed Chrome configured: True
+one worker: True
+no retries: True
+desktop 1280x800: True
+mobile 375x812: True
+video, trace, screenshots enabled: True
+health fixture automatic: True
+console/page/network/HTTP health checks: True
+baseline 50 per viewport and 100 total: True
+Sources: e2e/playwright.config.ts, e2e/tests/fixtures.ts, TESTING.md

@@ -1,0 +1,27 @@
+[
+  {
+    "isError": true,
+    "text": "MCP error -32602: Input validation error: Invalid arguments for tool bid: Number must be greater than 0 at bid_zat",
+    "field": "bid_zat"
+  },
+  {
+    "isError": true,
+    "text": "MCP error -32602: Input validation error: Invalid arguments for tool bid: Number must be greater than 0 at bid_zat",
+    "field": "bid_zat"
+  },
+  {
+    "isError": true,
+    "text": "MCP error -32602: Input validation error: Invalid arguments for tool bid: Expected integer, received float at bid_zat",
+    "field": "bid_zat"
+  },
+  {
+    "isError": true,
+    "text": "MCP error -32602: Input validation error: Invalid arguments for tool bid: Expected number, received string at bid_zat",
+    "field": "bid_zat"
+  },
+  {
+    "isError": true,
+    "text": "MCP error -32602: Input validation error: Invalid arguments for tool bid: Invalid input: must start with \"utest1\" at refund_address",
+    "field": "refund_address"
+  }
+]
