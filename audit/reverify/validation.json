@@ -1,0 +1,83 @@
+{
+  "audit_rows": 357,
+  "statuses": {
+    "PASS": 343,
+    "UNTESTED": 14
+  },
+  "unchanged_expected_result_cells": 357,
+  "unchanged_original_pass_rows": 157,
+  "unchanged_original_untested_rows": 13,
+  "updated_pending_rows": 187,
+  "fresh_browser_runs": {
+    "built": {
+      "passed": 166,
+      "failed": 0,
+      "per_project": {
+        "('desktop', 'expected')": 83,
+        "('mobile', 'expected')": 83
+      }
+    },
+    "dev": {
+      "passed": 116,
+      "failed": 4,
+      "per_project": {
+        "('desktop', 'expected')": 58,
+        "('desktop', 'unexpected')": 2,
+        "('mobile', 'expected')": 58,
+        "('mobile', 'unexpected')": 2
+      }
+    },
+    "live-nested": {
+      "passed": 100,
+      "failed": 0,
+      "per_project": {
+        "('desktop', 'expected')": 50,
+        "('mobile', 'expected')": 50
+      }
+    },
+    "live-standalone": {
+      "passed": 52,
+      "failed": 2,
+      "per_project": {
+        "('desktop', 'expected')": 26,
+        "('desktop', 'unexpected')": 1,
+        "('mobile', 'expected')": 26,
+        "('mobile', 'unexpected')": 1
+      }
+    },
+    "built-contract-final": {
+      "passed": 72,
+      "failed": 0,
+      "per_project": {
+        "('desktop', 'expected')": 36,
+        "('mobile', 'expected')": 36
+      }
+    },
+    "dev-final": {
+      "passed": 126,
+      "failed": 0,
+      "per_project": {
+        "('desktop', 'expected')": 63,
+        "('mobile', 'expected')": 63
+      }
+    }
+  },
+  "failure_screenshot_bytes": {
+    "failures/dev-mobile-hero.jpg": 115503,
+    "failures/live-standalone-desktop-catalogue.jpg": 106767,
+    "failures/dev-mobile-footer.jpg": 115040,
+    "failures/live-standalone-mobile-catalogue.jpg": 114550,
+    "failures/dev-desktop-footer.jpg": 106732,
+    "failures/dev-desktop-hero.jpg": 106873
+  },
+  "audit_bytes_before_validation_file": 4379781,
+  "sensitive_key_or_address_text_hits": 0,
+  "product_circuit_and_audit_cli_diff": "unchanged",
+  "owned_pids_stopped": [
+    85489,
+    36004,
+    6880,
+    36207
+  ],
+  "heavy_slot": "both enclosing shell EXIT traps completed; fuin-reverify released"
+}

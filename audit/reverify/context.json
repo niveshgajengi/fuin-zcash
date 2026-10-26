@@ -1,0 +1,40 @@
+{
+  "source_commit": "5465277209d8166b858663c54a3c25590010a204",
+  "chrome_version": "155.0.8059.85",
+  "channel": "chrome",
+  "workers": 1,
+  "retries": 0,
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800
+    },
+    "mobile": {
+      "width": 375,
+      "height": 812,
+      "deviceScaleFactor": 2,
+      "isMobile": true,
+      "hasTouch": true
+    }
+  },
+  "built_port": 4284,
+  "dev_port": 5178,
+  "verifier": "existing main-worktree packages/verifier/target/release/sba-verify (unchanged Rust sources; no cargo invocation)",
+  "verification_mode": "published records and proofs; read-only testnet checks; no seller key loaded",
+  "source_sha256": {
+    "packages/dashboard/index.html": "4b39a28e71d713aae64662c8c83bb26a6cea94ba29f71f6d3d5351c5dcea1fbe",
+    "packages/dashboard/src/App.tsx": "520c2695fbe34a511f9339d7fc75c4238c7af618b03a8631b21e875b44b37562",
+    "packages/circuits/circuits/MaxBid.circom": "a3437423940f4eec337413f2d2aec81f0bfd654e44b3cd16ad2c6029b4c0af96"
+  },
+  "test_sources_sha256": {
+    "e2e/playwright.config.ts": "b87af2015e310fa01a1bd7263bcd31f72a8a3c9dbd5da55886a75233dfc4de64",
+    "e2e/tests/audit-contract.spec.ts": "f2b30d06ac9cfbb2684a2afbeedb2a73bacf0d9f7e69eed40541a6426546f667",
+    "e2e/tests/fixtures.ts": "e0fd016e7b2ddb03b667800d1a700328289831e9e3e92d8fc9e80232b74a2cb4",
+    "e2e/tests/landing.spec.ts": "7df32bcaa5a29cc5b0fe2d8a1d19cdd1802ef29e0de4ee003e6b55da4dc8afba",
+    "e2e/tests/reverify.spec.ts": "9e79260e4d34aff944bae705bfa877cbf98018a9a106fb3ad96e34deecb8822c",
+    "e2e/tests/saleroom.spec.ts": "be46e7d12138cca2dd27a7369cc4d431362401f7f75afba9d58f5b1189f5665b",
+    "e2e/tests/urls.ts": "c5fca7f24d2fdea22cbfc313e14c99c9234eb9c88ed2bb7371cf2a369f883b73"
+  },
+  "existing_verifier_sha256": "5b7eb6a4737f09ee22800b7871578f09b5382dafa112d221f393403220c83321",
+  "verifier_path": "/Volumes/Extreme SSD/Projects/grokbot/projects/zec-sealed-bid-auction/packages/verifier/target/release/sba-verify"
+}

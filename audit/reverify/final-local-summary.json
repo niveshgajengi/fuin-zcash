@@ -1,0 +1,24 @@
+{
+  "built-contract-final": {
+    "exit": 0,
+    "stats": {
+      "startTime": "2026-10-26T15:04:10.053Z",
+      "duration": 86537.38699999999,
+      "expected": 72,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  },
+  "dev-final": {
+    "exit": 0,
+    "stats": {
+      "startTime": "2026-10-26T15:05:37.735Z",
+      "duration": 251731.575,
+      "expected": 126,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    }
+  }
+}

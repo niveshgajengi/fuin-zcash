@@ -1,0 +1,27 @@
+
+> zec-sealed-bid-auction@ build:site /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24
+> ./scripts/build-site.sh
+
+
+> @sba/dashboard@0.1.0 prebuild /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/packages/dashboard
+> mkdir -p public && cp ../circuits/build/verification_key.json public/verification_key.json
+
+
+> @sba/dashboard@0.1.0 build /Volumes/Extreme SSD/Projects/grokbot/projects/.loom-worktrees/zec-sealed-bid-auction-090e3eda545b/omvp4n5aa/t24/packages/dashboard
+> tsc --noEmit -p tsconfig.json && vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 349 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                     1.44 kB │ gzip:     0.73 kB
+dist/assets/index-BMF4L3SW.css     14.09 kB │ gzip:     3.54 kB
+dist/assets/index-B1XprtBE.js   3,553.61 kB │ gzip: 1,625.86 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.82s
+site/ ready: 8 files

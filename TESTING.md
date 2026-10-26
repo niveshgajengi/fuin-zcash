@@ -112,13 +112,34 @@ fails on a console error, an uncaught exception or a failed same-origin request.
 | `landing.spec.ts` | 23 | **the one-screen landing (4):** headline, subline, two buttons, the envelope stage opening the winner (and open at once under reduced motion), no txids or block ranges, the proof numbers (3 sale records, this file's unit/live total), the Live / Setup required strip, the evidence link, footer CTA and links. **`evidence.html` (19), the full catalogue moved from the landing on Oct 25:** Sale 003 cover facts and the script-driven MCP bidders, clock, envelope reveal and reduced motion, anchors, CTAs (the saleroom opens and holds) and skip link, Sale 003 lot cards vs `testnet-sale003.json` (forfeit and duplicate wording), reveal notes and the no-key complaint, provenance ledger, Sale 002's section vs `testnet-reveal.json`, Sale 001's section vs `testnet.json`, a sweep that no "agent" claim is left, conditions and condition report, prior art with sources, record links, the saleroom section (hosted link and local route), masthead sweep 641-1040 px, footer, every line of the page's audit log found in a live run of the exact command it shows, Setup required without `sba-verify` |
 | `saleroom.spec.ts` | 27 | three sale tabs, `?sale=002` and `?sale=001`; for **each sale**: header, timeline and clock, verify (vk hash, proof, slots, winner), both tamper buttons, filters, lot cards, provenance; Sales 003 and 002 reveal notes; Sales 003 and 002 complaints (digest computed in the tab = the anchor memo read live with `sba-verify tx`, verdict = a live audit run, whose last line is not "all checks pass"); viewing-key disclosure; controls labelled log and the catalogue link; reduced motion; missing or altered verification key |
 | `audit-contract.spec.ts` | 33 | audit gaps: complete landing/evidence copy and asset checks, keyboard CTAs, 900 ms opening delay and interrupted reload, reduced motion and observer fallback, exact recorded audit final line and omission disclosures, conditions and historic rules, responsive bounds; saleroom direct/reload routes, selected-tab/tabpanel contract, timers at exact one-second boundaries, all-action busy states, delayed sale switching, filter reset, explicitly labelled browser-only empty catalogue and restoration, private key comparison and disclosure isolation, malformed/503 key recovery, keyboard skip focus, asset origins, and static pages with the verifier absent |
+| `reverify.spec.ts` | 3 | literal `?sale=bogus`, `?sale=004` and empty-query fallbacks with record/lots/proof; sole selected tab and labelled panel after each sale switch; full Sale 003 forfeit/output-fee wording and Sale 002 historical non-refund wording |
 
-The expanded suite now contains **83 tests per viewport / 166 total**. The 25 Oct baseline below
-remains the historical 50-per-viewport run. On 26 Oct, corrective verification ran **160 built-site
-checks** (80 per viewport); the six live complaint/log checks were left to the independent chain
-re-verification. The dev-route corrective run uses `FUIN_DEV=1` so the navigation test asserts the
-production-only Catalogue link is absent. Its **88 selected saleroom checks passed** at port 5178 in both
-viewports. See `audit/fixes-t23/README.md` for exact commands, counts and limits.
+The three original specs contain **83 tests per viewport / 166 total**; adding the focused
+re-verification spec makes the default suite **86 per viewport / 172 total**.
+
+Fresh independent runs on 26 Oct 2026 used installed Google Chrome, one worker, no grep filters,
+no retries, and both viewports. They included every live complaint/anchor and provenance-log test:
+
+| Run | Passed | Failed | Evidence |
+|---|---:|---:|---|
+| Built site, all three original specs, port 4284 | 166 | 0 | [built.txt](audit/reverify/built.txt) |
+| Final built audit-contract plus focused re-verification spec | 72 | 0 | [built-contract-final.txt](audit/reverify/built-contract-final.txt) |
+| Final dev saleroom, audit-contract and focused spec, port 5178 | 126 | 0 | [dev-final.txt](audit/reverify/dev-final.txt) |
+| Live landing and nested saleroom | 100 | 0 | [live-nested.txt](audit/reverify/live-nested.txt) |
+| Live standalone dashboard | 52 | 2 | [live-standalone.txt](audit/reverify/live-standalone.txt) |
+
+The initial full dev run produced **116 passed / 4 failed**: the built landing's hero/footer CTAs
+correctly opened `http://127.0.0.1:4284/saleroom/`, but the harness expected the separate dev origin.
+The assertion now derives the destination from the landing URL; the complete final dev run above
+passed, including its 120 original checks and six focused checks. With `FUIN_DEV=1`, Catalogue is
+asserted absent. Both standalone failures are the previous deployment's Catalogue returning to
+`https://fuin-dashboard.vercel.app/` instead of `https://fuin-landing.vercel.app/`; `UI-V-004` remains
+UNTESTED pending deployment of the current dashboard. This audit did not deploy.
+
+All runs had zero skipped or flaky cases and no unexpected console errors, page errors or failed
+same-origin requests. The initial failures and compressed screenshots are retained; commands,
+row-level evidence and dependencies are in [audit/reverify/README.md](audit/reverify/README.md).
+The earlier 160/88 corrective selections in `audit/fixes-t23/` are historical, not this re-verification.
 
 The missing-key and 503 tests allow only their deliberately injected status at the verification-key
 path. Other resource errors still fail the health fixture. Successful proofs use the real published

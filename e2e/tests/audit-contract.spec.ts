@@ -86,7 +86,9 @@ for (const source of ['hero saleroom', 'hero evidence', 'footer saleroom']) {
       expect(await page.locator('ul.lots').first().evaluate((e) => e.closest('section')!.id)).toBe('lots');
       await expect(page.locator('#lots h2')).toHaveText('Every deposit to the auction');
     } else {
-      await expect(page).toHaveURL(SALEROOM);
+      // Landing CTAs belong to the landing deployment even when the saleroom
+      // checks separately target Vite's root through FUIN_SALEROOM.
+      await expect(page).toHaveURL(new URL('saleroom/', LANDING).href);
       await expect(page.locator('[role=tab][aria-selected=true]')).toHaveText('Sale 003 · current rules');
       await holds(page);
     }
