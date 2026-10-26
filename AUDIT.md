@@ -1,13 +1,12 @@
-# Fuin zero-tolerance audit — 343 PASS, 14 UNTESTED
+# Fuin zero-tolerance audit — 344 PASS, 13 UNTESTED
 
-357 rows: 343 PASS, 14 UNTESTED, 0 FAIL, 0 FIXED-PENDING-REVERIFY, 0 PENDING.
+357 rows: 344 PASS, 13 UNTESTED, 0 FAIL, 0 FIXED-PENDING-REVERIFY, 0 PENDING.
 No mocks or stubs stand in for the checked sales, and the fresh browser runs had no unexpected console errors or failed same-origin requests.
 Fresh Google Chrome runs checked 1280×800 and 375×812 with one worker, no grep filters and no retries; see [commands, counts and row evidence](audit/reverify/README.md). Only the 187 previously FIXED-PENDING-REVERIFY rows changed: 186 passed; UI-V-004 has the deployment dependency below. Existing PASS and UNTESTED rows and every expected-result cell are unchanged.
 
 UNTESTED dependencies:
 
 - UI-V-004: needs a deploy of the current dashboard to https://fuin-dashboard.vercel.app; this audit must not deploy. Fresh Catalogue navigation still returned to that host instead of https://fuin-landing.vercel.app/ at both viewports.
-- CLI-024: the remaining scan-wrapper regression case needs a separate permitted unit-test run; this task must not run pnpm test. Its earlier pure boundary check does not establish the wrapper result.
 - CLI-044: seller-payment verification needs SBA_SELLER_UIVK from gitignored .demo; this audit must not load it.
 - CLI-045–CLI-049 and MCP-036–MCP-041: need funded Zcash testnet sends and wallet operations; this audit must not send or access the wallet.
 
@@ -305,7 +304,7 @@ Local judge used pnpm build:site and e2e/stack.sh on port 4284 because 4180 was 
 | CLI-021 | Read-only record-tamper detection | During the existing pnpm test audit cases, a hidden deposit yields `NOT LISTED`, an understated settlement height names the mined/recorded mismatch, a renamed card fails terms, a hidden/relabelled reveal fails reveal checks and scannedTo before reveal-close fails; each altered-record audit exits nonzero without a send | PASS | audit/chain/CLI-041.txt |  |
 | CLI-022 | scannedTo late-note edge | During existing pnpm test cases, an unlisted reveal mined after scannedTo is printed as `outside the record` / `cannot affect the outcome` rather than failed; scannedTo inside the reveal window yields a failure | PASS | audit/chain/CLI-041.txt |  |
 | CLI-023 | Rust verifier component coverage | Within pnpm test, six Rust tests pass for text/empty/binary memo decoding, txid parsing, bounded scan ranges, two distinct action-index outputs to one key in a real Ironwood bundle and address ownership with in-process keys; no wallet or send is used | PASS | audit/chain/tests-rust.txt |  |
-| CLI-024 | Service scan chunking | Within pnpm test, scanWindows(1,12001) returns [1,5000], [5001,10000], [10001,12001]; wrapper scans preserve every boundary exactly once and each binary invocation has at most 5000 blocks | UNTESTED | audit/chain/CLI-024.txt |  |
+| CLI-024 | Service scan chunking | Within pnpm test, scanWindows(1,12001) returns [1,5000], [5001,10000], [10001,12001]; wrapper scans preserve every boundary exactly once and each binary invocation has at most 5000 blocks | PASS | audit/chain/CLI-041.txt | The recorded full suite already ran the stub-binary wrapper. |
 | CLI-025 | Circuits / maxbid | Within pnpm test, six maxbid tests use real Groth16 proofs: honest proof verifies, changed winner/bid fails, invalid opening/non-highest winner/below-reserve winner/later tied slot cannot obtain a valid witness; public signals expose no losing opening | PASS | audit/chain/tests-circuits.txt |  |
 | CLI-026 | Circuits / checkResult | Within pnpm test, four result tests accept the honest chain-bound result and reject phantom occupied spare slots, hidden deposits unless declared valid unrevealed, invalid unrevealed entries, wrong auction and wrong reserve | PASS | audit/chain/tests-circuits.txt |  |
 | CLI-027 | Service deposit classification | Within pnpm test, valid, pending, late, wrong_amount, memo_mismatch and duplicate deposits receive their explicit status/reason in height/txid order; leading-zero and field-modulus-or-larger commitments are memo_mismatch; two payments to the auction remain distinct action-index deposits | PASS | audit/chain/tests-service-safe.txt |  |
