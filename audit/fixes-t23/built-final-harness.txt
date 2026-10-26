@@ -1,0 +1,24 @@
+
+Running 12 tests using 1 worker
+
+(node:21936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/12] [desktop] › tests/audit-contract.spec.ts:275:1 › audit delayed verification: disabled actions, final sale owns results after old responses resolve
+[2/12] [desktop] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from invalid JSON
+[3/12] [desktop] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from HTTP 503
+[4/12] [desktop] › tests/audit-contract.spec.ts:382:1 › audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus
+[5/12] [desktop] › tests/saleroom.spec.ts:294:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+[6/12] [desktop] › tests/saleroom.spec.ts:355:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+(node:30366) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[7/12] [mobile] › tests/audit-contract.spec.ts:275:1 › audit delayed verification: disabled actions, final sale owns results after old responses resolve
+[8/12] [mobile] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from invalid JSON
+[9/12] [mobile] › tests/audit-contract.spec.ts:303:3 › audit verification recovery from HTTP 503
+[10/12] [mobile] › tests/audit-contract.spec.ts:382:1 › audit entry: wordmark, correct-origin assets, Code target and keyboard skip focus
+[11/12] [mobile] › tests/saleroom.spec.ts:294:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+[12/12] [mobile] › tests/saleroom.spec.ts:355:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+  12 passed (12.8s)

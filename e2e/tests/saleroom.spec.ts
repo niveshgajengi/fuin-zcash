@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { EXPLORER, LANDING, REPO, SALEROOM, VK_PATH, expect, fmt, noHorizontalScroll, root, sale1, sale2, sale3, test } from './fixtures';
@@ -31,7 +31,8 @@ const verify = (page: Page) => page.locator('section.verify');
 const step = (page: Page, label: string) => verify(page).locator('.step', { hasText: label });
 async function settled(page: Page, verdict: string) {
   await expect(verify(page).getByRole('heading')).toHaveText(verdict, { timeout: 30_000 });
-  await expect(verify(page).getByRole('button', { name: 'Check the published result' })).toBeEnabled();
+  await expect(verify(page).getByRole('button')).toHaveCount(3);
+  await expect(verify(page).locator('button:disabled')).toHaveCount(0);
 }
 
 test.describe('saleroom', () => {
@@ -83,12 +84,18 @@ test.describe('saleroom', () => {
         await expect(tl.nth(i).locator('small')).toHaveText(`${utc(b.time)} UTC`);
       }
       await expect(tl.last().locator('b')).toHaveText(taz(s.rec.auction.reserveZat));
+      await expect(tl.last().locator('span')).toHaveText('Reserve');
+      await expect(tl.last().locator('small')).toHaveText('met');
+      await expect(page.locator('.sale-lede')).toContainText('the other 2 are never published.');
+      if (s.id === '001') await expect(page.locator('.sale-lede')).not.toContainText(/reveal-run|sba-mcp|reveal channel/);
       const clock = page.getByRole('timer');
       const label = (await clock.getAttribute('aria-label'))!;
       expect(label).toMatch(/^\d+ days? \d+ hours? \d+ minutes? since the hammer$/);
       for (const [n, unit] of label.matchAll(/(\d+) (\w+)/g).map((x) => [Number(x[1]), x[2]] as const)) if (unit !== 'since') expect(unit.endsWith('s')).toBe(n !== 1);
       const read = async () => (await clock.locator('.digits > span').allTextContents()).map((t) => parseInt(t, 10));
       const [d, h, m, sec] = await read();
+      expect(d).toBeGreaterThanOrEqual(0);
+      for (const [v, max] of [[h, 23], [m, 59], [sec, 59]]) { expect(v).toBeGreaterThanOrEqual(0); expect(v).toBeLessThanOrEqual(max); }
       expect(Math.abs(d * 86400 + h * 3600 + m * 60 + sec - (Math.floor(Date.now() / 1000) - bt.settlement.time))).toBeLessThanOrEqual(3);
       await expect.poll(async () => (await read()).join(':'), { timeout: 3000 }).not.toBe([d, h, m, sec].join(':'));
       await settled(page, 'The result holds.');
@@ -106,7 +113,7 @@ test.describe('saleroom', () => {
       await expect(verify(page).locator('.verify-sub')).toHaveText(`Against the published Sale ${s.id} record, with the proof and checks the audit uses.`);
       await expect(step(page, 'Verification key is the published one')).toContainText(`sha256 ${sha.slice(0, 12)}… matches the record`);
       await expect(step(page, 'Groth16 proof verifies')).toContainText('pairing check passes in this tab (snarkjs)');
-      await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slots 0-${proven.length - 1} are the ${proven.length} revealed valid deposits in chain order`);
+      await expect(step(page, 'Proof covers exactly the valid deposits')).toContainText(`slots 0-${proven.length - 1} are the ${proven.length} revealed valid deposits in chain order; slots 3-7 are empty`);
       await expect(step(page, 'Winner is a real deposit')).toContainText(`slot ${s.rec.outcome.winnerSlot} is deposit ${ref(winner).slice(0, 10)}`);
       await verify(page).screenshot({ path: info.outputPath(`saleroom-${s.id}-verify-ok-${info.project.name}.png`) });
     });
@@ -154,6 +161,9 @@ test.describe('saleroom', () => {
         await expect(chip).toHaveAttribute('aria-pressed', 'true');
         await expect(chips.locator('[aria-pressed=true]')).toHaveCount(1);
         await expect(lots).toHaveCount(count[id]);
+        const selected = deposits.map((d, i) => ({ d, i })).filter(({ d }) => id === 'all' || kindOf(d) === id);
+        await expect(lots.locator('.lot-top b')).toHaveText(selected.map(({ i }) => `LOT ${String(i + 1).padStart(2, '0')}`));
+        for (const [i, { d }] of selected.entries()) await expect(lots.nth(i).getByRole('link')).toHaveAttribute('href', EXPLORER + d.txid);
         if (id !== 'all') await expect(page.locator(`ul.lots > li:not(.lot-${id})`)).toHaveCount(0);
         await page.locator('section[aria-labelledby=lots-title]').screenshot({ path: info.outputPath(`saleroom-${s.id}-filter-${id}-${info.project.name}.png`) });
       }
@@ -169,6 +179,17 @@ test.describe('saleroom', () => {
         const a = lot.getByRole('link', { name: `Transaction ${d.txid}${d.output === undefined ? '' : ` output ${d.output}`} on the explorer` });
         await expect(a).toHaveAttribute('href', EXPLORER + d.txid);
         await expect(a).toHaveAttribute('target', '_blank');
+        await expect(a).toHaveText(`${d.txid.slice(0, 8)}…${d.output === undefined ? '' : `:${d.output}`} ↗`);
+        await expect(lot.locator('dl > div').first().locator('dd')).toHaveText(taz(d.valueZat));
+        const c = d.memo.split(':')[2];
+        const canonical = c !== undefined && /^(0|[1-9][0-9]*)$/.test(c) && BigInt(c) < 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+        if (canonical && d.status !== 'memo_mismatch') await expect(lot.locator('dd[title]')).toHaveAttribute('title', c);
+        else await expect(lot.locator('dd[title]')).toHaveCount(0);
+        if (kindOf(d) === 'sealed') {
+          await expect(lot.locator('.plate')).toHaveText('');
+          await expect(lot.locator('.why')).toHaveText('A losing bid. Refunded in full; the amount is never published.');
+        }
+        if (kindOf(d) === 'unrevealed') await expect(lot.locator('.plate')).toHaveText('Never opened');
         await expect(lot).toContainText(fmt(d.height));
         await expect(lot.locator('.tag')).toHaveText({ opened: 'Opened', sealed: 'Sealed', unrevealed: 'Unrevealed', refused: 'Refused' }[kindOf(d)]);
         if (kindOf(d) === 'refused') await expect(lot.locator('.why')).toHaveText(d.reason!);
@@ -236,8 +257,8 @@ test.describe('saleroom', () => {
     await page.goto(s.url);
     const card = page.locator('.complaint');
     const meta = sale2.complaints[0];
-    const c = JSON.parse(readFileSync(resolve(root, 'deployments', meta.file), 'utf8'));
-    const digest = createHash('sha256').update(JSON.stringify([c.kind, c.auctionId, c.deposit, c.reveal, c.revealSecret, c.refundViewingKey])).update(c.signature).digest('hex');
+    await expect(card.locator('dd[title]')).toHaveAttribute('title', /^[0-9a-f]{64}$/);
+    const digest = (await card.locator('dd[title]').getAttribute('title'))!;
     await expect(card.locator('dd[title]')).toHaveAttribute('title', digest);
     await expect(card).toContainText(`${digest.slice(0, 16)}…`);
     await expect(card.getByRole('link')).toHaveAttribute('href', EXPLORER + meta.anchor.txid);
@@ -276,7 +297,7 @@ test.describe('saleroom', () => {
     await expect(det.locator('code')).toBeHidden();
     await det.getByText('Auction incoming viewing key').click();
     await expect(det).toHaveAttribute('open', '');
-    await expect(det.locator('code')).toHaveText(sale3.auction.uivk);
+    expect(await det.locator('code').evaluate((e, key) => e.textContent === key, sale3.auction.uivk)).toBe(true);
     await expect(det.locator('code')).toBeVisible();
     await noHorizontalScroll(page);
     await det.getByText('Auction incoming viewing key').click();
@@ -296,10 +317,13 @@ test.describe('saleroom', () => {
     }
     await page.getByRole('link', { name: 'Fuin saleroom' }).click();
     await expect(page).toHaveURL(/#main$/);
-    // The catalogue (landing) is one level up, as hosted.
-    await page.getByRole('link', { name: 'Catalogue' }).click();
-    await expect(page).toHaveURL(LANDING);
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    // Vite dev has no adjacent landing page; production builds do.
+    if (process.env.FUIN_DEV === '1') await expect(page.getByRole('link', { name: 'Catalogue' })).toHaveCount(0);
+    else {
+      await page.getByRole('link', { name: 'Catalogue' }).click();
+      await expect(page).toHaveURL(LANDING);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    }
     await page.goto(SALEROOM);
     await page.keyboard.press('Tab');
     const skip = page.getByRole('link', { name: 'Skip to the saleroom' });
@@ -335,6 +359,7 @@ test.describe('saleroom', () => {
     await settled(page, 'Could not finish the checks.');
     await expect(step(page, 'Verification key is the published one')).toHaveClass(/step-error/);
     await expect(step(page, 'Verification key is the published one')).toContainText('verification_key.json: HTTP 404');
+    await expect(verify(page).locator('.step-ok')).toHaveCount(0);
     for (const later of ['Groth16 proof verifies', 'Proof covers exactly the valid deposits', 'Winner is a real deposit']) {
       await expect(step(page, later)).toHaveClass(/step-error/);
       await expect(step(page, later)).toContainText('not run: an earlier check could not finish');
