@@ -1,0 +1,386 @@
+[
+  {
+    "id": "UI-L-001",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410; desktop=PASS, mobile=PASS. FUIN_PORT=4187 used because 4180 belonged to the earlier worktree; stack readiness and global setup require HTTP 200."
+  },
+  {
+    "id": "UI-L-002",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:453; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Masthead wordmark, seal text, home/Code hrefs and no GitHub fetch on load."
+  },
+  {
+    "id": "UI-L-003",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: SALE 003 and Zcash testnet above the headline."
+  },
+  {
+    "id": "UI-L-004",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-L-005",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by landing.spec.ts: Hero asset HTTP status, natural width, coverage and unobscured controls."
+  },
+  {
+    "id": "UI-L-006",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Hero CTA activation, Sale 003 selection, result and four checks; only its label/href are asserted."
+  },
+  {
+    "id": "UI-L-007",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410, landing.spec.ts:441, landing.spec.ts:177; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Hero evidence CTA activation; only its href is asserted (the lower evidence link is activated)."
+  },
+  {
+    "id": "UI-L-008",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: 900 ms delay, middle seal disappearance, Winning bid label and the other sealed notes."
+  },
+  {
+    "id": "UI-L-009",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by landing.spec.ts: Reload during the envelope animation and recovery within three seconds."
+  },
+  {
+    "id": "UI-L-010",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:429; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Flap/wax transition durations and stopped hero drift/light-sweep; only winner letter transition is checked."
+  },
+  {
+    "id": "UI-L-011",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by landing.spec.ts: Seal / Reveal / Prove step headings and descriptions."
+  },
+  {
+    "id": "UI-L-012",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:441; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-L-013",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:441; desktop=PASS, mobile=PASS. TESTING.md baseline is 85 passed, 0 failed, 2 skipped; no unit suite was run."
+  },
+  {
+    "id": "UI-L-014",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410, landing.spec.ts:441; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Losing bids shown label and absence of every losing bid amount; zero and absence of txid/block snippets are checked."
+  },
+  {
+    "id": "UI-L-015",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:441; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: What's live today and the full live-strip sentence; only Live is asserted."
+  },
+  {
+    "id": "UI-L-016",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:441; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Full funded-wallet/no-hosted-service/no-mainnet sentence and absence of hosted forms/backend claims; only Setup required is asserted."
+  },
+  {
+    "id": "UI-L-017",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:441, landing.spec.ts:177; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-L-018",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:453; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Footer heading/subline and saleroom CTA activation/result; only its href is asserted."
+  },
+  {
+    "id": "UI-L-019",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:453; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: MIT, Zcash testnet, not audited, footer Saleroom route and absence of GitHub fetch on load."
+  },
+  {
+    "id": "UI-L-020",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410, landing.spec.ts:441, landing.spec.ts:453; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Overlap/clipping across lower sections, masthead Code visibility, visible keyboard focus and activation of each visible link."
+  },
+  {
+    "id": "UI-L-021",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:410, landing.spec.ts:441, landing.spec.ts:453; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Overlap, hero artwork/CTA visibility and scrolling to every lower section/footer control."
+  },
+  {
+    "id": "UI-E-001",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:63; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-002",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:63; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-003",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:63, landing.spec.ts:190, landing.spec.ts:362; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-004",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:137; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-005",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:137; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Home link activation and cover heading in view after skip-link activation; only href, focus and URL are checked."
+  },
+  {
+    "id": "UI-E-006",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:137, landing.spec.ts:320; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-007",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:84; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Zero padding of all four clock fields; elapsed value, advance and block/time label are asserted."
+  },
+  {
+    "id": "UI-E-008",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:96; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: All bidder labels and all deposit txid/output snippets; only each lot number and the winner txid prefix are checked."
+  },
+  {
+    "id": "UI-E-009",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:96; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: 900 ms timing and exclusivity of winner opening; open class, winner amount, notes and button are asserted."
+  },
+  {
+    "id": "UI-E-010",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:96; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Live status after the second toggle; that exact open status is asserted only before closing."
+  },
+  {
+    "id": "UI-E-011",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by landing.spec.ts: Reload during opening, coherent restart and final state agreement."
+  },
+  {
+    "id": "UI-E-012",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:123; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: IntersectionObserver-unavailable fallback."
+  },
+  {
+    "id": "UI-E-013",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:177; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-014",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:177; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Full-refund wording and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-E-015",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:177; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-016",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:177; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Never opened text."
+  },
+  {
+    "id": "UI-E-017",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:177; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: 1 tx text and seller-winning-bid/forfeit/change/refund description."
+  },
+  {
+    "id": "UI-E-018",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:190; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-019",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:190; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Unfounded verdict, honoured reveal and payment-not-checked disclosure."
+  },
+  {
+    "id": "UI-E-020",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:215; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Ironwood-only text; recipient amounts, match labels and settlement block/href are checked."
+  },
+  {
+    "id": "UI-E-021",
+    "status": "PASS",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:383; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-E-022",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:383, landing.spec.ts:215; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Visible pnpm-header/dispute-scan omission markers; the live comparison excludes omission lines without asserting their presence."
+  },
+  {
+    "id": "UI-E-023",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:215, landing.spec.ts:383; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Required unrevealed/occupied/empty-slot counts and unfounded no-key complaint text; line comparison alone does not assert those lines exist."
+  },
+  {
+    "id": "UI-E-024",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:233; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Sale 002 deposit/reserve/close/reveal-close/hammer-height header text."
+  },
+  {
+    "id": "UI-E-025",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:233; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Memo mismatch labels, stay-in-wallet wording and explicit valid-versus-duplicate output descriptions."
+  },
+  {
+    "id": "UI-E-026",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:233; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Sale 002 settlement block text."
+  },
+  {
+    "id": "UI-E-027",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:233; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Complaint block, unfounded verdict and paid 5,000 of 5,000 zat text."
+  },
+  {
+    "id": "UI-E-028",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:250; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Sale 001 deposit/reserve/close/hammer-height header text."
+  },
+  {
+    "id": "UI-E-029",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:250; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Wrong amount/Memo mismatch/Duplicate/Late descriptions and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-E-030",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:250; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Sale 001 settlement block text."
+  },
+  {
+    "id": "UI-E-031",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:263; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Full bound-term list, legacy conditions, Poseidon/248-bit salt and fixed-size shielded sba1 memo text."
+  },
+  {
+    "id": "UI-E-032",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:263; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Late/duplicate/wrong-amount/non-bid distinctions and refusal of out-of-window/invalid openings."
+  },
+  {
+    "id": "UI-E-033",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:263; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Reserve/proof/spare-slot/full-refund details and winner-change 60,000 zat fee."
+  },
+  {
+    "id": "UI-E-034",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:263; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Reserve-0 no-sale proof, no-sale output-fee refunds and publication of only the complainant's own bid."
+  },
+  {
+    "id": "UI-E-035",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:263; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: scannedTo limit prose; all eight headings and legacy-window disclosures are checked."
+  },
+  {
+    "id": "UI-E-036",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:285; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Not the first sealed-bid ZK auction heading text; reported auction details, Ethereum prior art and all three differences are asserted."
+  },
+  {
+    "id": "UI-E-037",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:285; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Nightash source href (the other two source hrefs are asserted)."
+  },
+  {
+    "id": "UI-E-038",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:320; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Two tamper buttons in the section description."
+  },
+  {
+    "id": "UI-E-039",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:342; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: What is new visibility through/above 900px, nav overlap and availability of that section link elsewhere."
+  },
+  {
+    "id": "UI-E-040",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:137, landing.spec.ts:177, landing.spec.ts:233, landing.spec.ts:250, landing.spec.ts:297, landing.spec.ts:371; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: No GitHub fetch on load; external requests are not rejected by the health fixture."
+  },
+  {
+    "id": "UI-E-041",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:63, landing.spec.ts:137, landing.spec.ts:177, landing.spec.ts:190, landing.spec.ts:215, landing.spec.ts:233, landing.spec.ts:250, landing.spec.ts:285, landing.spec.ts:320, landing.spec.ts:371; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Readability/overlap/clipping of all cards, labels, amounts, terminal lines and footer controls."
+  },
+  {
+    "id": "UI-E-042",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:397, landing.spec.ts:63, landing.spec.ts:320; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Rendering static evidence and saleroom with verifier absent; missing-binary environment is applied only to the child audit command."
+  },
+  {
+    "id": "UI-E-043",
+    "status": "FAIL",
+    "evidence": "audit/ui-landing/landing-spec.txt",
+    "note": "landing.spec.ts:63, landing.spec.ts:96, landing.spec.ts:137, landing.spec.ts:177, landing.spec.ts:190, landing.spec.ts:215, landing.spec.ts:233, landing.spec.ts:250, landing.spec.ts:285, landing.spec.ts:320, landing.spec.ts:371; desktop=PASS, mobile=PASS. not asserted by landing.spec.ts: Full-layout overlap/readability and reaching every section heading by scrolling."
+  }
+]
