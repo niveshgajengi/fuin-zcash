@@ -1,0 +1,54 @@
+Saleroom existing-suite audit — 2026-10-26
+
+Site: http://127.0.0.1:4188/saleroom/ (FUIN_PORT=4188)
+Chrome channel; Google Chrome 155.0.8059.85; Playwright 1.63.0.
+Desktop 1280x800: 26 passed, 1 failed.
+Mobile 375x812 (deviceScaleFactor=2, isMobile, hasTouch): 26 passed, 1 failed.
+Final run: 2026-10-26T13:30:50.279Z; 173.097 seconds; exit 1.
+No retries or skipped tests. All three sales were exercised in both projects.
+
+Commands:
+  /Volumes/Extreme SSD/Projects/grokbot/tools/heavy-slot.sh acquire fuin-e2e-saleroom
+  pnpm build:site (site/saleroom was absent)
+  e2e/stack.sh (also rebuilds by design)
+  cd e2e
+  npx playwright test tests/saleroom.spec.ts --config audit-saleroom.config.ts --list
+  npx playwright test tests/saleroom.spec.ts --config audit-saleroom.config.ts
+  cd ..
+  e2e/stack.sh stop
+The runner EXIT/INT/TERM traps stopped its PID-owned stack and released the heavy slot.
+The lock script was unchanged; a command-local sleep wrapper shortened acquisition polling from 30s to 1s after repeated contention.
+The stack's server PID was 78710; it was stopped after the run.
+
+Artifact-only execution overrides:
+  Temporary config retained original Chrome channel, viewports, workers=1, retries=0,
+  test fixtures and assertions. Reporters were list and temporary machine-readable JSON;
+  videos/traces disabled, automatic screenshots only on failure. The 10 standalone
+  manual screenshot statements and the reduced-motion context's video option were
+  temporarily suppressed. No assertion, fixture or source line number was changed.
+  The original spec was restored byte-for-byte and temporary config removed by trap.
+  Original/restored spec SHA-256: 39c9bd08d629935a59f037a79374cc7843d3157d9748ba85f540c625c1751a5d
+  Existing shared node_modules and existing SBA_VERIFY_BIN were reused; no dependency
+  installation, verifier compilation or unit suite was run.
+
+Observed failure:
+  saleroom.spec.ts:286 control/navigation test fails at line 306 in both projects:
+  after returning from Catalogue and navigating to SALEROOM, pressing Tab does not
+  leave Skip to the saleroom focused; expected focused, received inactive (15s).
+  The test has no render-readiness assertion before this immediate keypress. That
+  is a possible timing cause, not an established diagnosis. This audit records
+  the original failure; no product or test fix was applied.
+  Failure PNGs were converted to the two committed JPEGs, each <=200,000 bytes.
+  No successful-test screenshots, videos, traces, HTML report or test-results are retained.
+
+Coverage policy:
+  audit/results/ui-saleroom.json contains exactly UI-S-001 through UI-S-083.
+  PASS requires both viewport runs to pass and assertions covering the full row.
+  15 rows PASS; 68 rows FAIL. FAIL notes identify partial/absent assertions using
+  "not asserted by saleroom.spec.ts". UI-S-006 and UI-S-082 also reference the
+  observed control-test failures. Coverage failures are not additional failed tests.
+  test-map.json maps all 54 executed cases to applicable rows by source test line,
+  sale-specific title and project, with runtime outcome and duration.
+  The reduced-motion case creates a separate context outside the page health fixture;
+  its console/network health and keyboard controls are not asserted (UI-S-076 FAIL).
+  No new spec or assertion was written. AUDIT.md is unchanged.

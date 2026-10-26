@@ -1,0 +1,500 @@
+[
+  {
+    "id": "UI-S-001",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Fuin / Saleroom wordmark and explicit JS/CSS subpath assertions."
+  },
+  {
+    "id": "UI-S-002",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exactly one selected tab, tabpanel label and Verify label after every sale switch."
+  },
+  {
+    "id": "UI-S-003",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Sale 002 selected-tab state and reload persistence."
+  },
+  {
+    "id": "UI-S-004",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Sale 001 selected-tab state after direct navigation, and settled verification after reload."
+  },
+  {
+    "id": "UI-S-005",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-006",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:286; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Code target, no GitHub fetch on load, and wordmark visible focus. desktop every control whose label contains \"log\" works; header links, skip link: failed. mobile every control whose label contains \"log\" works; header links, skip link: failed. Observed failure in both viewports: saleroom.spec.ts:306 expected Skip to the saleroom to be focused after Tab, received inactive (15s timeout). See audit/ui-saleroom/skip-link-desktop.jpg and audit/ui-saleroom/skip-link-mobile.jpg."
+  },
+  {
+    "id": "UI-S-007",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of losing bid amounts and privacy wording."
+  },
+  {
+    "id": "UI-S-008",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-S-009",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-S-010",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-011",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-S-012",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-S-013",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-S-014",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-015",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-016",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-S-017",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-018",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-019",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-020",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-021",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-022",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-S-023",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Separate valid/duplicate visible action suffixes, duplicate output fee and exact Never opened/forfeit-minus-fee text."
+  },
+  {
+    "id": "UI-S-024",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-025",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Visible browser-versus-chain limits, bound/legacy terms explanation and seller-payment-key disclosure in the audit section."
+  },
+  {
+    "id": "UI-S-026",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-027",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Explicit two-payment transaction = two deposits (valid and duplicate) explanation."
+  },
+  {
+    "id": "UI-S-028",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Winner/bidder2/MCP complain copy and absence of keys, openings or unified addresses in digest evidence."
+  },
+  {
+    "id": "UI-S-029",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exact unfounded verdict, honoured reveal and full expected payment text; the assertion compares the displayed verdict to the live audit dynamically."
+  },
+  {
+    "id": "UI-S-030",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of losing bid amounts and privacy wording."
+  },
+  {
+    "id": "UI-S-031",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-S-032",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-S-033",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-034",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-S-035",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-S-036",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-S-037",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-038",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-039",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-S-040",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-041",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-042",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-043",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-044",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-045",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-S-046",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Historical memo-mismatch and duplicate action suffixes, Never opened and explicit legacy non-refund wording."
+  },
+  {
+    "id": "UI-S-047",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-048",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Visible browser-versus-chain limits, bound/legacy terms explanation and seller-payment-key disclosure in the audit section."
+  },
+  {
+    "id": "UI-S-049",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-050",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:205; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Explicit two-payment transaction = two deposits (valid and duplicate) explanation."
+  },
+  {
+    "id": "UI-S-051",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Winner/bidder2/MCP complain copy and absence of keys, openings or unified addresses in digest evidence."
+  },
+  {
+    "id": "UI-S-052",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:234; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exact unfounded verdict, honoured reveal and full expected payment text; the assertion compares the displayed verdict to the live audit dynamically."
+  },
+  {
+    "id": "UI-S-053",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of reveal-channel or scripted MCP claims in the lede."
+  },
+  {
+    "id": "UI-S-054",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Reserve label and met status."
+  },
+  {
+    "id": "UI-S-055",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:68; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Exactly one tick per second and nonnegative individual timer fields; change within three seconds is asserted."
+  },
+  {
+    "id": "UI-S-056",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-057",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of hosted-backend verification requests."
+  },
+  {
+    "id": "UI-S-058",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99, saleroom.spec.ts:162, saleroom.spec.ts:183; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Empty slots 3-7 text."
+  },
+  {
+    "id": "UI-S-059",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:99; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: All three action buttons enabled; settled() checks only Check the published result."
+  },
+  {
+    "id": "UI-S-060",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-061",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-062",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:114; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Disabled state of all three buttons while busy and enabled state of both tamper buttons after completion."
+  },
+  {
+    "id": "UI-S-063",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-064",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-065",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-066",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142, saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Original LOT numbers remain attached after each filter; numbering is checked only with All visible."
+  },
+  {
+    "id": "UI-S-067",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:142; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: No Unrevealed chip explicitly, and reset from Sale 003 Unrevealed to Sale 001 All 7."
+  },
+  {
+    "id": "UI-S-068",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:162; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Each deposit amount, visible action suffix, canonical commitment and absence of losing bid amounts."
+  },
+  {
+    "id": "UI-S-069",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:183; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-070",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-071",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Absence of reveal table and complaint card, and altered-reveal rejection text; only the reveal section is checked absent."
+  },
+  {
+    "id": "UI-S-072",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:273; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Sale 001/002 disclosure values, cannot-spend/never-shows-a-bid copy, and key isolation while switching sales. Sale 003 value is compared without copying it to evidence."
+  },
+  {
+    "id": "UI-S-073",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-074",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-075",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-076",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:313; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Four green checks, keyboard controls and health collection in the separately created reduced-motion context; it checks animationName on an inserted step and the settled heading."
+  },
+  {
+    "id": "UI-S-077",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:331; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: All three buttons re-enabled and zero green steps; only the retry button is checked enabled."
+  },
+  {
+    "id": "UI-S-078",
+    "status": "PASS",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:331; desktop=PASS, mobile=PASS."
+  },
+  {
+    "id": "UI-S-079",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-080",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "No matching test; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Entire expected result."
+  },
+  {
+    "id": "UI-S-081",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:205, saleroom.spec.ts:273; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Full 375px overlap/clipping/readability checks, all control bounds and mobile expected/decrypted cell labels."
+  },
+  {
+    "id": "UI-S-082",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:286; desktop=FAIL, mobile=FAIL. not asserted by saleroom.spec.ts: Footer MIT/copyright/privacy copy and advertised result for every visible control. desktop every control whose label contains \"log\" works; header links, skip link: failed. mobile every control whose label contains \"log\" works; header links, skip link: failed. Observed failure in both viewports: saleroom.spec.ts:306 expected Skip to the saleroom to be focused after Tab, received inactive (15s timeout). See audit/ui-saleroom/skip-link-desktop.jpg and audit/ui-saleroom/skip-link-mobile.jpg."
+  },
+  {
+    "id": "UI-S-083",
+    "status": "FAIL",
+    "evidence": "audit/ui-saleroom/saleroom-spec.txt",
+    "note": "saleroom.spec.ts:38, saleroom.spec.ts:68, saleroom.spec.ts:205; desktop=PASS, mobile=PASS. not asserted by saleroom.spec.ts: Full 1280px overlap, three-column grid, verification sidebar/control bounds and scrolling to every lower section."
+  }
+]
