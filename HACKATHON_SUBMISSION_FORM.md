@@ -70,11 +70,10 @@ Ironwood-only throughout. Record: deployments/testnet.json.
 85 passed, 0 failed, 2 skipped (verifier 6, circuits 10, service 52 passed and 2 skipped of 54, mcp 17; the service audit and
 mcp tests read live testnet, so `pnpm test` needs network access and takes about 10 minutes on this
 machine), and 100 end-to-end tests in Google Chrome (50 per viewport: landing and evidence page 23, saleroom 27). CI
-(`.github/workflows/ci.yml`) runs `pnpm test` once the repository is on GitHub. See TESTING.md.
+(`.github/workflows/ci.yml`) runs `pnpm test` on the public repository. See TESTING.md.
 
 ## Links
-- Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (not public yet, so this URL does not
-  resolve: Nick creates it and pushes `main`).
+- Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (public).
 - Landing: https://fuin-landing.vercel.app (saleroom at https://fuin-landing.vercel.app/saleroom/) and
   the saleroom on its own: https://fuin-dashboard.vercel.app (static, over the published records).
   Locally: `pnpm install && pnpm --filter @sba/dashboard dev`.

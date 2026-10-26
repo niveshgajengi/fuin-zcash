@@ -5,9 +5,10 @@
 > over the published records; the saleroom checks each sale's Groth16 result in the tab. There is no
 > hosted backend: the chain re-read is the audit CLI (`pnpm --filter @sba/service run audit`).
 >
-> The code repository `https://github.com/nickthelegend/zec-sealed-bid-auction` is not public yet, so
-> the page's GitHub links do not resolve today. Locally: `pnpm install && pnpm --filter @sba/dashboard dev`
-> (the saleroom, http://localhost:5178), or `pnpm build:site` and serve `site/`. Once the repo is public,
+> Fuin is a portfolio piece, not the team's Zecathon entry (one entry per team; that entry is Shielded x402).
+> The code repository is public at `https://github.com/nickthelegend/zec-sealed-bid-auction`.
+> Locally: `pnpm install && pnpm --filter @sba/dashboard dev`
+> (the saleroom, http://localhost:5178), or `pnpm build:site` and serve `site/`.
 > `.github/workflows/pages.yml` can also publish `pnpm build:site` to GitHub Pages and
 > `.github/workflows/ci.yml` runs `pnpm test`.
 
