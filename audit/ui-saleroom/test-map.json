@@ -1,0 +1,722 @@
+[
+  {
+    "title": "Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales",
+    "line": 38,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 963,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-002",
+      "UI-S-004",
+      "UI-S-071",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 1414,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-007",
+      "UI-S-008",
+      "UI-S-009",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 661,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-010",
+      "UI-S-011",
+      "UI-S-012",
+      "UI-S-013"
+    ]
+  },
+  {
+    "title": "Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 935,
+    "audit_rows": [
+      "UI-S-014",
+      "UI-S-015",
+      "UI-S-016"
+    ]
+  },
+  {
+    "title": "Sale 003 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 693,
+    "audit_rows": [
+      "UI-S-017",
+      "UI-S-018",
+      "UI-S-019",
+      "UI-S-020",
+      "UI-S-021"
+    ]
+  },
+  {
+    "title": "Sale 003 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 582,
+    "audit_rows": [
+      "UI-S-007",
+      "UI-S-012",
+      "UI-S-017",
+      "UI-S-018",
+      "UI-S-019",
+      "UI-S-020",
+      "UI-S-021",
+      "UI-S-022",
+      "UI-S-023"
+    ]
+  },
+  {
+    "title": "Sale 003 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 703,
+    "audit_rows": [
+      "UI-S-012",
+      "UI-S-024"
+    ]
+  },
+  {
+    "title": "Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 1525,
+    "audit_rows": [
+      "UI-S-003",
+      "UI-S-030",
+      "UI-S-031",
+      "UI-S-032",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 002 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 720,
+    "audit_rows": [
+      "UI-S-003",
+      "UI-S-033",
+      "UI-S-034",
+      "UI-S-035",
+      "UI-S-036"
+    ]
+  },
+  {
+    "title": "Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 801,
+    "audit_rows": [
+      "UI-S-037",
+      "UI-S-038",
+      "UI-S-039"
+    ]
+  },
+  {
+    "title": "Sale 002 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 703,
+    "audit_rows": [
+      "UI-S-040",
+      "UI-S-041",
+      "UI-S-042",
+      "UI-S-043",
+      "UI-S-044"
+    ]
+  },
+  {
+    "title": "Sale 002 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 588,
+    "audit_rows": [
+      "UI-S-030",
+      "UI-S-035",
+      "UI-S-040",
+      "UI-S-041",
+      "UI-S-042",
+      "UI-S-043",
+      "UI-S-044",
+      "UI-S-045",
+      "UI-S-046"
+    ]
+  },
+  {
+    "title": "Sale 002 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 576,
+    "audit_rows": [
+      "UI-S-035",
+      "UI-S-047"
+    ]
+  },
+  {
+    "title": "Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 1427,
+    "audit_rows": [
+      "UI-S-004",
+      "UI-S-053",
+      "UI-S-054",
+      "UI-S-055",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 001 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 680,
+    "audit_rows": [
+      "UI-S-004",
+      "UI-S-056",
+      "UI-S-057",
+      "UI-S-058",
+      "UI-S-059"
+    ]
+  },
+  {
+    "title": "Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 824,
+    "audit_rows": [
+      "UI-S-060",
+      "UI-S-061",
+      "UI-S-062"
+    ]
+  },
+  {
+    "title": "Sale 001 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 769,
+    "audit_rows": [
+      "UI-S-063",
+      "UI-S-064",
+      "UI-S-065",
+      "UI-S-066",
+      "UI-S-067"
+    ]
+  },
+  {
+    "title": "Sale 001 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 719,
+    "audit_rows": [
+      "UI-S-053",
+      "UI-S-058",
+      "UI-S-063",
+      "UI-S-064",
+      "UI-S-065",
+      "UI-S-066",
+      "UI-S-068"
+    ]
+  },
+  {
+    "title": "Sale 001 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 623,
+    "audit_rows": [
+      "UI-S-058",
+      "UI-S-069"
+    ]
+  },
+  {
+    "title": "Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+    "line": 205,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 596,
+    "audit_rows": [
+      "UI-S-026",
+      "UI-S-027",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+    "line": 205,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 635,
+    "audit_rows": [
+      "UI-S-049",
+      "UI-S-050",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+    "line": 234,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 20257,
+    "audit_rows": [
+      "UI-S-025",
+      "UI-S-028",
+      "UI-S-029"
+    ]
+  },
+  {
+    "title": "Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+    "line": 234,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 26415,
+    "audit_rows": [
+      "UI-S-048",
+      "UI-S-051",
+      "UI-S-052"
+    ]
+  },
+  {
+    "title": "audit: the viewing-key disclosure opens and closes and shows the published key",
+    "line": 273,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 631,
+    "audit_rows": [
+      "UI-S-072",
+      "UI-S-081"
+    ]
+  },
+  {
+    "title": "every control whose label contains \"log\" works; header links, skip link",
+    "line": 286,
+    "project": "desktop",
+    "status": "failed",
+    "duration_ms": 15696,
+    "audit_rows": [
+      "UI-S-006",
+      "UI-S-082"
+    ],
+    "failure": "saleroom.spec.ts:306: expect(skip).toBeFocused(); expected focused, received inactive after Tab (15000 ms timeout).",
+    "screenshot": "audit/ui-saleroom/skip-link-desktop.jpg"
+  },
+  {
+    "title": "reduced motion: no spinner animation while the checks run",
+    "line": 313,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 759,
+    "audit_rows": [
+      "UI-S-076"
+    ]
+  },
+  {
+    "title": "error state (fault injection on the page\u2019s own static file): verification key unavailable or altered",
+    "line": 331,
+    "project": "desktop",
+    "status": "passed",
+    "duration_ms": 745,
+    "audit_rows": [
+      "UI-S-077",
+      "UI-S-078"
+    ]
+  },
+  {
+    "title": "Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales",
+    "line": 38,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 1061,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-002",
+      "UI-S-004",
+      "UI-S-071",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 1609,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-007",
+      "UI-S-008",
+      "UI-S-009",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 769,
+    "audit_rows": [
+      "UI-S-001",
+      "UI-S-010",
+      "UI-S-011",
+      "UI-S-012",
+      "UI-S-013"
+    ]
+  },
+  {
+    "title": "Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 881,
+    "audit_rows": [
+      "UI-S-014",
+      "UI-S-015",
+      "UI-S-016"
+    ]
+  },
+  {
+    "title": "Sale 003 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 739,
+    "audit_rows": [
+      "UI-S-017",
+      "UI-S-018",
+      "UI-S-019",
+      "UI-S-020",
+      "UI-S-021"
+    ]
+  },
+  {
+    "title": "Sale 003 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 665,
+    "audit_rows": [
+      "UI-S-007",
+      "UI-S-012",
+      "UI-S-017",
+      "UI-S-018",
+      "UI-S-019",
+      "UI-S-020",
+      "UI-S-021",
+      "UI-S-022",
+      "UI-S-023"
+    ]
+  },
+  {
+    "title": "Sale 003 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 675,
+    "audit_rows": [
+      "UI-S-012",
+      "UI-S-024"
+    ]
+  },
+  {
+    "title": "Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 1497,
+    "audit_rows": [
+      "UI-S-003",
+      "UI-S-030",
+      "UI-S-031",
+      "UI-S-032",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 002 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 672,
+    "audit_rows": [
+      "UI-S-003",
+      "UI-S-033",
+      "UI-S-034",
+      "UI-S-035",
+      "UI-S-036"
+    ]
+  },
+  {
+    "title": "Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 856,
+    "audit_rows": [
+      "UI-S-037",
+      "UI-S-038",
+      "UI-S-039"
+    ]
+  },
+  {
+    "title": "Sale 002 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 792,
+    "audit_rows": [
+      "UI-S-040",
+      "UI-S-041",
+      "UI-S-042",
+      "UI-S-043",
+      "UI-S-044"
+    ]
+  },
+  {
+    "title": "Sale 002 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 718,
+    "audit_rows": [
+      "UI-S-030",
+      "UI-S-035",
+      "UI-S-040",
+      "UI-S-041",
+      "UI-S-042",
+      "UI-S-043",
+      "UI-S-044",
+      "UI-S-045",
+      "UI-S-046"
+    ]
+  },
+  {
+    "title": "Sale 002 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 669,
+    "audit_rows": [
+      "UI-S-035",
+      "UI-S-047"
+    ]
+  },
+  {
+    "title": "Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll",
+    "line": 68,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 1492,
+    "audit_rows": [
+      "UI-S-004",
+      "UI-S-053",
+      "UI-S-054",
+      "UI-S-055",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 001 verify in this tab: the record passes all four checks against the served verification key",
+    "line": 99,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 728,
+    "audit_rows": [
+      "UI-S-004",
+      "UI-S-056",
+      "UI-S-057",
+      "UI-S-058",
+      "UI-S-059"
+    ]
+  },
+  {
+    "title": "Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores",
+    "line": 114,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 969,
+    "audit_rows": [
+      "UI-S-060",
+      "UI-S-061",
+      "UI-S-062"
+    ]
+  },
+  {
+    "title": "Sale 001 lot filters: each chip shows exactly its lots and its count",
+    "line": 142,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 686,
+    "audit_rows": [
+      "UI-S-063",
+      "UI-S-064",
+      "UI-S-065",
+      "UI-S-066",
+      "UI-S-067"
+    ]
+  },
+  {
+    "title": "Sale 001 lot cards: chain order, explorer links, only the winner\u2019s amount shown, refusal reasons",
+    "line": 162,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 646,
+    "audit_rows": [
+      "UI-S-053",
+      "UI-S-058",
+      "UI-S-063",
+      "UI-S-064",
+      "UI-S-065",
+      "UI-S-066",
+      "UI-S-068"
+    ]
+  },
+  {
+    "title": "Sale 001 provenance ledger: each recipient\u2019s decrypted outputs match; settlement link",
+    "line": 183,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 677,
+    "audit_rows": [
+      "UI-S-058",
+      "UI-S-069"
+    ]
+  },
+  {
+    "title": "Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+    "line": 205,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 578,
+    "audit_rows": [
+      "UI-S-026",
+      "UI-S-027",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks",
+    "line": 205,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 633,
+    "audit_rows": [
+      "UI-S-049",
+      "UI-S-050",
+      "UI-S-081",
+      "UI-S-083"
+    ]
+  },
+  {
+    "title": "Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+    "line": 234,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 18382,
+    "audit_rows": [
+      "UI-S-025",
+      "UI-S-028",
+      "UI-S-029"
+    ]
+  },
+  {
+    "title": "Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit\u2019s",
+    "line": 234,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 33897,
+    "audit_rows": [
+      "UI-S-048",
+      "UI-S-051",
+      "UI-S-052"
+    ]
+  },
+  {
+    "title": "audit: the viewing-key disclosure opens and closes and shows the published key",
+    "line": 273,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 638,
+    "audit_rows": [
+      "UI-S-072",
+      "UI-S-081"
+    ]
+  },
+  {
+    "title": "every control whose label contains \"log\" works; header links, skip link",
+    "line": 286,
+    "project": "mobile",
+    "status": "failed",
+    "duration_ms": 15694,
+    "audit_rows": [
+      "UI-S-006",
+      "UI-S-082"
+    ],
+    "failure": "saleroom.spec.ts:306: expect(skip).toBeFocused(); expected focused, received inactive after Tab (15000 ms timeout).",
+    "screenshot": "audit/ui-saleroom/skip-link-mobile.jpg"
+  },
+  {
+    "title": "reduced motion: no spinner animation while the checks run",
+    "line": 313,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 837,
+    "audit_rows": [
+      "UI-S-076"
+    ]
+  },
+  {
+    "title": "error state (fault injection on the page\u2019s own static file): verification key unavailable or altered",
+    "line": 331,
+    "project": "mobile",
+    "status": "passed",
+    "duration_ms": 817,
+    "audit_rows": [
+      "UI-S-077",
+      "UI-S-078"
+    ]
+  }
+]

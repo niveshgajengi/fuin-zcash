@@ -1,0 +1,56 @@
+Listing tests:
+  [desktop] › saleroom.spec.ts:38:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales
+  [desktop] › saleroom.spec.ts:68:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [desktop] › saleroom.spec.ts:99:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key
+  [desktop] › saleroom.spec.ts:114:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [desktop] › saleroom.spec.ts:142:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count
+  [desktop] › saleroom.spec.ts:162:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [desktop] › saleroom.spec.ts:183:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [desktop] › saleroom.spec.ts:68:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [desktop] › saleroom.spec.ts:99:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key
+  [desktop] › saleroom.spec.ts:114:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [desktop] › saleroom.spec.ts:142:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count
+  [desktop] › saleroom.spec.ts:162:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [desktop] › saleroom.spec.ts:183:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [desktop] › saleroom.spec.ts:68:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [desktop] › saleroom.spec.ts:99:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key
+  [desktop] › saleroom.spec.ts:114:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [desktop] › saleroom.spec.ts:142:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count
+  [desktop] › saleroom.spec.ts:162:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [desktop] › saleroom.spec.ts:183:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [desktop] › saleroom.spec.ts:205:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+  [desktop] › saleroom.spec.ts:205:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+  [desktop] › saleroom.spec.ts:234:3 › saleroom › Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s
+  [desktop] › saleroom.spec.ts:234:3 › saleroom › Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s
+  [desktop] › saleroom.spec.ts:273:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+  [desktop] › saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link
+  [desktop] › saleroom.spec.ts:313:3 › saleroom › reduced motion: no spinner animation while the checks run
+  [desktop] › saleroom.spec.ts:331:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+  [mobile] › saleroom.spec.ts:38:3 › saleroom › Sale 003 is the headline: the tabs switch the whole page and the URL; ?sale=002 and ?sale=001 open the earlier sales
+  [mobile] › saleroom.spec.ts:68:5 › saleroom › Sale 003 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [mobile] › saleroom.spec.ts:99:5 › saleroom › Sale 003 verify in this tab: the record passes all four checks against the served verification key
+  [mobile] › saleroom.spec.ts:114:5 › saleroom › Sale 003 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [mobile] › saleroom.spec.ts:142:5 › saleroom › Sale 003 lot filters: each chip shows exactly its lots and its count
+  [mobile] › saleroom.spec.ts:162:5 › saleroom › Sale 003 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [mobile] › saleroom.spec.ts:183:5 › saleroom › Sale 003 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [mobile] › saleroom.spec.ts:68:5 › saleroom › Sale 002 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [mobile] › saleroom.spec.ts:99:5 › saleroom › Sale 002 verify in this tab: the record passes all four checks against the served verification key
+  [mobile] › saleroom.spec.ts:114:5 › saleroom › Sale 002 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [mobile] › saleroom.spec.ts:142:5 › saleroom › Sale 002 lot filters: each chip shows exactly its lots and its count
+  [mobile] › saleroom.spec.ts:162:5 › saleroom › Sale 002 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [mobile] › saleroom.spec.ts:183:5 › saleroom › Sale 002 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [mobile] › saleroom.spec.ts:68:5 › saleroom › Sale 001 header: hammer price, lede, timeline and live clock from the record; no horizontal scroll
+  [mobile] › saleroom.spec.ts:99:5 › saleroom › Sale 001 verify in this tab: the record passes all four checks against the served verification key
+  [mobile] › saleroom.spec.ts:114:5 › saleroom › Sale 001 tamper buttons: 1 zat more breaks the proof; a phantom bid breaks proof and slots; re-check restores
+  [mobile] › saleroom.spec.ts:142:5 › saleroom › Sale 001 lot filters: each chip shows exactly its lots and its count
+  [mobile] › saleroom.spec.ts:162:5 › saleroom › Sale 001 lot cards: chain order, explorer links, only the winner’s amount shown, refusal reasons
+  [mobile] › saleroom.spec.ts:183:5 › saleroom › Sale 001 provenance ledger: each recipient’s decrypted outputs match; settlement link
+  [mobile] › saleroom.spec.ts:205:3 › saleroom › Sale 003: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+  [mobile] › saleroom.spec.ts:205:3 › saleroom › Sale 002: every reveal note with its block, deposit and status; window, unrevealed and recipient checks
+  [mobile] › saleroom.spec.ts:234:3 › saleroom › Sale 003 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s
+  [mobile] › saleroom.spec.ts:234:3 › saleroom › Sale 002 complaint: the digest computed in the tab is the one anchored on chain, and the verdict shown is the live audit’s
+  [mobile] › saleroom.spec.ts:273:3 › saleroom › audit: the viewing-key disclosure opens and closes and shows the published key
+  [mobile] › saleroom.spec.ts:286:3 › saleroom › every control whose label contains "log" works; header links, skip link
+  [mobile] › saleroom.spec.ts:313:3 › saleroom › reduced motion: no spinner animation while the checks run
+  [mobile] › saleroom.spec.ts:331:3 › saleroom › error state (fault injection on the page’s own static file): verification key unavailable or altered
+Total: 54 tests in 1 file
