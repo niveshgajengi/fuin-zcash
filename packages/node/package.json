@@ -1,0 +1,22 @@
+{
+  "name": "@sba/node",
+  "version": "0.1.0",
+  "description": "The Fuin node: local HTTP API behind the Fuin app (house + bidder wallets via sba-mcp), on Zcash testnet",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@sba/circuits": "workspace:*",
+    "@sba/service": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  }
+}
