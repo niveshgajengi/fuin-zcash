@@ -99,9 +99,11 @@ function BlockChip() {
   );
 }
 
-function Floor({ lots, onCreate }: { lots: Lot[]; onCreate: () => void }) {
+function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
   const s = useStore();
   const tip = s.health?.tip ?? 0;
+  const [scope, setScope] = useState<'all' | 'node'>(() => (new URLSearchParams(location.hash.split('?')[1] ?? '').get('scope') === 'node' ? 'node' : 'all'));
+  const lots = scope === 'node' ? all.filter((l) => l.source === 'node') : all;
   const live = lots.filter((l) => l.phase !== 'settled');
   const settled = lots.filter((l) => l.phase === 'settled');
   const hero = live[0] ?? settled[0];
@@ -110,10 +112,20 @@ function Floor({ lots, onCreate }: { lots: Lot[]; onCreate: () => void }) {
   return (
     <>
       {hero && <Hero lot={hero} tip={tip} />}
+      {s.node === 'online' && (
+        <div className="scope" role="tablist" aria-label="Which lots">
+          <button role="tab" aria-selected={scope === 'all'} className={scope === 'all' ? 'on' : ''} onClick={() => setScope('all')}>
+            all lots · {all.length}
+          </button>
+          <button role="tab" aria-selected={scope === 'node'} className={scope === 'node' ? 'on' : ''} onClick={() => setScope('node')}>
+            run on this node · {all.filter((l) => l.source === 'node').length}
+          </button>
+        </div>
+      )}
       <section className="stats3" aria-label="Totals from the published records">
         <div>
           <b>{settled.length}</b>
-          <span>sales hammered on testnet</span>
+          <span>{scope === 'node' ? 'sales hammered on this node' : 'sales hammered on testnet'}</span>
         </div>
         <div>
           <b>{opened}</b>

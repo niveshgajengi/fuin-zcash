@@ -1775,3 +1775,23 @@ h2 {
 .j-failed .jdot {
   background: var(--faint);
 }
+
+.scope {
+  display: flex;
+  gap: 6px;
+  margin-top: 20px;
+}
+.scope button {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: var(--muted);
+  font-weight: 500;
+}
+.scope button.on {
+  color: var(--text);
+  border-color: var(--coral);
+  background: var(--coral-soft);
+}
