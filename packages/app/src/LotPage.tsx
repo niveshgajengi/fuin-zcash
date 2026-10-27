@@ -66,6 +66,7 @@ export function LotPage({ lot, lots }: { lot: Lot; lots: Lot[] }) {
 
       <aside className="lp-side">
         <ActionSheet lot={lot} tip={tip} />
+        <LotJobs lot={lot} />
         <MySeal lot={lot} />
         <div className="more">
           <div className="more-title">more lots</div>
@@ -567,6 +568,34 @@ function MySeal({ lot }: { lot: Lot }) {
       <button className="link" onClick={() => void refresh()}>
         refresh
       </button>
+    </div>
+  );
+}
+
+/** Recent wallet actions on this lot from the node, so a send that outlives its sheet stays visible. */
+function LotJobs({ lot }: { lot: Lot }) {
+  const s = useStore();
+  const mine = s.jobs.filter((j) => j.auctionId === lot.card.auctionId).slice(-5).reverse();
+  if (lot.source !== 'node' || mine.length === 0) return null;
+  return (
+    <div className="myseal">
+      <div className="more-title">wallet activity on this lot</div>
+      {mine.map((j) => {
+        const tx = j.result?.txid ?? j.result?.settlement ?? j.result?.txids?.[0];
+        return (
+          <div key={j.id} className={`jrow j-${j.status}`}>
+            <span className="jdot" />
+            <span>
+              <b>
+                {j.kind === 'settle' ? 'house' : j.wallet} · {j.kind}
+              </b>
+              <small className="mono">
+                {j.status === 'running' ? j.stage : j.status === 'failed' ? j.error : tx ? `${short(tx, 8, 4)} sent` : 'done'}
+              </small>
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

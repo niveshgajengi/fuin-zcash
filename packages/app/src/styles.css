@@ -1743,3 +1743,35 @@ h2 {
     transition: none !important;
   }
 }
+
+.jrow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.jrow > span:last-child {
+  display: grid;
+  min-width: 0;
+}
+.jrow small {
+  color: var(--faint);
+  overflow-wrap: anywhere;
+}
+.jrow b {
+  font-weight: 500;
+}
+.jdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 7px;
+  flex: none;
+  background: var(--ok);
+}
+.j-running .jdot {
+  background: var(--coral);
+  animation: blink 0.8s infinite alternate;
+}
+.j-failed .jdot {
+  background: var(--faint);
+}
