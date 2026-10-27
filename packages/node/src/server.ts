@@ -571,7 +571,6 @@ const server = createServer(async (req, res) => {
         for (const txid of txids) fresh.sent.push({ kind: action, wallet, txid, at: new Date().toISOString() });
         saveAuction(fresh);
         stage(`broadcast ${txids.map((t) => t.slice(0, 10)).join(', ')}…; waiting for a block`);
-        setTimeout(() => refreshBalance(wallet), 5_000);
         // The bid amount stays in the bidder's folder: the response carries only the txid and the public commitment.
         return action === 'bid' ? { txid: r.txid, commitment: r.commitment, depositZat: r.deposit_zat } : { txids };
       });
