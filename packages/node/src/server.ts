@@ -430,7 +430,7 @@ async function settle(a: HouseAuction, stage: (s: string) => void) {
     a.settlement = { txid: txids[0], payouts: o.payouts.map((p) => ({ address: p.address, amount: p.amount.toString(), why: p.why })) };
     saveAuction(a);
     writeFileSync(resolve(STATE, `scan-${a.sale}.json`), JSON.stringify({ to, deposits: deposits.map((d) => ({ ...d, value: d.value.toString() })), log }, null, 2), { mode: 0o600 });
-    pushFeed({ kind: 'settle', sale: a.sale, lot: a.lot.title, height: null, txid: txids[0], text: o.noSale ? 'no sale: every revealed deposit refunded' : 'hammer: winner opened, settlement sent' });
+    pushFeed({ kind: 'settle', sale: a.sale, lot: a.lot.title, height: null, txid: txids[0], text: o.noSale ? `no sale (${o.noSale.detail}); unrevealed deposits forfeited to the seller` : 'hammer: winner opened, settlement sent' });
   }
   const settlement = a.settlement!;
   stage(`waiting for settlement ${settlement.txid.slice(0, 10)}… to be mined`);
