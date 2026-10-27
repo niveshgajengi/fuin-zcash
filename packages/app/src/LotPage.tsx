@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as snarkjs from 'snarkjs';
 import { checkResult } from '@sba/circuits/result';
 import { emptyCommitment } from '@sba/circuits/poseidon';
-import { api, EXPLORER, num, short, taz, type Job, type Lot, type Opening } from './data';
+import { api, EXPLORER, fate, num, short, taz, type Job, type Lot, type Opening } from './data';
 import { refresh, setWallet, useJob, useStore } from './store';
 import { ART, Countdown, Empty, LotCard, PhasePill, SealAvatar, SetupRequired } from './ui';
 
@@ -121,7 +121,8 @@ function Rail({ lot, tip }: { lot: Lot; tip: number }) {
 
 function Hammer({ lot }: { lot: Lot }) {
   const r = lot.record!;
-  const sealedForever = lot.bids.filter((b) => b.status === 'valid' && b.ref !== lot.winner?.ref).length;
+  const unrevealed = r.outcome?.unrevealed ?? [];
+  const sealedForever = lot.bids.filter((b) => b.status === 'valid' && b.ref !== lot.winner?.ref && !unrevealed.includes(b.ref)).length;
   return (
     <section className="hammer">
       <div className="hm-art">
@@ -146,6 +147,11 @@ function Hammer({ lot }: { lot: Lot }) {
           <div>
             <b>{sealedForever}</b> losing bid{sealedForever === 1 ? '' : 's'} sealed forever
           </div>
+          {unrevealed.length > 0 && (
+            <div>
+              <b>{unrevealed.length}</b> unrevealed, forfeited to the seller
+            </div>
+          )}
           <div>
             <b>{r.settlement!.outputs.length}</b> payouts in one shielded tx
           </div>
@@ -306,7 +312,7 @@ function Proof({ lot }: { lot: Lot }) {
       setSteps(init);
       const upd = (k: string, st: StepState, d: string) => setSteps((s) => s.map((x) => (x.k === k ? { ...x, st, d } : x)));
       if (!r.outcome?.proof || !r.outcome.publicSignals) {
-        setSteps(init.map((x) => ({ ...x, st: 'ok', d: 'no proof: nothing valid was revealed' })));
+        setSteps([{ k: 'none', label: 'nothing to prove: no valid bid was revealed, so no bid was opened', st: 'ok', d: r.outcome?.noSale?.detail ?? '' }]);
         return;
       }
       const signals = [...r.outcome.publicSignals];
@@ -560,11 +566,11 @@ function MySeal({ lot }: { lot: Lot }) {
           <SealAvatar seed={o.deposit ?? String(i)} size={26} open={o.deposit === lot.winner?.ref} />
           <span>
             <b className="mono">{taz(o.bidZat)} TAZ</b>
-            <small>{o.deposit === lot.winner?.ref ? 'you won · opened' : o.revealTxid ? 'revealed to the house' : o.deposit ? 'sealed on chain' : o.status}</small>
+            <small>{fate(lot, o.deposit, !!o.revealTxid).text}</small>
           </span>
         </div>
       ))}
-      {lot.phase === 'settled' && !wonByMe && <p className="faint">Your bid lost and stays sealed: it was never published. Your deposit came back in the settlement.</p>}
+      {lot.phase === 'settled' && !wonByMe && mine.some((o) => fate(lot, o.deposit, true).text.startsWith('lost')) && <p className="faint">Your bid lost and stays sealed: it was never published. Your deposit came back in the settlement.</p>}
       <button className="link" onClick={() => void refresh()}>
         refresh
       </button>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, num, REPO, taz, type Lot } from './data';
+import { api, fate, num, REPO, taz, type Lot } from './data';
 import { LotPage } from './LotPage';
 import { refresh, startPolling, useLots, useRoute, useStore } from './store';
 import { ART, ARTS, Countdown, Empty, FeedRow, LotCard, Logo, PhasePill, SealAvatar, SetupRequired, Ticker, Toasts } from './ui';
@@ -108,7 +108,7 @@ function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
   const settled = lots.filter((l) => l.phase === 'settled');
   const hero = live[0] ?? settled[0];
   const opened = settled.filter((l) => l.winner).length;
-  const sealedForever = settled.reduce((n, l) => n + l.bids.filter((b) => b.status === 'valid' && b.ref !== l.winner?.ref).length, 0);
+  const sealedForever = settled.reduce((n, l) => n + l.bids.filter((b) => b.status === 'valid' && b.ref !== l.winner?.ref && !(l.record?.outcome?.unrevealed ?? []).includes(b.ref)).length, 0);
   return (
     <>
       {hero && <Hero lot={hero} tip={tip} />}
@@ -316,7 +316,7 @@ function Seals({ lots }: { lots: Lot[] }) {
                     </span>
                     <span className="mono">{taz(r.bidZat)}</span>
                     <span className="hide-sm mono">{r.deposit ? `${r.deposit.slice(0, 8)}…` : 'not mined'}</span>
-                    <span>{won ? <span className="opened">won · opened</span> : r.lot.phase === 'settled' ? <span className="sealed-txt">lost · sealed forever</span> : r.revealTxid ? <span className="ok">revealed to the house</span> : <span className="sealed-txt">sealed</span>}</span>
+                    <span>{(() => { const f = fate(r.lot, r.deposit, !!r.revealTxid); return <span className={f.cls}>{f.text}</span>; })()}</span>
                   </a>
                 );
               })}

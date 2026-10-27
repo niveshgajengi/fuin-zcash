@@ -231,3 +231,14 @@ export function sealHue(seed: string) {
   for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   return h;
 }
+
+/** What happened to one of my bids, from the record: won, lost (refunded), forfeited, or no sale. */
+export function fate(lot: Lot, deposit: string | null, revealed: boolean): { text: string; cls: 'opened' | 'sealed-txt' | 'refused' | 'ok' } {
+  if (lot.phase !== 'settled' || !lot.record) return revealed ? { text: 'revealed to the house', cls: 'ok' } : { text: deposit ? 'sealed on chain' : 'sending', cls: 'sealed-txt' };
+  if (deposit && deposit === lot.winner?.ref) return { text: 'won · the only bid opened', cls: 'opened' };
+  if (deposit && (lot.record.outcome?.unrevealed ?? []).includes(deposit)) return { text: 'not revealed in time · forfeited to the seller', cls: 'refused' };
+  const b = lot.bids.find((x) => x.ref === deposit);
+  if (b && b.status !== 'valid') return { text: `${b.status.replace('_', ' ')} · see the record`, cls: 'refused' };
+  if (lot.noSale) return { text: 'no sale · refunded', cls: 'refused' };
+  return { text: 'lost · sealed forever, deposit refunded', cls: 'sealed-txt' };
+}
