@@ -1,6 +1,7 @@
 // Thin wrapper over zingo-cli (testnet). One process per call; --waitsync so every read is current.
 // Never calls `recovery_info` (it prints the seed). Errors carry zingo-cli's own message.
 import { execFile } from 'node:child_process';
+import { mkdirSync, rmdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
@@ -10,17 +11,43 @@ const run = promisify(execFile);
 export interface ZingoConfig {
   bin: string;
   server: string;
+  /** A directory used as a machine-wide lock: zingo-cli's mixnet proxy fails when two run at once. */
+  lock?: string;
 }
 
 export function zingoConfig(env: Record<string, string | undefined> = process.env): ZingoConfig {
   return {
     bin: env.SBA_ZINGO_CLI ?? join(homedir(), 'src/zingolib/target/release/zingo-cli'),
     server: env.SBA_LWD_URL ?? 'https://testnet.zec.rocks:443',
+    ...(env.SBA_ZINGO_LOCK ? { lock: env.SBA_ZINGO_LOCK } : {}),
   };
+}
+
+/** Holds cfg.lock (mkdir is atomic) for the length of fn; without a lock configured, runs fn directly. */
+async function locked<T>(cfg: ZingoConfig, fn: () => Promise<T>): Promise<T> {
+  if (!cfg.lock) return fn();
+  for (;;) {
+    try {
+      mkdirSync(cfg.lock);
+      break;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw new Error(`cannot take the zingo-cli lock ${cfg.lock}: ${(e as Error).message}`);
+      await new Promise((r) => setTimeout(r, 5_000));
+    }
+  }
+  try {
+    return await fn();
+  } finally {
+    rmdirSync(cfg.lock);
+  }
 }
 
 async function zingo(cfg: ZingoConfig, walletDir: string, args: string[], timeoutMs = 600_000): Promise<string> {
   if (args[0] === 'recovery_info') throw new Error('refusing recovery_info: it prints the seed');
+  return locked(cfg, () => zingoUnlocked(cfg, walletDir, args, timeoutMs));
+}
+
+async function zingoUnlocked(cfg: ZingoConfig, walletDir: string, args: string[], timeoutMs: number): Promise<string> {
   try {
     const { stdout, stderr } = await run(cfg.bin, ['--chain', 'testnet', '--server', cfg.server, '--data-dir', walletDir, '--waitsync', ...args], {
       timeout: timeoutMs,

@@ -138,7 +138,7 @@ async function asBidder(name: string, tool: string, args: Record<string, unknown
       new StdioClientTransport({
         command: TSX,
         args: [MCP],
-        env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', SBA_AUCTION_FILE: OUT, SBA_BIDDER_WALLET: w(name), SBA_BIDDER_DIR: resolve(BIDDERS, name), ...(process.env.SBA_ZINGO_CLI ? { SBA_ZINGO_CLI: process.env.SBA_ZINGO_CLI } : {}) },
+        env: { PATH: process.env.PATH ?? '', HOME: process.env.HOME ?? '', SBA_AUCTION_FILE: OUT, SBA_BIDDER_WALLET: w(name), SBA_BIDDER_DIR: resolve(BIDDERS, name), ...(process.env.SBA_ZINGO_CLI ? { SBA_ZINGO_CLI: process.env.SBA_ZINGO_CLI } : {}), ...(process.env.SBA_ZINGO_LOCK ? { SBA_ZINGO_LOCK: process.env.SBA_ZINGO_LOCK } : {}) },
       }),
     );
     try {
