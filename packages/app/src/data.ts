@@ -163,7 +163,10 @@ export function lotFromNode(a: NodeAuction): Lot {
     phase: a.phase,
     source: 'node',
     bids: a.deposits,
-    reveals: a.reveals.map((r) => ({ ...r, status: null })),
+    // Auctions share the house address, so the scan also finds other auctions' reveal notes: keep the ones naming this lot's deposits.
+    reveals: a.reveals
+      .filter((r) => r.deposit !== null && a.deposits.some((d) => d.ref === r.deposit || d.txid === r.deposit!.split(':')[0]))
+      .map((r) => ({ ...r, status: null })),
     pending: a.pending,
     record: null,
     winner: null,

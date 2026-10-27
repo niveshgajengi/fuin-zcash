@@ -235,7 +235,7 @@ async function scanAuction(a: HouseAuction) {
       if (d.status === 'memo_mismatch') continue;
       pushFeed({ kind: 'bid', sale: a.sale, lot: a.lot.title, height: d.height, txid: d.ref, text: d.status === 'valid' ? 'sealed bid landed' : `deposit ${d.status.replace('_', ' ')}` });
     }
-    for (const m of txs.flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:`))) {
+    for (const m of txs.flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:${a.card.auctionId}:`))) {
       const late = m.height !== null && m.height > a.card.revealCloseHeight;
       pushFeed({ kind: 'reveal', sale: a.sale, lot: a.lot.title, height: m.height, txid: m.txid, text: late ? 'reveal note arrived late' : 'sealed reveal note landed' });
     }
@@ -263,7 +263,8 @@ function publicView(a: HouseAuction) {
   const w = watch.get(a.card.auctionId);
   const cfg = cfgOf(a.card);
   const deposits = w ? classifyDeposits(cfg, w.txs.flatMap(asDeposits)) : [];
-  const reveals = (w?.txs ?? []).flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:`)).map((m) => {
+  // Auctions share the house address: only this auction's reveal notes (its id is in the memo).
+  const reveals = (w?.txs ?? []).flatMap((t) => asMessages(t, `${REVEAL_PREFIX}:${a.card.auctionId}:`)).map((m) => {
     const r = parseRevealMemo(m.memo);
     return { txid: m.txid, height: m.height, deposit: r?.deposit ?? null, late: m.height !== null && m.height > a.card.revealCloseHeight };
   });
