@@ -101,7 +101,8 @@ sweep from 641 to 1040 px. Screenshots, videos and traces of every test are writ
 `e2e/` is a pnpm workspace package (root `pnpm install` installs Playwright) and a Playwright suite
 run in the installed Google Chrome (`channel: 'chrome'`; install Google Chrome first) at 1280×800 and
 375×812, with video, trace and screenshots. `e2e/stack.sh` runs `pnpm build:site` and serves `site/`
-exactly as GitHub Pages does, the landing at `/` and the saleroom at `/saleroom/`, from one server on
+exactly as GitHub Pages does, the Fuin app at `/`, the saleroom at `/saleroom/` and the earlier landing
+with its own saleroom at `/classic/` (where the landing specs point), from one server on
 127.0.0.1:4180 (`FUIN_PORT` to change it). It refuses a port another process holds, records its PID,
 stops it afterwards, and also stops it when the build or a readiness check fails.
 `FUIN_LANDING` / `FUIN_SALEROOM` point the suite at another copy, such as the Pages URLs. Every test
@@ -112,6 +113,7 @@ fails on a console error, an uncaught exception or a failed same-origin request.
 | `landing.spec.ts` | 23 | **the one-screen landing (4):** headline, subline, two buttons, the envelope stage opening the winner (and open at once under reduced motion), no txids or block ranges, the proof numbers (3 sale records, this file's unit/live total), the Live / Setup required strip, the evidence link, footer CTA and links. **`evidence.html` (19), the full catalogue moved from the landing on Oct 25:** Sale 003 cover facts and the script-driven MCP bidders, clock, envelope reveal and reduced motion, anchors, CTAs (the saleroom opens and holds) and skip link, Sale 003 lot cards vs `testnet-sale003.json` (forfeit and duplicate wording), reveal notes and the no-key complaint, provenance ledger, Sale 002's section vs `testnet-reveal.json`, Sale 001's section vs `testnet.json`, a sweep that no "agent" claim is left, conditions and condition report, prior art with sources, record links, the saleroom section (hosted link and local route), masthead sweep 641-1040 px, footer, every line of the page's audit log found in a live run of the exact command it shows, Setup required without `sba-verify` |
 | `saleroom.spec.ts` | 27 | three sale tabs, `?sale=002` and `?sale=001`; for **each sale**: header, timeline and clock, verify (vk hash, proof, slots, winner), both tamper buttons, filters, lot cards, provenance; Sales 003 and 002 reveal notes; Sales 003 and 002 complaints (digest computed in the tab = the anchor memo read live with `sba-verify tx`, verdict = a live audit run, whose last line is not "all checks pass"); viewing-key disclosure; controls labelled log and the catalogue link; reduced motion; missing or altered verification key |
 | `audit-contract.spec.ts` | 33 | audit gaps: complete landing/evidence copy and asset checks, keyboard CTAs, 900 ms opening delay and interrupted reload, reduced motion and observer fallback, exact recorded audit final line and omission disclosures, conditions and historic rules, responsive bounds; saleroom direct/reload routes, selected-tab/tabpanel contract, timers at exact one-second boundaries, all-action busy states, delayed sale switching, filter reset, explicitly labelled browser-only empty catalogue and restoration, private key comparison and disclosure isolation, malformed/503 key recovery, keyboard skip focus, asset origins, and static pages with the verifier absent |
+| `app.spec.ts` | 4 | **the Fuin app at `/`, as hosted with no node (added 27 Oct):** floor headline, read-only chip, featured gallery, totals and card grid counted from `deployments/`, the live filter's empty state, the phone tab bar; lot 005's opened winning bid from its record, all four in-tab proof checks, the tamper button turning the Groth16 check red and back, one opened row and sealed losing rows; lot 004's no sale, forfeits and "nothing to prove"; Setup required in the list-a-lot dialog and on my seals; no horizontal scroll at 375 px |
 | `reverify.spec.ts` | 3 | literal `?sale=bogus`, `?sale=004` and empty-query fallbacks with record/lots/proof; sole selected tab and labelled panel after each sale switch; full Sale 003 forfeit/output-fee wording and Sale 002 historical non-refund wording |
 
 The three original specs contain **83 tests per viewport / 166 total**; adding the focused
@@ -135,6 +137,10 @@ passed, including its 120 original checks and six focused checks. With `FUIN_DEV
 asserted absent. Both standalone failures are the previous deployment's Catalogue returning to
 `https://fuin-dashboard.vercel.app/` instead of `https://fuin-landing.vercel.app/`; `UI-V-004` remains
 UNTESTED pending deployment of the current dashboard. This audit did not deploy.
+
+**27 Oct 2026, after the app moved to the site root:** the whole suite (the four specs above plus
+`app.spec.ts`) on the built site, port 4186, installed Google Chrome, one worker: **180 passed, 0
+failed** in 10.8 min.
 
 All runs had zero skipped or flaky cases and no unexpected console errors, page errors or failed
 same-origin requests. The initial failures and compressed screenshots are retained; commands,

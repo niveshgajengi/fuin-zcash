@@ -1,9 +1,10 @@
 # Fuin — sealed-bid auctions on Zcash
 
-> **Live:** landing https://fuin-landing.vercel.app (saleroom at https://fuin-landing.vercel.app/saleroom/),
-> saleroom on its own at https://fuin-dashboard.vercel.app. Both are the static `pnpm build:site` output
-> over the published records; the saleroom checks each sale's Groth16 result in the tab. There is no
-> hosted backend: the chain re-read is the audit CLI (`pnpm --filter @sba/service run audit`).
+> **Live:** the Fuin app at https://fuin-landing.vercel.app (read-only over the published records:
+> no node is hosted, so wallet actions say Setup required), the saleroom at
+> https://fuin-landing.vercel.app/saleroom/ and the earlier landing at /classic/. Every proof is checked
+> in the tab. Live auctions run on a local Fuin node (`pnpm fuin`); the chain re-read is the audit CLI
+> (`pnpm --filter @sba/service run audit`).
 >
 > Fuin is a portfolio piece, not the team's Zecathon entry (one entry per team; that entry is Shielded x402).
 > The code repository is public at `https://github.com/nickthelegend/zec-sealed-bid-auction`.
@@ -37,6 +38,135 @@ ZK commit-reveal auctions. Fuin's differences:
    complete up to the auctioneer's scan: no hidden deposit, no hidden reveal.
 
 Sources and the comparison: [packages/docs](packages/docs/README.md#prior-art).
+
+## The Fuin app (new): a sealed-bid auction floor
+
+`packages/app` is the product: a floor of lots with live countdowns, a chain-activity ticker and toasts,
+a featured gallery, filters and a top-hammers board; a three-pane lot page (lot list, the lot with its
+art and a chart of sealed deposits and reveal notes by block, and an auction card with countdown
+tiles and the bid, reveal or hammer action); my seals; activity; how it works; and a list-a-lot dialog.
+It runs over `packages/node`, the **Fuin node** (`pnpm fuin`, 127.0.0.1:5179): the house (lists the
+card with its terms hashed into the id and a fresh reveal key, watches the auction with its viewing key,
+opens the reveal notes, proves MaxBid, sends the one settlement) and three bidder wallets, each bid and
+reveal going through that bidder's own `sba-mcp` process. Every action is a real Zcash testnet
+transaction through zingo-cli (`send` + `confirm` in interactive mode, under a machine-wide lock); missing
+setup answers `Setup required`. The hosted build (fuin-landing.vercel.app) has no node, so it is
+read-only over the published records and says `Setup required` for every wallet action.
+
+```sh
+pnpm install && pnpm fuin          # the node (needs .demo/wallets and SBA_ZINGO_CLI; .env is read)
+pnpm --filter @sba/app dev         # http://localhost:5180 (proxies /api to the node)
+```
+
+Design: fomo.family (live ticker, toasts, three-pane trading layout, quick-amount chips, kind-tagged
+feed rows, leaderboard medals) and the auction/NFT Dribbble shots in `design-references/web-shots`
+(w19-01 countdown tiles and bid panel, w19-02 card timers and per-card action, w19-04 centred
+headline over a gallery strip, w20-02 bid card with current bid and ending time, w20-04 bottom bid
+bar). Logo mark, lot art, hero and envelope art were generated with ChatGPT; the lot art is
+illustrative, every number is chain data or a published record.
+
+## Live runs through the app (27 Oct 2026)
+
+Sales 004 to 008 were listed, bid, revealed and settled from the app on this machine, through the node.
+Sale 004 ran out of time (blocks came every ~40 s and a third bid waited for the shared wallet lock, so
+it was mined after the close, and no reveal was sent in the window): it settled as **no sale**, the
+first live no-sale, its unrevealed deposits forfeited to the seller as the rules say. Sale 006's third
+reveal failed to transmit and its retry was mined after the window (late, forfeited). Sale 007 had no
+reveal mined in time (no sale). Sale 008 is the clean run filmed for the demo video. The audit
+(`pnpm --filter @sba/service run audit deployments/testnet-saleNNN.json`) passes on 004 to 008:
+`chain checks pass; payments not checked` (each sale's payouts were matched by the recipients' own
+keys when it settled; see `viewingKeyChecks`). The node restarted twice during Sale 006, so some of
+its labels are empty. Every auction uses the house address, so a sale's scan also lists other
+auctions' notes in its blocks (`other_auction`, `memo_mismatch`); they take no part in its outcome.
+
+### Sale 008: Lucky Cat No. 8
+
+Auction `fuin-sale008-2026-10-27T22:11`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,548,839, bids close after 4,548,889, reveals close after 4,548,934. Record: [`deployments/testnet-sale008.json`](deployments/testnet-sale008.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | valid, sealed (never published) | [`41623a86…`](https://testnet.zecblock.com/tx/41623a869c55d6d0f45a7c0744c435b2b68b7df4825d742b950fb2a1b68b65b0) | 4,548,855 |
+| bidder3 sealed bid | valid, sealed (never published) | [`e6157f84…`](https://testnet.zecblock.com/tx/e6157f84e13198aafd25587c4e21f194a76b32ca83ff5e7a82b4ca84e9b9e463) | 4,548,858 |
+| bidder2 sealed bid | **valid, wins (128,000 zat)** | [`9922226e…`](https://testnet.zecblock.com/tx/9922226ef294d480ef22a7741db630ddc992c08975ab8b6c2c6163e335abcdb1) | 4,548,888 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| another auction's reveal note | other_auction | [`b4d99116…`](https://testnet.zecblock.com/tx/b4d991169d0b2c303bb6870dd47b057f2b9f1357d5863047d1bf5137e178a5c5) | 4,548,844 |
+| another auction's reveal note | other_auction | [`d0ccf8ea…`](https://testnet.zecblock.com/tx/d0ccf8eab7721a24fb7d4657aae272ac6385c35bb3653ea8e33e8f38ffb8d215) | 4,548,844 |
+| bidder1 reveal | accepted | [`5c4a3423…`](https://testnet.zecblock.com/tx/5c4a342301507ffa235945ab98ea1b7dde0e91d9bb91a059ad8e7c5012bf598a) | 4,548,897 |
+| bidder3 reveal | accepted | [`8c64b287…`](https://testnet.zecblock.com/tx/8c64b2870ab11b287e28668ad374e3d6dc62a62b25afcb6f7b35dc414ec50fdf) | 4,548,897 |
+| bidder2 reveal | accepted | [`771afd3e…`](https://testnet.zecblock.com/tx/771afd3ebe93bd3fdc4641bfb907254bb3bd054b8eef40baf941a01db3da9e0d) | 4,548,925 |
+
+**Settlement** [`656d03c9…`](https://testnet.zecblock.com/tx/656d03c9760ad158584cc2552cdb1d3d5c349ea0e766bcd5231485760dcdaa66) (block 4,548,940), 4 outputs; each recipient's own viewing key read: seller 128,000, bidder1 200,000, bidder2 12,000, bidder3 200,000 zat (all match). The MaxBid proof opens only the winning bid, 128,000 zat.
+
+### Sale 007: Ember Lantern
+
+Auction `fuin-sale007-2026-10-27T21:46`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,548,774, bids close after 4,548,810, reveals close after 4,548,840. Record: [`deployments/testnet-sale007.json`](deployments/testnet-sale007.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | valid, **never revealed: forfeited to the seller** | [`b4494dd2…`](https://testnet.zecblock.com/tx/b4494dd2fe0d2fbc4419b007c281538b1dc87dd9fb4752fd08904d1ef88e7a89) | 4,548,783 |
+| bidder3 sealed bid | valid, **never revealed: forfeited to the seller** | [`a6be587c…`](https://testnet.zecblock.com/tx/a6be587ce9cedc224451477945d9f9645c07140aabb2e7368ac12300a517e5eb) | 4,548,786 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| another auction's reveal note | other_auction | [`f8716d7d…`](https://testnet.zecblock.com/tx/f8716d7d2fc183a6e25128a3fe070afae1522321a8e71972a092e5cc7bce1803) | 4,548,775 |
+| another auction's reveal note | other_auction | [`4dd601cd…`](https://testnet.zecblock.com/tx/4dd601cdb76e447668d44879a0cf86dfcc5a30fed311b4056c07919ce078d2b1) | 4,548,777 |
+| another auction's reveal note | other_auction | [`8a261e61…`](https://testnet.zecblock.com/tx/8a261e613fd5adbbcdc19094c3265f519ac84ad1af1b001e021e7cfa7f6bfae1) | 4,548,801 |
+
+**Settlement** [`85aee400…`](https://testnet.zecblock.com/tx/85aee4006c5a1d54c82300a98ade8c031e2fe9b14ad2d18ae2ecba546b936307) (block 4,548,855), 2 outputs; each recipient's own viewing key read: seller 195,000+195,000, bidder1 0, bidder2 0, bidder3 0 zat (all match). **No sale:** no valid deposit was revealed; the unrevealed deposits went to the seller.
+
+### Sale 006: Coral Key
+
+Auction `fuin-sale006-2026-10-27T21:26`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,548,729, bids close after 4,548,765, reveals close after 4,548,795. Record: [`deployments/testnet-sale006.json`](deployments/testnet-sale006.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | **valid, wins (110,000 zat)** | [`9fad841e…`](https://testnet.zecblock.com/tx/9fad841e06309ce08e741e7c0baf14042979e1dbb0f1dfd7a20dbb8589886b34) | 4,548,742 |
+| bidder3 sealed bid | valid, sealed (never published) | [`828682b8…`](https://testnet.zecblock.com/tx/828682b80932bfae854d5687e9cad9776c2b6a3bf0341d030ef6ecc4b29d85d2) | 4,548,748 |
+| deposit | valid, **never revealed: forfeited to the seller** | [`1c55ec77…`](https://testnet.zecblock.com/tx/1c55ec77a84666091322ffe09fe7c8ffe956da0965784ff2db0efc084e0e06fd) | 4,548,749 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| reveal | accepted | [`f8716d7d…`](https://testnet.zecblock.com/tx/f8716d7d2fc183a6e25128a3fe070afae1522321a8e71972a092e5cc7bce1803) | 4,548,775 |
+| bidder3 reveal | accepted | [`4dd601cd…`](https://testnet.zecblock.com/tx/4dd601cdb76e447668d44879a0cf86dfcc5a30fed311b4056c07919ce078d2b1) | 4,548,777 |
+| bidder2 reveal | late | [`8a261e61…`](https://testnet.zecblock.com/tx/8a261e613fd5adbbcdc19094c3265f519ac84ad1af1b001e021e7cfa7f6bfae1) | 4,548,801 |
+
+**Settlement** [`0e8d61e3…`](https://testnet.zecblock.com/tx/0e8d61e31ececa9241e18ff1c53bc2f3944e09112605c48b993ff01193bda7d2) (block 4,548,819), 4 outputs; each recipient's own viewing key read: seller 110,000+195,000, bidder1 30,000, bidder2 0, bidder3 200,000 zat (all match). The MaxBid proof opens only the winning bid, 110,000 zat.
+
+### Sale 005: Ember Envelope
+
+Auction `fuin-sale005-2026-10-27T20:29`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,548,608, bids close after 4,548,638, reveals close after 4,548,662. Record: [`deployments/testnet-sale005.json`](deployments/testnet-sale005.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | valid, sealed (never published) | [`d3b68a1f…`](https://testnet.zecblock.com/tx/d3b68a1f667f523b31c4de5538e7875b23eb38f2d86c49b06259b4802056687f) | 4,548,610 |
+| bidder2 sealed bid | **valid, wins (128,000 zat)** | [`734cad4d…`](https://testnet.zecblock.com/tx/734cad4dc244303d107a4f4169773004be8024236d5e6afbfd567a692944ff26) | 4,548,633 |
+| bidder3 sealed bid | valid, sealed (never published) | [`2c138637…`](https://testnet.zecblock.com/tx/2c1386371d93ae32eed8521a8e5168ddd8888f0e1319263f0c0e7452efbc5f6c) | 4,548,636 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| bidder2 reveal | accepted | [`33527905…`](https://testnet.zecblock.com/tx/335279051d8250a91b2b88dd1b5f43eb0743911ecf1db50dbbd95236b6a4366f) | 4,548,643 |
+| bidder1 reveal | accepted | [`a9909c32…`](https://testnet.zecblock.com/tx/a9909c328932d7b3109892ea07c42b77a283f4d23a68b3876be891485f39ed3c) | 4,548,643 |
+| bidder3 reveal | accepted | [`43b1589d…`](https://testnet.zecblock.com/tx/43b1589dbf546b9968a2c7e1a3bf2c149907c470ebabd03b8e1ca9cc5d15c160) | 4,548,661 |
+
+**Settlement** [`72db437d…`](https://testnet.zecblock.com/tx/72db437da0e1c0d6d3c292bc19fc7b38ef35e7b6380e23e835e6c03a0f326117) (block 4,548,667), 4 outputs; each recipient's own viewing key read: seller 128,000, bidder1 200,000, bidder2 12,000, bidder3 200,000 zat (all match). The MaxBid proof opens only the winning bid, 128,000 zat.
+
+### Sale 004: Ember Envelope
+
+Auction `fuin-sale004-2026-10-27T20:10`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,548,555, bids close after 4,548,571, reveals close after 4,548,585. Record: [`deployments/testnet-sale004.json`](deployments/testnet-sale004.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | valid, **never revealed: forfeited to the seller** | [`519353b9…`](https://testnet.zecblock.com/tx/519353b97c965de7f36e6f24adb7e3bfcf6af2e7035a54d227bbebc7f53db675) | 4,548,566 |
+| bidder2 sealed bid | valid, **never revealed: forfeited to the seller** | [`d52af247…`](https://testnet.zecblock.com/tx/d52af24779ee2ba084b72f7f92c2b8dbc703518fe5740069bfc0404612a26626) | 4,548,570 |
+| bidder3 sealed bid | late | [`43d08068…`](https://testnet.zecblock.com/tx/43d08068632f3e6150892958ae84c9b4657ed0ba85a3bc8a42cb456d68fb6691) | 4,548,580 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| none in the window | | | |
+
+**Settlement** [`114f30fb…`](https://testnet.zecblock.com/tx/114f30fbeed1eeadc0f3a361a516ef39d0388244256a7acd6de768396fa95dae) (block 4,548,629), 3 outputs; each recipient's own viewing key read: seller 195,000+195,000+195,000, bidder1 0, bidder2 0, bidder3 0 zat (all match). **No sale:** no valid deposit was revealed; the unrevealed deposits went to the seller.
 
 ## Live run on Zcash testnet: Sale 003 (the current rules)
 
@@ -217,7 +347,9 @@ Protocol, what each party learns, rules and trusted setup: [packages/docs](packa
 | [`packages/dashboard`](packages/dashboard) | the saleroom: all three sales in tabs (Sale 003 first), lot cards, live clock since the hammer, in-browser checks (vk hash, Groth16 proof, `checkResult`) with two tamper buttons on any sale; the reveal notes and complaints of Sales 003 and 002 |
 | [`packages/docs`](packages/docs) | protocol, privacy table, rules (including no sale), trusted setup, a threshold-decryption sketch, what the audit trusts, prior art |
 | [`packages/landing`](packages/landing) | `index.html`: the one-screen landing (the sealed-envelope reveal, three steps, three numbers, what is live); `evidence.html`: the full catalogue (Sale 003 and its MCP bidders, reveals, provenance and audit log, Sales 002 and 001, conditions, limits, what is new) |
-| [`e2e`](e2e) | Playwright suite in Google Chrome over the landing and the saleroom as hosted (`pnpm test:e2e`) |
+| [`packages/app`](packages/app) | **the Fuin app**: floor, three-pane lot page with a block chart, bid / reveal / hammer actions, my seals, activity, how it works, list a lot; read-only over the records without a node |
+| [`packages/node`](packages/node) | **the Fuin node** (`pnpm fuin`): the house and the bidder wallets behind the app's `/api`, every bid and reveal through that bidder's own `sba-mcp`; writes `deployments/testnet-saleNNN.json` |
+| [`e2e`](e2e) | Playwright suite in Google Chrome over the app, the earlier landing and the saleroom as hosted (`pnpm test:e2e`) |
 
 ## Run it
 
@@ -235,8 +367,9 @@ Everything: Node 22+, pnpm 10, circom 2.2, Rust 1.89 (pinned in `packages/verifi
 pnpm install
 pnpm build                     # sba-verify (Rust) + TS packages
 pnpm test                      # verifier 6 (Rust) + circuits 10 + service 52 passed, 2 skipped (54) + mcp 17 = 85 passed, 0 failed, 2 skipped; needs network (the service audit and mcp tests read live testnet) and takes about 10 min (audit ~8 min, mcp ~1.5 min, plus the Rust build)
-pnpm build:site                # site/: the landing at /, the saleroom at /saleroom/, as GitHub Pages serves them
-pnpm test:e2e                  # Playwright in Google Chrome over that site (100 tests: 50 per viewport; about 4 min; see TESTING.md)
+pnpm build:site                # site/: the app at /, the saleroom at /saleroom/, the earlier landing at /classic/
+pnpm test:e2e                  # Playwright in Google Chrome over that site (180 tests over two viewports; about 11 min; see TESTING.md)
+pnpm fuin                      # the Fuin node (house + bidder wallets); then: pnpm --filter @sba/app dev -> http://localhost:5180
 # a new live auction with the reveal channel: wallets in .demo/wallets/{auction,bidder1,bidder2,bidder3,seller}, bidders funded
 SBA_SALE=004 pnpm --filter @sba/mcp reveal-run   # writes deployments/testnet-sale004.json (Sale 003: SBA_SALE=003)
 # re-check a published auction from the chain with only its incoming viewing key (and any complaint files)
@@ -250,11 +383,9 @@ SBA_LWD_URL=<another lightwalletd> pnpm --filter @sba/service run audit [record]
 127.0.0.1:4180 (`FUIN_PORT` to change it), refuses a port in use, and stops its own server by PID,
 also when the build or a readiness check fails.
 
-**Demo video:** there is no current one. The only recording, `zec-sealed-bid-audit.mp4` (16 s,
-shared separately), is the audit re-reading Sale 001 at `58c2393`: it predates the chain-scanning
-audit, the reveal channel and Sales 002 and 003. A 2-minute walkthrough (landing, saleroom checks and
-tamper buttons on each sale, the live Sale 003 audit with its complaint, the MCP tools) is still to be
-recorded.
+**Demo video:** `fuin-film-v2.mp4` (4 min, shared separately; phone copy `fuin-film-v2-phone.mp4`):
+Sale 008 run live in the app on 27 Oct 2026, with the explorer pages of a deposit and the settlement;
+block waits are sped up and marked.
 
 Testnet funds came from the public Valar testnet faucet (0.125 TAZ); Sales 002 and 003 reused what was left in the same demo wallets. Wallet files and keys stay in
 the gitignored `.demo/` folder.
@@ -284,8 +415,12 @@ the gitignored `.demo/` folder.
 - Unrevealed deposits go to the seller (Sale 003 shows it: 195,000 zat with memo `forfeit:<deposit>`).
   In Sale 002, before that rule, the unrevealed deposit and the abandoned attempt's four payments
   (0.008 TAZ) stayed in the auction wallet.
-- The no-sale path (nothing revealed, or the top bid below the reserve) is covered by unit tests with
-  real proofs; no live sale has ended without a sale.
+- The no-sale path is covered by unit tests with real proofs, and Sale 004 ended without a sale live
+  (nothing revealed in the window); no live sale has ended below the reserve.
+- The Fuin node runs the house and three bidder wallets on one machine (each bidder through its own
+  `sba-mcp` process with only its own wallet): it is a single-operator demo of the roles, not separate
+  parties. Wallets share one zingo-cli lock, so sends queue; a send that outlives the bidding window is
+  late (Sale 004). The hosted app has no node and is read-only.
 - Ties within one block go to the lexically lower txid, not the transaction mined first
   (`sba-verify` reports no position in the block): a bidder could grind its txid to win a same-block tie.
 - At most 8 revealed bids compete (the circuit has 8 slots); a later revealed bid is refunded minus its

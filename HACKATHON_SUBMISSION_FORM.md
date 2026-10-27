@@ -6,6 +6,19 @@ settlement, capacity over revealed bids, `scannedTo`, the seller's payout check,
 scans, canonical commitments, CI, and Sale 003 under the current rules). What changed, by date:
 docs/CHANGELOG.md.
 
+## The product (27 Oct)
+Fuin is now a full auction app (`packages/app`) over a local Fuin node (`packages/node`, `pnpm fuin`):
+a floor with live countdowns, a chain-activity ticker and toasts, a featured gallery and a top-hammers
+board; a three-pane lot page (lot list, the lot with a chart of sealed deposits and reveal notes by
+block, and an auction card with countdown tiles and the bid / reveal / hammer action); my seals;
+activity; list a lot. Every bid, reveal and hammer clicked in the app is a real Zcash testnet
+transaction: each bid and reveal through that bidder's own `sba-mcp` process and wallet, the hammer
+through the house's MaxBid proof and one shielded settlement. Sales 004 to 008 were run this way on 27
+Oct (records in `deployments/`), including two live no-sales (Sales 004 and 007: nothing revealed in time) and a late reveal
+forfeited to the seller (Sale 006); Sale 008 is the clean run in the film (bidder2's 128,000 zat
+opened, settlement 656d03c9…). The hosted app is read-only (no node is hosted) and says Setup required for wallet
+actions.
+
 ## Short overview
 Sealed bids as equal-size shielded Zcash deposits whose memos are Poseidon commitments. A Groth16
 MaxBid proof opens only the winning bid (a bidder who files a complaint publishes its own bid too).
@@ -74,9 +87,11 @@ machine), and 100 end-to-end tests in Google Chrome (50 per viewport: landing an
 
 ## Links
 - Repo: https://github.com/nickthelegend/zec-sealed-bid-auction (public).
-- Landing: https://fuin-landing.vercel.app (saleroom at https://fuin-landing.vercel.app/saleroom/) and
+- App: https://fuin-landing.vercel.app (read-only without a node; the saleroom at /saleroom/, the earlier
+  landing at /classic/) and
   the saleroom on its own: https://fuin-dashboard.vercel.app (static, over the published records).
   Locally: `pnpm install && pnpm --filter @sba/dashboard dev`.
-- Video: none current. The only recording, `zec-sealed-bid-audit.mp4` (16 s, asciinema, captions
+- Video: `videos/fuin/fuin-film-v2.mp4` (phone copy `videos/phone/fuin-film-v2-phone.mp4`), filmed live on
+  27 Oct 2026 in the app on Zcash testnet, waits sped up and marked. Earlier note: none current. The only recording, `zec-sealed-bid-audit.mp4` (16 s, asciinema, captions
   marked ###, shared separately), shows the audit of Sale 001 at `58c2393`, before the chain-scanning
   audit, the reveal channel and Sales 002 and 003. A 2-minute walkthrough is still to be recorded.
