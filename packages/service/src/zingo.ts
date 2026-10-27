@@ -1,6 +1,6 @@
 // Thin wrapper over zingo-cli (testnet). One process per call; --waitsync so every read is current.
 // Never calls `recovery_info` (it prints the seed). Errors carry zingo-cli's own message.
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { mkdirSync, rmdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
@@ -82,14 +82,47 @@ export interface Receiver {
   memo?: string;
 }
 
-/** One shielded transaction to all receivers. Returns the broadcast txids. */
+/** zingo-cli in interactive mode: the lines are written to its stdin, then `quit`; returns its output. */
+async function zingoInteractive(cfg: ZingoConfig, walletDir: string, lines: string[], timeoutMs = 900_000): Promise<string> {
+  if (lines.some((l) => /^\s*recovery_info/.test(l))) throw new Error('refusing recovery_info: it prints the seed');
+  return locked(cfg, () => new Promise<string>((resolveOut, reject) => {
+    const p = spawn(cfg.bin, ['--chain', 'testnet', '--server', cfg.server, '--data-dir', walletDir, '--waitsync'], { cwd: '/tmp', env: { ...process.env, ZINGO_SEED: '' } });
+    let out = '';
+    const timer = setTimeout(() => {
+      p.kill('SIGKILL');
+      reject(new Error(`zingo-cli timed out after ${timeoutMs / 1000} s: ${out.trim().split('\n').slice(-3).join(' | ')}`));
+    }, timeoutMs);
+    p.stdout.on('data', (d) => (out += d));
+    p.stderr.on('data', (d) => (out += d));
+    p.on('error', (e) => {
+      clearTimeout(timer);
+      reject(new Error(`zingo-cli could not start: ${e.message}`));
+    });
+    p.on('close', (code) => {
+      clearTimeout(timer);
+      if (code !== 0 && !/quit successfully/i.test(out)) reject(new Error(`zingo-cli exited ${code}: ${out.trim().split('\n').slice(-3).join(' | ')}`));
+      else resolveOut(out);
+    });
+    p.stdin.write(lines.map((l) => `${l}\n`).join('') + 'quit\n');
+    p.stdin.end();
+  }));
+}
+
+/**
+ * One shielded transaction to all receivers. Returns the broadcast txids. The current zingo-cli has no
+ * one-shot quicksend, so this proposes with `send` and transmits with `confirm` in interactive mode.
+ */
 export async function quicksend(cfg: ZingoConfig, walletDir: string, receivers: Receiver[]): Promise<string[]> {
   const json = JSON.stringify(receivers.map((r) => ({ address: r.address, amount: Number(r.amount), ...(r.memo ? { memo: r.memo } : {}) })));
-  const out = await zingo(cfg, walletDir, ['quicksend', json]);
-  const m = out.match(/"txids":\s*\[([^\]]*)\]/);
-  if (!m) throw new Error(`quicksend did not report a txid: ${out.trim().split('\n').slice(-4).join(' | ')}`);
-  const txids = [...m[1].matchAll(/[0-9a-f]{64}/g)].map((x) => x[0]);
-  if (txids.length === 0) throw new Error(`quicksend reported no txids: ${m[0]}`);
+  if (json.includes("'")) throw new Error('a memo or address contains a single quote; nothing was sent');
+  const out = await zingoInteractive(cfg, walletDir, [`send '${json}'`, 'confirm']);
+  const afterConfirm = out.slice(Math.max(0, out.search(/"?txids"?\s*:/)));
+  const m = afterConfirm.match(/"?txids"?\s*:\s*\[([^\]]*)\]/);
+  const txids = m ? [...m[1].matchAll(/[0-9a-f]{64}/g)].map((x) => x[0]) : [];
+  if (txids.length === 0) {
+    const tail = out.trim().split('\n').filter((l) => !/Sweep|Launching|shutdown|quit successfully/i.test(l)).slice(-5).join(' | ');
+    throw new Error(`send/confirm did not report a txid: ${tail}`);
+  }
   return txids;
 }
 
