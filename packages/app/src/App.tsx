@@ -210,7 +210,7 @@ function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
           </Empty>
         )}
       </section>
-      <section className="split">
+      <section className="split3">
         <div className="feed-panel">
           <div className="shelf-head">
             <h2>live on chain</h2>
@@ -227,6 +227,29 @@ function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
           ) : (
             <p className="faint">The live feed comes from a Fuin node watching each auction with its public viewing key. This hosted page has no node.</p>
           )}
+        </div>
+        <div className="board" aria-label="Top hammers">
+          <div className="shelf-head">
+            <h2>top hammers</h2>
+            <span className="faint">by opened bid</span>
+          </div>
+          {settled
+            .filter((l) => l.winner)
+            .sort((a, b) => Number(b.winner!.bidZat) - Number(a.winner!.bidZat))
+            .slice(0, 5)
+            .map((l, i) => (
+              <a key={l.sale} className="board-row" href={`#/lot/${l.sale}`}>
+                <span className={`medal m${i + 1}`}>{i + 1}</span>
+                <img src={ART(l.meta.art)} alt="" />
+                <span className="bm">
+                  <b>{l.meta.title.toLowerCase()}</b>
+                  <small className="mono">
+                    lot {l.sale} · {l.bids.filter((b) => b.status === 'valid').length} sealed
+                  </small>
+                </span>
+                <span className="amt">{taz(l.winner!.bidZat)} TAZ</span>
+              </a>
+            ))}
         </div>
         <div className="why">
           <div className="why-card">

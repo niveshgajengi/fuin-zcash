@@ -205,6 +205,7 @@ export function FeedRow({ f }: { f: FeedItem }) {
       <span className="fr-icon">{FEED_ICON[f.kind]}</span>
       <div className="fr-main">
         <div>
+          <span className={`tag t-${f.kind}`}>{({ bid: 'bid', reveal: 'reveal', settle: 'hammer', created: 'listed', other: 'note' } as const)[f.kind]}</span>
           <a href={`#/lot/${f.sale}`}>
             lot {f.sale} · {f.lot.toLowerCase()}
           </a>{' '}
