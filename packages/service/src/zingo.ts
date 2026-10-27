@@ -32,7 +32,7 @@ async function locked<T>(cfg: ZingoConfig, fn: () => Promise<T>): Promise<T> {
       break;
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code !== 'EEXIST') throw new Error(`cannot take the zingo-cli lock ${cfg.lock}: ${(e as Error).message}`);
-      await new Promise((r) => setTimeout(r, 5_000));
+      await new Promise((r) => setTimeout(r, 500));
     }
   }
   try {
