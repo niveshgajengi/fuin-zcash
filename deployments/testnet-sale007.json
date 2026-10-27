@@ -1,0 +1,155 @@
+{
+  "network": "testnet",
+  "lot": {
+    "title": "Ember Lantern",
+    "art": "lantern",
+    "blurb": "A paper lantern with a coral flame. Demo lot, real testnet bids."
+  },
+  "auction": {
+    "name": "fuin-sale007-2026-10-27T21:46",
+    "address": "utest1nf60qztq7tcpqut63kmyx8epl52hrlkwzl57ql8m8rxnjcs6rlsprw3gwn7h4vsma4jsvxl5hnur7wgeddqvgzrslfhy582h8vagnvxf",
+    "uivk": "uivktest13q05lhhc5ha8m7dhcsccm80qlcka82drx4cs4p9whv24w3uvcnevfu0np504u9zngp7ld4f8tmvu9mzzfh54j3w4gpjmnvx2c44tgd7ywpnmrjqdflccgemweunqapxx8r8huh8xph4jv5vhs9ja0eltcw0fhw9weyfulkzjtmcgs8u974a27xl6vd77cpfulah046gjd92d75qsxuec95mjsyh07lzf23v95lwydm6n7kkt60z",
+    "depositZat": "200000",
+    "reserveZat": "50000",
+    "openHeight": 4548774,
+    "closeHeight": 4548810,
+    "revealCloseHeight": 4548840,
+    "disputeBlocks": 60,
+    "revealKey": "b9e4e399d4b0629054fa26d96a1e739915cfadd7a593b95d1eee363d502c6832",
+    "seller": "utest137az5fc0a0cmv8yttg8c7e9ztgpn2t63pe7u6jr406evyx09w0my2kzy268gszrg4a9qsc2skq3epu4k7tq7y7gy94634fkv6gppa22h",
+    "auctionId": "62414765137741351078135639056363459025"
+  },
+  "deposits": [
+    {
+      "txid": "b4494dd2fe0d2fbc4419b007c281538b1dc87dd9fb4752fd08904d1ef88e7a89",
+      "height": 4548783,
+      "valueZat": "200000",
+      "memo": "sba1:62414765137741351078135639056363459025:16265660685257571337887553467868297053223559441547464917742622767141197226736",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder1 sealed bid (Fuin app, via sba-mcp)"
+    },
+    {
+      "txid": "a6be587ce9cedc224451477945d9f9645c07140aabb2e7368ac12300a517e5eb",
+      "height": 4548786,
+      "valueZat": "200000",
+      "memo": "sba1:62414765137741351078135639056363459025:6878377944783108897582213578376404954230928782787342614995199656509444408868",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder3 sealed bid (Fuin app, via sba-mcp)"
+    }
+  ],
+  "reveals": [
+    {
+      "ref": "f8716d7d2fc183a6e25128a3fe070afae1522321a8e71972a092e5cc7bce1803",
+      "txid": "f8716d7d2fc183a6e25128a3fe070afae1522321a8e71972a092e5cc7bce1803",
+      "height": 4548775,
+      "deposit": "9fad841e06309ce08e741e7c0baf14042979e1dbb0f1dfd7a20dbb8589886b34",
+      "status": "other_auction",
+      "reason": "reveal is for auction 88375354560464422046631911281868307196",
+      "label": null
+    },
+    {
+      "ref": "4dd601cdb76e447668d44879a0cf86dfcc5a30fed311b4056c07919ce078d2b1",
+      "txid": "4dd601cdb76e447668d44879a0cf86dfcc5a30fed311b4056c07919ce078d2b1",
+      "height": 4548777,
+      "deposit": "828682b80932bfae854d5687e9cad9776c2b6a3bf0341d030ef6ecc4b29d85d2",
+      "status": "other_auction",
+      "reason": "reveal is for auction 88375354560464422046631911281868307196",
+      "label": null
+    },
+    {
+      "ref": "8a261e613fd5adbbcdc19094c3265f519ac84ad1af1b001e021e7cfa7f6bfae1",
+      "txid": "8a261e613fd5adbbcdc19094c3265f519ac84ad1af1b001e021e7cfa7f6bfae1",
+      "height": 4548801,
+      "deposit": "1c55ec77a84666091322ffe09fe7c8ffe956da0965784ff2db0efc084e0e06fd",
+      "status": "other_auction",
+      "reason": "reveal is for auction 88375354560464422046631911281868307196",
+      "label": null
+    }
+  ],
+  "scannedTo": 4548842,
+  "outcome": {
+    "proof": null,
+    "publicSignals": null,
+    "unrevealed": [
+      "b4494dd2fe0d2fbc4419b007c281538b1dc87dd9fb4752fd08904d1ef88e7a89",
+      "a6be587ce9cedc224451477945d9f9645c07140aabb2e7368ac12300a517e5eb"
+    ],
+    "noSale": {
+      "reason": "no_reveal",
+      "detail": "no valid deposit was revealed"
+    },
+    "proofVerifies": true,
+    "slotsMatchDeposits": true
+  },
+  "settlement": {
+    "txid": "85aee4006c5a1d54c82300a98ade8c031e2fe9b14ad2d18ae2ecba546b936307",
+    "height": 4548855,
+    "outputs": [
+      {
+        "amountZat": "195000",
+        "why": "forfeit (unrevealed bid deposit b4494dd2) to the seller, minus its 5000 zat output fee",
+        "recipient": "seller"
+      },
+      {
+        "amountZat": "195000",
+        "why": "forfeit (unrevealed bid deposit a6be587c) to the seller, minus its 5000 zat output fee",
+        "recipient": "seller"
+      }
+    ],
+    "viewingKeyChecks": [
+      {
+        "recipient": "seller",
+        "expected": "195000+195000",
+        "seen": [
+          195000,
+          195000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder1",
+        "expected": "0",
+        "seen": [],
+        "ok": true
+      },
+      {
+        "recipient": "bidder2",
+        "expected": "0",
+        "seen": [],
+        "ok": true
+      },
+      {
+        "recipient": "bidder3",
+        "expected": "0",
+        "seen": [],
+        "ok": true
+      }
+    ]
+  },
+  "ironwoodOnly": true,
+  "blockTimes": {
+    "open": {
+      "hash": "000025027f3debf9cb56c0806ac8dd5012893cbffd6c22555ae8ee979059b5c2",
+      "height": 4548774,
+      "time": 1793137556
+    },
+    "close": {
+      "hash": "00002716b855cac2a01642fcc3e200e8d5704e6e2840030990c60222c3190619",
+      "height": 4548810,
+      "time": 1793138373
+    },
+    "revealClose": {
+      "hash": "0000016230817968a358fb866a6c297db2b6f87a83798c215481ce24e5e0dd94",
+      "height": 4548840,
+      "time": 1793139070
+    },
+    "settlement": {
+      "hash": "00000f89ac92385711f04b84c761639174a83dec555e07fbb8dc0ceca5cf3b2f",
+      "height": 4548855,
+      "time": 1793139331
+    }
+  },
+  "verificationKeySha256": "d2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2"
+}
