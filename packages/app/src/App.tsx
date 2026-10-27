@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, fate, num, REPO, taz, type Lot } from './data';
 import { LotPage } from './LotPage';
 import { refresh, startPolling, useLots, useRoute, useStore } from './store';
-import { ART, ARTS, Countdown, Empty, FeedRow, LotCard, Logo, PhasePill, SealAvatar, SetupRequired, Ticker, Toasts } from './ui';
+import { ART, ARTS, Empty, FeedRow, LotCard, Logo, PhasePill, SealAvatar, SetupRequired, Ticker, Toasts } from './ui';
 
 export function App() {
   useEffect(startPolling, []);
@@ -99,33 +99,66 @@ function BlockChip() {
   );
 }
 
+type Filter = 'all' | 'live' | 'reveal' | 'hammered' | 'node';
 function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
   const s = useStore();
   const tip = s.health?.tip ?? 0;
-  const [scope, setScope] = useState<'all' | 'node'>(() => (new URLSearchParams(location.hash.split('?')[1] ?? '').get('scope') === 'node' ? 'node' : 'all'));
-  const lots = scope === 'node' ? all.filter((l) => l.source === 'node') : all;
-  const live = lots.filter((l) => l.phase !== 'settled');
-  const settled = lots.filter((l) => l.phase === 'settled');
-  const hero = live[0] ?? settled[0];
+  const [filter, setFilter] = useState<Filter>(() => (new URLSearchParams(location.hash.split('?')[1] ?? '').get('scope') === 'node' ? 'node' : 'all'));
+  const pick: Record<Filter, (l: Lot) => boolean> = {
+    all: () => true,
+    live: (l) => l.phase === 'bidding',
+    reveal: (l) => l.phase === 'reveal' || l.phase === 'settle' || l.phase === 'settling',
+    hammered: (l) => l.phase === 'settled',
+    node: (l) => l.source === 'node',
+  };
+  const lots = all.filter(pick[filter]);
+  const live = all.filter((l) => l.phase !== 'settled');
+  const settled = all.filter((l) => l.phase === 'settled');
+  const featured = (filter === 'node' ? lots : [...live, ...settled]).slice(0, 4);
   const opened = settled.filter((l) => l.winner).length;
   const sealedForever = settled.reduce((n, l) => n + l.bids.filter((b) => b.status === 'valid' && b.ref !== l.winner?.ref && !(l.record?.outcome?.unrevealed ?? []).includes(b.ref)).length, 0);
+  const first = live[0] ?? settled[0];
   return (
     <>
-      {hero && <Hero lot={hero} tip={tip} />}
-      {s.node === 'online' && (
-        <div className="scope" role="tablist" aria-label="Which lots">
-          <button role="tab" aria-selected={scope === 'all'} className={scope === 'all' ? 'on' : ''} onClick={() => setScope('all')}>
-            all lots · {all.length}
-          </button>
-          <button role="tab" aria-selected={scope === 'node'} className={scope === 'node' ? 'on' : ''} onClick={() => setScope('node')}>
-            run on this node · {all.filter((l) => l.source === 'node').length}
-          </button>
+      <section className="hero2">
+        <span className="eyebrow-chip">
+          <i className="dot" /> sealed-bid auctions on Zcash{s.node === 'online' && s.health ? ` · block ${num(s.health.tip)}` : ''}
+        </span>
+        <h1>
+          bid in private.
+          <br />
+          <em>only the winner is opened.</em>
+        </h1>
+        <p>Every bid is the same shielded deposit, its amount sealed inside. After the hammer, losing bids are never published.</p>
+        <div className="hero-cta">
+          {first && (
+            <a className="btn primary big" href={`#/lot/${first.sale}`}>
+              {first.phase === 'bidding' ? 'place a sealed bid' : 'see the latest hammer'}
+            </a>
+          )}
+          <a className="btn ghost big" href="#/how">
+            how sealing works
+          </a>
         </div>
-      )}
-      <section className="stats3" aria-label="Totals from the published records">
+      </section>
+      <section className="gallery" aria-label="Featured lots">
+        {featured.map((l, i) => (
+          <a key={l.sale} className={`g-item g${i}`} href={`#/lot/${l.sale}`}>
+            <img src={ART(l.meta.art)} alt="" />
+            <span className="g-label">
+              <PhasePill phase={l.phase} />
+              <b>{l.meta.title.toLowerCase()}</b>
+              <small className="mono">
+                lot {l.sale} · {l.winner ? `opened ${taz(l.winner.bidZat)} TAZ` : l.noSale ? 'no sale' : `${l.bids.filter((b) => b.status === 'valid').length} sealed`}
+              </small>
+            </span>
+          </a>
+        ))}
+      </section>
+      <section className="stats3" aria-label="Totals">
         <div>
           <b>{settled.length}</b>
-          <span>{scope === 'node' ? 'sales hammered on this node' : 'sales hammered on testnet'}</span>
+          <span>sales hammered</span>
         </div>
         <div>
           <b>{opened}</b>
@@ -138,100 +171,82 @@ function Floor({ lots: all, onCreate }: { lots: Lot[]; onCreate: () => void }) {
       </section>
       <section className="shelf">
         <div className="shelf-head">
-          <h2>live now</h2>
+          <h2>lots</h2>
           <button className="btn ghost sm" onClick={onCreate}>
             + list a lot
           </button>
         </div>
-        {live.length ? (
+        <div className="filters" role="tablist" aria-label="Filter lots">
+          {(
+            [
+              ['all', 'all', all.length],
+              ['live', 'live', all.filter(pick.live).length],
+              ['reveal', 'revealing', all.filter(pick.reveal).length],
+              ['hammered', 'hammered', settled.length],
+              ...(s.node === 'online' ? [['node', 'run on this node', all.filter(pick.node).length]] : []),
+            ] as [Filter, string, number][]
+          ).map(([k, label, n]) => (
+            <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? 'on' : ''} onClick={() => setFilter(k)}>
+              {label} <span className="mono">{n}</span>
+            </button>
+          ))}
+        </div>
+        {lots.length ? (
           <div className="grid">
-            {live.map((l) => (
+            {lots.map((l) => (
               <LotCard key={l.sale} lot={l} tip={tip} />
             ))}
           </div>
-        ) : s.node === 'online' ? (
-          <Empty title="nothing on the floor right now" art="lantern">
-            List a lot and its sealed bidding opens at the next block. <button className="link" onClick={onCreate}>List a lot</button>
+        ) : s.node !== 'online' ? (
+          <Empty title="no live lots on this page" art="lantern">
+            Live lots run on a Fuin node (it holds the house key and signs with local testnet wallets). This hosted page is read-only: the hammered sales are under all, with their proofs checkable in your browser.
           </Empty>
         ) : (
-          <Empty title="no live lots on this page" art="lantern">
-            Live lots run on a Fuin node (it holds the house key and signs with local testnet wallets). This hosted page is read-only: below are the hammered sales, with their proofs checkable in your browser.
+          <Empty title="nothing here right now" art="lantern">
+            List a lot and its sealed bidding opens at the next block.{' '}
+            <button className="link" onClick={onCreate}>
+              List a lot
+            </button>
           </Empty>
         )}
       </section>
-      <section className="shelf">
-        <div className="shelf-head">
-          <h2>hammered</h2>
-          <span className="faint">real testnet sales · proofs check in your browser</span>
+      <section className="split">
+        <div className="feed-panel">
+          <div className="shelf-head">
+            <h2>live on chain</h2>
+            <a className="btn ghost sm" href="#/activity">
+              all activity
+            </a>
+          </div>
+          {s.node === 'online' && s.feed.length ? (
+            <ul className="feed compact">
+              {s.feed.slice(0, 6).map((f) => (
+                <FeedRow key={f.id} f={f} />
+              ))}
+            </ul>
+          ) : (
+            <p className="faint">The live feed comes from a Fuin node watching each auction with its public viewing key. This hosted page has no node.</p>
+          )}
         </div>
-        <div className="grid">
-          {settled.map((l) => (
-            <LotCard key={l.sale} lot={l} tip={tip} />
-          ))}
-        </div>
-      </section>
-      <section className="why">
-        <div className="why-card">
-          <span className="eyebrow mono">01 · sealed</span>
-          <h3>nobody sees your bid</h3>
-          <p>Every bidder sends the same deposit. Your amount hides inside a commitment in a shielded memo.</p>
-        </div>
-        <div className="why-card">
-          <span className="eyebrow mono">02 · opened once</span>
-          <h3>only the winner is opened</h3>
-          <p>A zero-knowledge proof shows the winning bid beat every other one, without opening them.</p>
-        </div>
-        <div className="why-card dark">
-          <span className="eyebrow mono">03 · checkable</span>
-          <h3>anyone can audit it</h3>
-          <p>The auction's viewing key is public: anyone can see every deposit arrived and none was left out.</p>
+        <div className="why">
+          <div className="why-card">
+            <span className="eyebrow mono">01 · sealed</span>
+            <h3>nobody sees your bid</h3>
+            <p>Everyone sends the same deposit. Your amount hides inside a commitment in a shielded memo.</p>
+          </div>
+          <div className="why-card">
+            <span className="eyebrow mono">02 · opened once</span>
+            <h3>only the winner is opened</h3>
+            <p>A zero-knowledge proof shows the winning bid beat every other one, without opening them.</p>
+          </div>
+          <div className="why-card dark">
+            <span className="eyebrow mono">03 · checkable</span>
+            <h3>anyone can audit it</h3>
+            <p>The auction's viewing key is public: anyone can see every deposit arrived and none was left out.</p>
+          </div>
         </div>
       </section>
     </>
-  );
-}
-
-function Hero({ lot, tip }: { lot: Lot; tip: number }) {
-  const valid = lot.bids.filter((b) => b.status === 'valid');
-  return (
-    <section className="hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(13,5,7,.96) 0%, rgba(13,5,7,.82) 45%, rgba(13,5,7,.35) 100%), url(${import.meta.env.BASE_URL}brand/hero.webp)` }}>
-      <div className="hero-copy">
-        <div className="hero-eyebrow">
-          <PhasePill phase={lot.phase} />
-          <span className="mono">lot {lot.sale}</span>
-        </div>
-        <h1>
-          bid in private.
-          <br />
-          <em>only the winner is opened.</em>
-        </h1>
-        <p>Sealed-bid auctions on Zcash. Every bid is the same shielded deposit; the amount stays sealed. Losing bids are never published, not even after the hammer.</p>
-        <div className="hero-cta">
-          <a className="btn primary big" href={`#/lot/${lot.sale}`}>
-            {lot.phase === 'bidding' ? 'place a sealed bid' : lot.phase === 'settled' ? 'see the hammer' : 'follow this lot'}
-          </a>
-          <a className="btn ghost big" href="#/how">
-            how sealing works
-          </a>
-        </div>
-      </div>
-      <a className="hero-lot" href={`#/lot/${lot.sale}`}>
-        <img src={ART(lot.meta.art)} alt="" />
-        <div className="hl-body">
-          <div className="hl-title">{lot.meta.title.toLowerCase()}</div>
-          <div className="hl-row">
-            <div className="lc-stack">
-              {valid.slice(0, 6).map((b) => (
-                <SealAvatar key={b.ref} seed={b.commitment ?? b.ref} size={24} open={lot.winner?.ref === b.ref} />
-              ))}
-              <span>{valid.length} sealed</span>
-            </div>
-            {lot.winner ? <span className="gold mono">opened {taz(lot.winner.bidZat)} TAZ</span> : <span className="mono faint">deposit {taz(lot.card.depositZat)} TAZ</span>}
-          </div>
-          {lot.phase === 'bidding' && tip > 0 && <Countdown to={lot.card.closeHeight} tip={tip} label="closes in" />}
-        </div>
-      </a>
-    </section>
   );
 }
 

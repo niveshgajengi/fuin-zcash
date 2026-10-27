@@ -69,6 +69,57 @@ export function Countdown({ to, tip, label, big = false }: { to: number; tip: nu
   );
 }
 
+/** HH : MM : SS tiles, estimated from blocks left (testnet blocks are about 75 s). */
+export function CountdownTiles({ to, tip, label }: { to: number; tip: number; label: string }) {
+  const now = useNow(1000);
+  const s = useStore();
+  const left = to - tip;
+  const age = s.health?.tipAgeS ?? 0;
+  // Seconds since the node last reported (left, age), so the tiles tick between polls.
+  const mark = useRef({ key: '', at: now });
+  const key = `${left}:${age}`;
+  if (mark.current.key !== key) mark.current = { key, at: now };
+  const secs = Math.max(0, Math.round(left * 75 - age - (now - mark.current.at) / 1000));
+  const parts = [Math.floor(secs / 3600), Math.floor((secs % 3600) / 60), Math.floor(secs % 60)];
+  return (
+    <div className="tiles">
+      <div className="tiles-label">
+        <span>{label}</span>
+        <span className="mono">{left > 0 ? `${left} block${left === 1 ? '' : 's'} · est.` : `block ${num(to)} passed`}</span>
+      </div>
+      <div className="tiles-row">
+        {parts.map((n, i) => (
+          <div key={i} className="tile">
+            <b>{String(n).padStart(2, '0')}</b>
+            <small>{['hours', 'minutes', 'seconds'][i]}</small>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** A compact lot row: thumbnail, title, state and the one number that matters. */
+export function LotRow({ lot, tip }: { lot: Lot; tip: number }) {
+  const valid = lot.bids.filter((b) => b.status === 'valid').length;
+  const left = lot.phase === 'bidding' ? lot.card.closeHeight - tip : null;
+  return (
+    <a className="lot-row" href={`#/lot/${lot.sale}`}>
+      <img src={ART(lot.meta.art)} alt="" loading="lazy" />
+      <span className="lr-main">
+        <b>{lot.meta.title.toLowerCase()}</b>
+        <small className="mono">
+          lot {lot.sale} · {valid} sealed{left !== null && tip > 0 ? ` · ${left} blocks left` : ''}
+        </small>
+      </span>
+      <span className="lr-end">
+        <PhasePill phase={lot.phase} />
+        <b className={`mono${lot.winner ? ' gold' : ''}`}>{lot.winner ? `${taz(lot.winner.bidZat)}` : lot.noSale ? 'no sale' : 'sealed'}</b>
+      </span>
+    </a>
+  );
+}
+
 export function LotCard({ lot, tip }: { lot: Lot; tip: number }) {
   const valid = lot.bids.filter((b) => b.status === 'valid').length;
   const pending = lot.pending.filter((p) => p.kind === 'bid').length;
@@ -122,6 +173,7 @@ export function LotCard({ lot, tip }: { lot: Lot; tip: number }) {
               </>
             )}
           </div>
+          <span className={`lc-cta${lot.phase === 'bidding' ? ' hot' : ''}`}>{lot.phase === 'bidding' ? 'place bid' : lot.phase === 'settled' ? 'view' : 'follow'}</span>
         </div>
       </div>
     </a>

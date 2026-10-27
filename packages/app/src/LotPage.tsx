@@ -4,80 +4,120 @@ import { checkResult } from '@sba/circuits/result';
 import { emptyCommitment } from '@sba/circuits/poseidon';
 import { api, EXPLORER, fate, num, short, taz, type Job, type Lot, type Opening } from './data';
 import { refresh, setWallet, useJob, useStore } from './store';
-import { ART, Countdown, Empty, LotCard, PhasePill, SealAvatar, SetupRequired } from './ui';
+import { ART, CountdownTiles, Empty, LotRow, PhasePill, SealAvatar, SetupRequired } from './ui';
 
 const VK_URL = `${import.meta.env.BASE_URL}verification_key.json`;
 
 export function LotPage({ lot, lots }: { lot: Lot; lots: Lot[] }) {
   const s = useStore();
   const tip = s.health?.tip ?? 0;
-  const [tab, setTab] = useState<'bids' | 'reveals' | 'proof' | 'terms'>(lot.phase === 'settled' ? 'proof' : 'bids');
+  const [tab, setTab] = useState<'about' | 'bids' | 'reveals' | 'proof' | 'terms'>(lot.phase === 'settled' ? 'proof' : 'bids');
   const valid = lot.bids.filter((b) => b.status === 'valid');
+  const to = lot.phase === 'bidding' ? lot.card.closeHeight : lot.phase === 'reveal' ? lot.card.revealCloseHeight ?? null : null;
   return (
     <div className="lot-page">
-      <div className="lp-main">
-        <section className="lp-head">
-          <div className="lp-art">
-            <img src={ART(lot.meta.art)} alt="" />
-            {lot.phase === 'settled' && <div className={`lp-stamp${lot.winner ? '' : ' none'}`}>{lot.winner ? 'opened' : 'no sale'}</div>}
+      <nav className="crumbs mono" aria-label="Breadcrumb">
+        <a href="#/">floor</a> <span>/</span> <span>lot {lot.sale}</span> <span>/</span> <span className="faint">{lot.source === 'node' ? 'live on your node' : 'published record'}</span>
+      </nav>
+      <section className="lp-top">
+        <div className="lp-art">
+          <img src={ART(lot.meta.art)} alt="" />
+          <div className="lp-art-top">
+            <PhasePill phase={lot.phase} />
+            <span className="lc-no">lot {lot.sale}</span>
           </div>
-          <div className="lp-info">
-            <div className="lp-eyebrow">
-              <PhasePill phase={lot.phase} />
-              <span className="mono">lot {lot.sale}</span>
-              <span className="mono faint">{lot.source === 'node' ? 'live on your node' : 'published record'}</span>
+          {lot.phase === 'settled' && <div className={`lp-stamp${lot.winner ? '' : ' none'}`}>{lot.winner ? 'opened' : 'no sale'}</div>}
+        </div>
+        <div className="lp-info">
+          <h1>{lot.meta.title.toLowerCase()}</h1>
+          {lot.meta.blurb && <p className="lp-blurb">{lot.meta.blurb}</p>}
+          <div className="seller">
+            <img src={`${import.meta.env.BASE_URL}brand/mark-512.png`} alt="" />
+            <span>
+              <small>house</small>
+              <b>{lot.source === 'node' ? 'this Fuin node' : 'Fuin testnet house'}</b>
+            </span>
+            <span>
+              <small>chain</small>
+              <b>Zcash testnet · shielded</b>
+            </span>
+            <span className="hide-sm">
+              <small>auction id</small>
+              <b className="mono">{short(lot.card.auctionId, 6, 4)}</b>
+            </span>
+          </div>
+          <div className={`auction-card ph-${lot.phase}`}>
+            <div className="ac-head">
+              <span>sealed auction</span>
+              <span className="mono">{lot.phase === 'bidding' ? 'bidding open' : lot.phase === 'reveal' ? 'reveal window' : lot.phase === 'settled' ? 'hammered' : 'awaiting hammer'}</span>
             </div>
-            <h1>{lot.meta.title.toLowerCase()}</h1>
-            {lot.meta.blurb && <p className="lp-blurb">{lot.meta.blurb}</p>}
-            <div className="chips">
+            {to && tip > 0 ? (
+              <CountdownTiles to={to} tip={tip} label={lot.phase === 'bidding' ? 'bidding closes in' : 'reveals close in'} />
+            ) : (
+              <div className="ac-result">
+                <span className="k">{lot.winner ? 'winning bid · opened' : lot.noSale ? 'result' : 'status'}</span>
+                <b className={lot.winner ? 'gold' : ''}>{lot.winner ? `${taz(lot.winner.bidZat)} TAZ` : lot.noSale ? 'no sale' : 'reveals closed'}</b>
+              </div>
+            )}
+            <div className="ac-stats">
               <Chip k="equal deposit" v={`${taz(lot.card.depositZat)} TAZ`} />
               <Chip k="reserve" v={`${taz(lot.card.reserveZat)} TAZ`} />
               <Chip k="sealed bids" v={String(valid.length)} />
               <Chip k={lot.winner ? 'winning bid' : 'top bid'} v={lot.winner ? `${taz(lot.winner.bidZat)} TAZ` : lot.noSale ? 'no sale' : 'sealed'} gold={!!lot.winner} />
             </div>
-            {lot.phase === 'bidding' && tip > 0 && <Countdown to={lot.card.closeHeight} tip={tip} label="bidding closes in" big />}
-            {lot.phase === 'reveal' && tip > 0 && lot.card.revealCloseHeight && <Countdown to={lot.card.revealCloseHeight} tip={tip} label="reveal window closes in" big />}
+            <ActionSheet lot={lot} tip={tip} />
           </div>
-        </section>
-
-        <Rail lot={lot} tip={tip} />
-
-        {lot.phase === 'settled' && <Hammer lot={lot} />}
-
-        <div className="tabs" role="tablist">
-          {(
-            [
-              ['bids', `sealed bids · ${lot.bids.length}`],
-              ['reveals', `reveal notes · ${lot.reveals.length}`],
-              ...(lot.record ? [['proof', 'proof']] : []),
-              ['terms', 'terms'],
-            ] as [typeof tab, string][]
-          ).map(([k, label]) => (
-            <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>
-              {label}
-            </button>
-          ))}
+          <LotJobs lot={lot} />
+          <MySeal lot={lot} />
         </div>
-        {tab === 'bids' && <Bids lot={lot} />}
-        {tab === 'reveals' && <Reveals lot={lot} />}
-        {tab === 'proof' && lot.record && <Proof lot={lot} />}
-        {tab === 'terms' && <Terms lot={lot} />}
-      </div>
+      </section>
 
-      <aside className="lp-side">
-        <ActionSheet lot={lot} tip={tip} />
-        <LotJobs lot={lot} />
-        <MySeal lot={lot} />
-        <div className="more">
-          <div className="more-title">more lots</div>
+      <Rail lot={lot} tip={tip} />
+
+      {lot.phase === 'settled' && <Hammer lot={lot} />}
+
+      <div className="tabs" role="tablist">
+        {(
+          [
+            ['bids', `sealed bids · ${lot.bids.length}`],
+            ['reveals', `reveal notes · ${lot.reveals.length}`],
+            ...(lot.record ? [['proof', 'proof']] : []),
+            ['terms', 'terms'],
+            ['about', 'about this lot'],
+          ] as [typeof tab, string][]
+        ).map(([k, label]) => (
+          <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === 'bids' && <Bids lot={lot} />}
+      {tab === 'reveals' && <Reveals lot={lot} />}
+      {tab === 'proof' && lot.record && <Proof lot={lot} />}
+      {tab === 'terms' && <Terms lot={lot} />}
+      {tab === 'about' && (
+        <div className="about">
+          <p>{lot.meta.blurb || 'A lot on Fuin.'}</p>
+          <p className="faint">Lot art is illustrative. Everything else on this page, every deposit, reveal note, proof and payout, is read from Zcash testnet or from the record the house published.</p>
+        </div>
+      )}
+
+      <section className="more">
+        <div className="shelf-head">
+          <h2>more lots</h2>
+          <a className="btn ghost sm" href="#/">
+            all lots
+          </a>
+        </div>
+        <div className="rows">
           {lots
             .filter((l) => l.sale !== lot.sale)
-            .slice(0, 3)
+            .slice(0, 6)
             .map((l) => (
-              <LotCard key={l.sale} lot={l} tip={tip} />
+              <LotRow key={l.sale} lot={l} tip={tip} />
             ))}
         </div>
-      </aside>
+      </section>
     </div>
   );
 }
@@ -581,7 +621,7 @@ function MySeal({ lot }: { lot: Lot }) {
 /** Recent wallet actions on this lot from the node, so a send that outlives its sheet stays visible. */
 function LotJobs({ lot }: { lot: Lot }) {
   const s = useStore();
-  const mine = s.jobs.filter((j) => j.auctionId === lot.card.auctionId).slice(-5).reverse();
+  const mine = s.jobs.filter((j) => j.auctionId === lot.card.auctionId).slice(-3).reverse();
   if (lot.source !== 'node' || mine.length === 0) return null;
   return (
     <div className="myseal">
