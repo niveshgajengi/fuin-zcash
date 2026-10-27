@@ -591,5 +591,6 @@ server.listen(PORT, '127.0.0.1', () => {
   void tick();
   setInterval(() => void tick(), 20_000);
 });
-process.on('SIGINT', () => process.exit(0));
-process.on('SIGTERM', () => process.exit(0));
+for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.on(sig, () => { console.log(`Fuin node stopping on ${sig}`); process.exit(0); });
+process.on('exit', (code) => console.log(`Fuin node exit ${code}`));
+
