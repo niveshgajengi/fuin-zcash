@@ -92,7 +92,7 @@ machine), and 100 end-to-end tests in Google Chrome (50 per viewport: landing an
   landing at /classic/) and
   the saleroom on its own: https://fuin-dashboard.vercel.app (static, over the published records).
   Locally: `pnpm install && pnpm --filter @sba/dashboard dev`.
-- Video: `videos/fuin/fuin-film-v2.mp4` (phone copy `videos/phone/fuin-film-v2-phone.mp4`), filmed live on
-  27 Oct 2026 in the app on Zcash testnet, waits sped up and marked. Earlier note: none current. The only recording, `zec-sealed-bid-audit.mp4` (16 s, asciinema, captions
-  marked ###, shared separately), shows the audit of Sale 001 at `58c2393`, before the chain-scanning
-  audit, the reveal channel and Sales 002 and 003. A 2-minute walkthrough is still to be recorded.
+- Video: `videos/fuin/fuin-film-v3.mp4` (4:14; phone copy `videos/phone/fuin-film-v3-phone.mp4`, in the
+  hackathon workspace). It opens on why sealed bids matter (Noun 9's public bid history, recorded live on
+  nouns.wtf), then runs Sale 009 live in the app on Zcash testnet on 28 Oct 2026: listing, three sealed
+  bids, three reveals, the hammer, the explorer, the in-browser proof check. Waits are sped up and marked.
