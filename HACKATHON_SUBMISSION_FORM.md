@@ -13,11 +13,11 @@ Launches): each lot on a stage band with its two key numbers and the one action 
 three phases with real block heights, a bid history whose amounts stay sealed, a block chart, reveal
 notes, an in-browser proof check, and a table of every auction; my bids; activity; list a lot. Every bid, reveal and hammer clicked in the app is a real Zcash testnet
 transaction: each bid and reveal through that bidder's own `sba-mcp` process and wallet, the hammer
-through the house's MaxBid proof and one shielded settlement. Sales 004 to 009 were run this way on 27
+through the house's MaxBid proof and one shielded settlement. Sales 004 to 010 were run this way on 27
 and 28 Oct (records in `deployments/`), including two live no-sales (Sales 004 and 007: nothing revealed in time) and a late reveal
-forfeited to the seller (Sale 006); Sale 009 (Night Koi) is the run in the round-3 film (three sealed
-bids, three reveals in the window, bidder2's 128,000 zat opened, settlement 0854d4ae… at block
-4,550,429). The film opens with why sealed bids matter: Noun 9's public bid history on nouns.wtf. The hosted app is read-only (no node is hosted) and says Setup required for wallet
+forfeited to the seller (Sale 006); Sale 010 (Paper Lantern) is the run in the round-3 film (three sealed
+bids, three reveals in the window, bidder3's 138,000 zat opened, settlement 0a490abb… at block
+4,550,833). The film opens with why sealed bids matter: Noun 9's public bid history on nouns.wtf. The hosted app is read-only (no node is hosted) and says Setup required for wallet
 actions.
 
 ## Short overview
@@ -92,7 +92,8 @@ machine), and 100 end-to-end tests in Google Chrome (50 per viewport: landing an
   landing at /classic/) and
   the saleroom on its own: https://fuin-dashboard.vercel.app (static, over the published records).
   Locally: `pnpm install && pnpm --filter @sba/dashboard dev`.
-- Video: `videos/fuin/fuin-film-v3.mp4` (4:14; phone copy `videos/phone/fuin-film-v3-phone.mp4`, in the
+- Video: `videos/fuin/fuin-film-v4.mp4` (phone copy `videos/phone/fuin-film-v4-phone.mp4`, in the
   hackathon workspace). It opens on why sealed bids matter (Noun 9's public bid history, recorded live on
-  nouns.wtf), then runs Sale 009 live in the app on Zcash testnet on 28 Oct 2026: listing, three sealed
-  bids, three reveals, the hammer, the explorer, the in-browser proof check. Waits are sped up and marked.
+  nouns.wtf), then runs Sale 010 live in the neo-brutalist app on Zcash testnet on 28 Oct 2026: listing,
+  three sealed bids, three reveals, the hammer, the explorer, the in-browser proof check. Waits are sped
+  up and marked.

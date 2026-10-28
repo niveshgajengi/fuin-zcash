@@ -71,17 +71,35 @@ number is chain data or a published record.
 
 ## Live runs through the app (27 and 28 Oct 2026)
 
-Sales 004 to 009 were listed, bid, revealed and settled from the app on this machine, through the node.
+Sales 004 to 010 were listed, bid, revealed and settled from the app on this machine, through the node.
 Sale 004 ran out of time (blocks came every ~40 s and a third bid waited for the shared wallet lock, so
 it was mined after the close, and no reveal was sent in the window): it settled as **no sale**, the
 first live no-sale, its unrevealed deposits forfeited to the seller as the rules say. Sale 006's third
 reveal failed to transmit and its retry was mined after the window (late, forfeited). Sale 007 had no
-reveal mined in time (no sale). Sale 008 is the clean run filmed for the second video; Sale 009 (Night Koi, 28 Oct) is the run filmed live in the auction-house layout for the round-3 film (one bidder needed a top-up mid-run and its bid went in after it). The audit
-(`pnpm --filter @sba/service run audit deployments/testnet-saleNNN.json`) passes on 004 to 009:
+reveal mined in time (no sale). Sale 008 is the clean run filmed for the second video; Sale 009 (Night Koi, 28 Oct) is the run filmed live in the auction-house layout for the round-3 film (one bidder needed a top-up mid-run and its bid went in after it); Sale 010 (Paper Lantern, 28 Oct) is the run filmed in the neo-brutalist restyle (the first bid attempt for bidder3 was above the 0.0014 TAZ cap, so the button stayed disabled and the director resumed with 0.00138). The audit
+(`pnpm --filter @sba/service run audit deployments/testnet-saleNNN.json`) passes on 004 to 010:
 `chain checks pass; payments not checked` (each sale's payouts were matched by the recipients' own
 keys when it settled; see `viewingKeyChecks`). The node restarted twice during Sale 006, so some of
 its labels are empty. Every auction uses the house address, so a sale's scan also lists other
 auctions' notes in its blocks (`other_auction`, `memo_mismatch`); they take no part in its outcome.
+
+### Sale 010: Paper Lantern
+
+Auction `fuin-sale010-2026-10-28T11:32`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,550,755, bids close after 4,550,795, reveals close after 4,550,831. Record: [`deployments/testnet-sale010.json`](deployments/testnet-sale010.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 sealed bid | valid, sealed (never published) | [`d1978f53…`](https://testnet.zecblock.com/tx/d1978f53439e3973238da43498e80258c79d8fa39c100511f9c438285d284112) | 4,550,762 |
+| bidder3 sealed bid | **valid, wins (138,000 zat)** | [`79ace8c1…`](https://testnet.zecblock.com/tx/79ace8c1b0ff6aba1c214febb6a85bc2e8f06f88367e7fac54233ccdfaefc8fe) | 4,550,782 |
+| bidder2 sealed bid | valid, sealed (never published) | [`7b43a58e…`](https://testnet.zecblock.com/tx/7b43a58ec4a35330e81645e2a55a2d89572d4f5d52c51d74364a1adc583530cd) | 4,550,789 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 reveal | accepted | [`39c7e345…`](https://testnet.zecblock.com/tx/39c7e34532c5cf983e56c1f9f3a1f270390c2099c4eff6792637e80d7c4c855c) | 4,550,801 |
+| bidder3 reveal | accepted | [`0950abb1…`](https://testnet.zecblock.com/tx/0950abb1c8f360d20779c7c2a24cf0c7027e8ca325d59a0d12b91916567c7ec3) | 4,550,803 |
+| bidder2 reveal | accepted | [`d3870b70…`](https://testnet.zecblock.com/tx/d3870b70091c1a1a9818b74fdbe83baaa3d765ed97a6bd514571c712ed4b4215) | 4,550,804 |
+
+**Settlement** [`0a490abb…`](https://testnet.zecblock.com/tx/0a490abb3f0dafda70c6dad51a704c3147bf65a295a8746d317e8ecf45856817) (block 4,550,833), 4 outputs; each recipient's own viewing key read: seller 138,000, bidder1 200,000, bidder2 200,000, bidder3 2,000 zat (all match). The MaxBid proof opens only the winning bid, 138,000 zat.
 
 ### Sale 009: Night Koi
 
