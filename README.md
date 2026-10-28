@@ -41,10 +41,14 @@ Sources and the comparison: [packages/docs](packages/docs/README.md#prior-art).
 
 ## The Fuin app (new): a sealed-bid auction floor
 
-`packages/app` is the product: a floor of lots with live countdowns, a chain-activity ticker and toasts,
-a featured gallery, filters and a top-hammers board; a three-pane lot page (lot list, the lot with its
-art and a chart of sealed deposits and reveal notes by block, and an auction card with countdown
-tiles and the bid, reveal or hammer action); my seals; activity; how it works; and a list-a-lot dialog.
+`packages/app` is the product, laid out like the on-chain auction houses it was studied against
+(Nouns, Foundation reserve auctions, the 2017 ENS Vickrey registrar, Uniswap Launches; screenshots and
+notes in the hackathon workspace's `design-references/auction-sites/`): each lot is a stage band with
+its art, arrows to the previous and next lot, the title and two numbers side by side (sealed bids and
+time left, then winning bid and hammer block), and the one action for its phase (seal a bid, reveal,
+bring down the hammer); below it the three phases with the lot's block heights, a bid history whose
+amounts stay sealed (only the winner's opens), a chart of deposits and reveal notes by block, the
+reveal notes, an in-browser proof check with a tamper button, the terms and a table of every auction.
 It runs over `packages/node`, the **Fuin node** (`pnpm fuin`, 127.0.0.1:5179): the house (lists the
 card with its terms hashed into the id and a fresh reveal key, watches the auction with its viewing key,
 opens the reveal notes, proves MaxBid, sends the one settlement) and three bidder wallets, each bid and
@@ -58,12 +62,9 @@ pnpm install && pnpm fuin          # the node (needs .demo/wallets and SBA_ZINGO
 pnpm --filter @sba/app dev         # http://localhost:5180 (proxies /api to the node)
 ```
 
-Design: fomo.family (live ticker, toasts, three-pane trading layout, quick-amount chips, kind-tagged
-feed rows, leaderboard medals) and the auction/NFT Dribbble shots in `design-references/web-shots`
-(w19-01 countdown tiles and bid panel, w19-02 card timers and per-card action, w19-04 centred
-headline over a gallery strip, w20-02 bid card with current bid and ending time, w20-04 bottom bid
-bar). Logo mark, lot art, hero and envelope art were generated with ChatGPT; the lot art is
-illustrative, every number is chain data or a published record.
+Visual polish follows the Dribbble auction and marketplace shots (w19, w20). Logo mark, lot art, hero
+and envelope art were generated with ChatGPT; the lot art is illustrative, every number is chain data
+or a published record.
 
 ## Live runs through the app (27 Oct 2026)
 

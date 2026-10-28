@@ -7,11 +7,11 @@ scans, canonical commitments, CI, and Sale 003 under the current rules). What ch
 docs/CHANGELOG.md.
 
 ## The product (27 Oct)
-Fuin is now a full auction app (`packages/app`) over a local Fuin node (`packages/node`, `pnpm fuin`):
-a floor with live countdowns, a chain-activity ticker and toasts, a featured gallery and a top-hammers
-board; a three-pane lot page (lot list, the lot with a chart of sealed deposits and reveal notes by
-block, and an auction card with countdown tiles and the bid / reveal / hammer action); my seals;
-activity; list a lot. Every bid, reveal and hammer clicked in the app is a real Zcash testnet
+Fuin is now a full auction app (`packages/app`) over a local Fuin node (`packages/node`, `pnpm fuin`),
+laid out like the on-chain auction houses it was studied against (Nouns, Foundation, ENS 2017, Uniswap
+Launches): each lot on a stage band with its two key numbers and the one action for its phase, the
+three phases with real block heights, a bid history whose amounts stay sealed, a block chart, reveal
+notes, an in-browser proof check, and a table of every auction; my bids; activity; list a lot. Every bid, reveal and hammer clicked in the app is a real Zcash testnet
 transaction: each bid and reveal through that bidder's own `sba-mcp` process and wallet, the hammer
 through the house's MaxBid proof and one shielded settlement. Sales 004 to 008 were run this way on 27
 Oct (records in `deployments/`), including two live no-sales (Sales 004 and 007: nothing revealed in time) and a late reveal
