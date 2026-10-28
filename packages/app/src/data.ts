@@ -123,7 +123,8 @@ export function lotFromRecord(sale: string, r: SaleRecord): Lot {
     phase: settled ? 'settled' : 'bidding',
     source: 'record',
     bids: r.deposits.map((d) => ({ ref: refOf(d), txid: d.txid, height: d.height, valueZat: d.valueZat, status: d.status, commitment: commitmentOf(d.memo) })),
-    reveals: (r.reveals ?? []).map((x) => ({ txid: x.txid, height: x.height, deposit: x.deposit, status: x.status, late: x.status === 'late' })),
+    // Auctions share the house address: other auctions' notes in these blocks are not this lot's.
+    reveals: (r.reveals ?? []).filter((x) => x.status !== 'other_auction').map((x) => ({ txid: x.txid, height: x.height, deposit: x.deposit, status: x.status, late: x.status === 'late' })),
     pending: [],
     record: settled ? r : null,
     winner: w && r.outcome?.winningBidZat ? { ref: refOf(w), bidZat: r.outcome.winningBidZat } : null,

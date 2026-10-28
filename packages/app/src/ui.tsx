@@ -99,6 +99,26 @@ export function CountdownTiles({ to, tip, label }: { to: number; tip: number; la
   );
 }
 
+/** "10h 33m 35s", estimated from blocks left and ticking between node polls. */
+export function CountdownText({ to, tip }: { to: number; tip: number }) {
+  const now = useNow(1000);
+  const s = useStore();
+  const left = to - tip;
+  const age = s.health?.tipAgeS ?? 0;
+  const mark = useRef({ key: '', at: now });
+  const key = `${left}:${age}`;
+  if (mark.current.key !== key) mark.current = { key, at: now };
+  const secs = Math.max(0, Math.round(left * 75 - age - (now - mark.current.at) / 1000));
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  return (
+    <span className="cdt">
+      {h > 0 ? `${h}h ` : ''}
+      {m}m {String(secs % 60).padStart(2, '0')}s <small className="mono">{left > 0 ? `${left} blocks` : 'closed'}</small>
+    </span>
+  );
+}
+
 /** A compact lot row: thumbnail, title, state and the one number that matters. */
 export function LotRow({ lot, tip }: { lot: Lot; tip: number }) {
   const valid = lot.bids.filter((b) => b.status === 'valid').length;

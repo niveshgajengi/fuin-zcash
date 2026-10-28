@@ -5,139 +5,286 @@ import { emptyCommitment } from '@sba/circuits/poseidon';
 import { api, EXPLORER, fate, num, short, taz, type Job, type Lot, type Opening } from './data';
 import { refresh, setWallet, useJob, useStore } from './store';
 import { BlockChart } from './BlockChart';
-import { ART, CountdownTiles, Empty, PhasePill, SealAvatar, SetupRequired } from './ui';
+import { ART, CountdownText, Empty, PhasePill, SealAvatar, SetupRequired } from './ui';
 
 const VK_URL = `${import.meta.env.BASE_URL}verification_key.json`;
 
+/** The lot, the way on-chain auction houses show one (Nouns, Foundation): a stage band with the art,
+ * ← → between lots, the title, two numbers side by side, and the one action for this phase. */
 export function LotPage({ lot, lots }: { lot: Lot; lots: Lot[] }) {
   const s = useStore();
   const tip = s.health?.tip ?? 0;
-  const [tab, setTab] = useState<'about' | 'bids' | 'reveals' | 'proof' | 'terms'>(lot.phase === 'settled' ? 'proof' : 'bids');
-  const [listTab, setListTab] = useState<'all' | 'live' | 'hammered'>('all');
-  const valid = lot.bids.filter((b) => b.status === 'valid');
-  const to = lot.phase === 'bidding' ? lot.card.closeHeight : lot.phase === 'reveal' ? lot.card.revealCloseHeight ?? null : null;
-  const blocksLeft = to && tip ? Math.max(0, to - tip) : null;
-  const listed = lots.filter((l) => (listTab === 'all' ? true : listTab === 'live' ? l.phase !== 'settled' : l.phase === 'settled'));
   return (
-    <div className="lot3">
-      <aside className="l3-list" aria-label="Lots">
-        <div className="l3-list-tabs" role="tablist">
-          {(['all', 'live', 'hammered'] as const).map((k) => (
-            <button key={k} role="tab" aria-selected={listTab === k} className={listTab === k ? 'on' : ''} onClick={() => setListTab(k)}>
-              {k}
-            </button>
-          ))}
+    <div className="lot4">
+      <StageBand lot={lot} lots={lots} tip={tip} mode="lot" />
+      <PhaseStrip lot={lot} tip={tip} />
+      {lot.phase === 'settled' && <Hammer lot={lot} />}
+      <div className="lot4-grid">
+        <section className="block4" id="bid-history">
+          <div className="block4-head">
+            <h2>bid history</h2>
+            <span className="faint">every bid is the same deposit; the amount stays sealed</span>
+          </div>
+          <SealedHistory lot={lot} />
+        </section>
+        <aside className="lot4-side">
+          <LotJobs lot={lot} />
+          <MySeal lot={lot} />
+          <section className="block4 compact">
+            <div className="block4-head">
+              <h2>by block</h2>
+            </div>
+            <BlockChart lot={lot} tip={tip} />
+          </section>
+        </aside>
+      </div>
+      <section className="block4">
+        <div className="block4-head">
+          <h2>reveal notes</h2>
+          <span className="faint">a second shielded note per bidder, sealed to the house</span>
         </div>
-        <div className="l3-rows">
-          {listed.map((l) => (
-            <a key={l.sale} href={`#/lot/${l.sale}`} className={`l3-row${l.sale === lot.sale ? ' on' : ''}`}>
+        <Reveals lot={lot} />
+      </section>
+      {lot.record && (
+        <section className="block4" id="check">
+          <div className="block4-head">
+            <h2>check the result</h2>
+            <span className="faint">runs in this tab</span>
+          </div>
+          <Proof lot={lot} />
+        </section>
+      )}
+      <section className="block4">
+        <div className="block4-head">
+          <h2>terms</h2>
+          <span className="faint">hashed into the auction id</span>
+        </div>
+        <Terms lot={lot} />
+      </section>
+      <section className="block4">
+        <div className="block4-head">
+          <h2>all auctions</h2>
+        </div>
+        <AuctionsTable lots={lots} tip={tip} current={lot.sale} />
+      </section>
+    </div>
+  );
+}
+
+const PHASE_WORD: Record<Lot['phase'], string> = { bidding: 'bidding open', reveal: 'reveal window', settle: 'awaiting the hammer', settling: 'settling', settled: 'hammered' };
+
+export function StageBand({ lot, lots, tip, mode }: { lot: Lot; lots: Lot[]; tip: number; mode: 'home' | 'lot' }) {
+  const order = [...lots].sort((a, b) => a.sale.localeCompare(b.sale));
+  const i = order.findIndex((l) => l.sale === lot.sale);
+  const prev = i > 0 ? order[i - 1] : null;
+  const next = i >= 0 && i < order.length - 1 ? order[i + 1] : null;
+  const valid = lot.bids.filter((b) => b.status === 'valid').length;
+  const to = lot.phase === 'bidding' ? lot.card.closeHeight : lot.phase === 'reveal' ? lot.card.revealCloseHeight ?? null : null;
+  const listed = lot.record?.blockTimes?.open?.time;
+  const explorerTx = lot.record?.settlement?.txid ?? lot.bids.find((b) => b.status === 'valid')?.txid ?? null;
+  return (
+    <section className={`stage ph-${lot.phase}`}>
+      <div className="stage-in">
+        <div className="stage-art">
+          <img src={ART(lot.meta.art)} alt="" />
+          {lot.phase === 'settled' && <div className={`lp-stamp${lot.winner ? '' : ' none'}`}>{lot.winner ? 'opened' : 'no sale'}</div>}
+        </div>
+        <div className="stage-panel">
+          <div className="lotnav">
+            <a className={`navbtn${prev ? '' : ' off'}`} href={prev ? `#/lot/${prev.sale}` : undefined} aria-label="Previous lot">
+              ←
+            </a>
+            <a className={`navbtn${next ? '' : ' off'}`} href={next ? `#/lot/${next.sale}` : undefined} aria-label="Next lot">
+              →
+            </a>
+            <span className="mono">
+              lot {lot.sale}
+              {listed ? ` · ${new Date(listed * 1000).toUTCString().slice(5, 16)}` : ''} · {PHASE_WORD[lot.phase]}
+            </span>
+          </div>
+          <h1>{lot.meta.title.toLowerCase()}</h1>
+          <div className="duo">
+            {lot.phase === 'settled' ? (
+              <>
+                <div>
+                  <small>{lot.winner ? 'winning bid' : 'result'}</small>
+                  <b className={lot.winner ? 'gold' : ''}>{lot.winner ? `${taz(lot.winner.bidZat)} TAZ` : 'no sale'}</b>
+                </div>
+                <div>
+                  <small>hammer block</small>
+                  <b>{num(lot.record!.settlement!.height)}</b>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <small>sealed bids</small>
+                  <b>
+                    {valid} <span className="sealed-chip">amounts sealed</span>
+                  </b>
+                </div>
+                <div>
+                  <small>{lot.phase === 'bidding' ? 'bidding ends in' : lot.phase === 'reveal' ? 'reveals close in' : 'reveal window'}</small>
+                  <b>{to && tip ? <CountdownText to={to} tip={tip} /> : 'closed'}</b>
+                </div>
+              </>
+            )}
+          </div>
+          <div className="deposit-line">
+            everyone deposits <b className="mono">{taz(lot.card.depositZat)} TAZ</b> · reserve <b className="mono">{taz(lot.card.reserveZat)} TAZ</b>
+          </div>
+          {mode === 'lot' ? (
+            <ActionSheet lot={lot} tip={tip} />
+          ) : (
+            <a className="btn primary big" href={`#/lot/${lot.sale}`}>
+              {lot.phase === 'bidding' ? 'place a sealed bid' : lot.phase === 'settled' ? 'see the hammer' : 'follow this lot'}
+            </a>
+          )}
+          <div className="stage-btns">
+            <a className="btn soft" href={`#/lot/${lot.sale}`} onClick={() => setTimeout(() => document.getElementById('bid-history')?.scrollIntoView({ behavior: 'smooth' }), 50)}>
+              bid history
+            </a>
+            {explorerTx && (
+              <a className="btn soft" href={`${EXPLORER}${explorerTx}`} target="_blank" rel="noreferrer">
+                {lot.record?.settlement ? 'settlement on explorer ↗' : 'a deposit on explorer ↗'}
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** Seal a bid → reveal → hammer, with this lot's real block heights (ENS 2017 spelled its phases out). */
+export function PhaseStrip({ lot, tip }: { lot: Lot; tip: number }) {
+  const c = lot.card;
+  const at = lot.phase === 'bidding' ? 0 : lot.phase === 'reveal' ? 1 : lot.phase === 'settled' ? 3 : 2;
+  const steps = [
+    { n: '1', t: 'seal a bid', d: `Everyone sends the same deposit; the amount is sealed inside. Until block ${num(c.closeHeight)}.` },
+    { n: '2', t: 'reveal', d: `Each bidder sends its bid, locked to the house. Until block ${num(c.revealCloseHeight ?? c.closeHeight)}. Unrevealed bids go to the seller.` },
+    { n: '3', t: 'hammer', d: lot.record?.settlement ? `Proved and paid at block ${num(lot.record.settlement.height)}. Only the winning bid is opened.` : 'A zero-knowledge proof opens only the winning bid; one shielded payment settles everyone.' },
+  ];
+  return (
+    <ol className="phases">
+      {steps.map((s, i) => (
+        <li key={s.n} className={i < at ? 'done' : i === at ? 'now' : ''}>
+          <span className="pn">{i < at ? '✓' : s.n}</span>
+          <span>
+            <b>{s.t}</b>
+            <small>{s.d}</small>
+          </span>
+        </li>
+      ))}
+      {tip > 0 && lot.phase !== 'settled' && <li className="tipnow mono">now · block {num(tip)}</li>}
+    </ol>
+  );
+}
+
+/** Nouns' bid history, for a shielded auction: one row per deposit, the amount sealed until it is the winner. */
+function SealedHistory({ lot }: { lot: Lot }) {
+  const unrevealed = lot.record?.outcome?.unrevealed ?? [];
+  const rows = lot.bids.filter((b) => b.status !== 'memo_mismatch');
+  if (rows.length === 0 && lot.pending.length === 0)
+    return (
+      <Empty title="no sealed bids yet" art="envelope">
+        Every bid lands here as an equal deposit with a sealed commitment. Nobody, not even the house, can read the amount until the reveal.
+      </Empty>
+    );
+  return (
+    <ul className="hist4">
+      {lot.pending
+        .filter((p) => p.kind === 'bid')
+        .map((p) => (
+          <li key={p.txid} className="pending">
+            <span className="pulse" />
+            <span className="h-main">
+              <b>sealed bid · landing</b>
+              <small className="mono">in the mempool · {short(p.txid, 8, 4)}</small>
+            </span>
+            <span className="h-amt sealed-bar">
+              <i />
+              <i />
+              <i />
+              sealed
+            </span>
+          </li>
+        ))}
+      {[...rows].reverse().map((b) => {
+        const won = lot.winner?.ref === b.ref;
+        const forfeit = unrevealed.includes(b.ref);
+        return (
+          <li key={b.ref} className={won ? 'won' : ''}>
+            <SealAvatar seed={b.commitment ?? b.ref} size={40} open={won} />
+            <span className="h-main">
+              <b>
+                {won ? 'winning bid' : b.status === 'valid' ? 'sealed bid' : STATUS[b.status] ?? b.status}
+                {won ? ' 🏆' : ''}
+              </b>
+              <small className="mono">
+                block {b.height ? num(b.height) : '—'} · deposit {taz(b.valueZat)} TAZ
+              </small>
+            </span>
+            <span className="h-amt">
+              {won ? (
+                <span className="opened">{taz(lot.winner!.bidZat)} TAZ</span>
+              ) : forfeit ? (
+                <span className="refused">never revealed · to the seller</span>
+              ) : b.status !== 'valid' ? (
+                <span className="refused">refunded per the rules</span>
+              ) : (
+                <span className="sealed-bar">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                  sealed
+                </span>
+              )}
+            </span>
+            <a className="h-x mono" href={`${EXPLORER}${b.txid}`} target="_blank" rel="noreferrer" aria-label="Open on the explorer">
+              {short(b.txid, 6, 4)} ↗
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/** Every auction in one table (Uniswap Launches). */
+export function AuctionsTable({ lots, tip, current }: { lots: Lot[]; tip: number; current?: string }) {
+  return (
+    <div className="atable" role="table">
+      <div className="at-row at-head" role="row">
+        <span>lot</span>
+        <span>status</span>
+        <span className="hide-sm">sealed bids</span>
+        <span className="hide-sm">closes / hammer</span>
+        <span>opened bid</span>
+      </div>
+      {lots.map((l) => {
+        const valid = l.bids.filter((b) => b.status === 'valid').length;
+        return (
+          <a key={l.sale} role="row" className={`at-row${l.sale === current ? ' on' : ''}`} href={`#/lot/${l.sale}`}>
+            <span className="at-lot">
               <img src={ART(l.meta.art)} alt="" />
-              <span className="l3-r-main">
+              <span>
                 <b>{l.meta.title.toLowerCase()}</b>
                 <small className="mono">lot {l.sale}</small>
               </span>
-              <span className="l3-r-end">
-                <b className={`mono${l.winner ? ' gold' : l.phase === 'bidding' ? ' coral' : ''}`}>{l.winner ? taz(l.winner.bidZat, 5) : l.noSale ? 'no sale' : 'sealed'}</b>
-                <small className={l.phase === 'bidding' ? 'live-t' : ''}>{l.phase === 'bidding' ? '● live' : l.phase === 'settled' ? 'hammered' : 'revealing'}</small>
-              </span>
-            </a>
-          ))}
-        </div>
-      </aside>
-
-      <div className="l3-main">
-        <nav className="crumbs mono" aria-label="Breadcrumb">
-          <a href="#/">floor</a> <span>/</span> <span>lot {lot.sale}</span> <span>/</span> <span className="faint">{lot.source === 'node' ? 'live on your node' : 'published record'}</span>
-        </nav>
-        <header className="l3-head">
-          <img className="l3-thumb" src={ART(lot.meta.art)} alt="" />
-          <div className="l3-title">
-            <h1>{lot.meta.title.toLowerCase()}</h1>
-            <span className="l3-sub">
-              <PhasePill phase={lot.phase} /> <span className="mono">lot {lot.sale}</span> <span className="mono faint">house · {lot.source === 'node' ? 'this Fuin node' : 'Fuin testnet'}</span>
             </span>
-          </div>
-          <div className="l3-stats">
-            <Stat k="equal deposit" v={`${taz(lot.card.depositZat)} TAZ`} />
-            <Stat k="reserve" v={`${taz(lot.card.reserveZat)} TAZ`} />
-            <Stat k="sealed bids" v={String(valid.length)} />
-            <Stat k={blocksLeft !== null ? (lot.phase === 'bidding' ? 'bids close in' : 'reveals close in') : 'hammer'} v={blocksLeft !== null ? `${blocksLeft} blocks` : lot.record?.settlement ? num(lot.record.settlement.height) : 'awaiting'} />
-            <Stat k={lot.winner ? 'winning bid' : 'top bid'} v={lot.winner ? `${taz(lot.winner.bidZat)} TAZ` : lot.noSale ? 'no sale' : 'sealed'} tone={lot.winner ? 'gold' : lot.noSale ? '' : 'coral'} />
-          </div>
-        </header>
-
-        <section className="l3-media">
-          <div className="lp-art">
-            <img src={ART(lot.meta.art)} alt="" />
-            {lot.phase === 'settled' && <div className={`lp-stamp${lot.winner ? '' : ' none'}`}>{lot.winner ? 'opened' : 'no sale'}</div>}
-          </div>
-          <BlockChart lot={lot} tip={tip} />
-        </section>
-
-        {lot.phase === 'settled' && <Hammer lot={lot} />}
-
-        <div className="tabs" role="tablist">
-          {(
-            [
-              ['bids', `sealed bids · ${lot.bids.length}`],
-              ['reveals', `reveal notes · ${lot.reveals.length}`],
-              ...(lot.record ? [['proof', 'proof']] : []),
-              ['terms', 'terms'],
-              ['about', 'about'],
-            ] as [typeof tab, string][]
-          ).map(([k, label]) => (
-            <button key={k} role="tab" aria-selected={tab === k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>
-              {label}
-            </button>
-          ))}
-        </div>
-        {tab === 'bids' && <Bids lot={lot} />}
-        {tab === 'reveals' && <Reveals lot={lot} />}
-        {tab === 'proof' && lot.record && <Proof lot={lot} />}
-        {tab === 'terms' && <Terms lot={lot} />}
-        {tab === 'about' && (
-          <div className="about">
-            <p>{lot.meta.blurb || 'A lot on Fuin.'}</p>
-            <p className="faint">Lot art is illustrative. Every deposit, reveal note, proof and payout on this page is read from Zcash testnet or from the record the house published.</p>
-          </div>
-        )}
-      </div>
-
-      <aside className="l3-side">
-        <div className={`auction-card ph-${lot.phase}`}>
-          <div className="ac-head">
-            <span>sealed auction</span>
-            <span className="mono">{lot.phase === 'bidding' ? 'bidding open' : lot.phase === 'reveal' ? 'reveal window' : lot.phase === 'settled' ? 'hammered' : 'awaiting hammer'}</span>
-          </div>
-          {to && tip > 0 ? (
-            <CountdownTiles to={to} tip={tip} label={lot.phase === 'bidding' ? 'bidding closes in' : 'reveals close in'} />
-          ) : (
-            <div className="ac-result">
-              <span className="k">{lot.winner ? 'winning bid · opened' : lot.noSale ? 'result' : 'status'}</span>
-              <b className={lot.winner ? 'gold' : ''}>{lot.winner ? `${taz(lot.winner.bidZat)} TAZ` : lot.noSale ? 'no sale' : 'reveals closed'}</b>
-            </div>
-          )}
-          <ActionSheet lot={lot} tip={tip} />
-        </div>
-        <LotJobs lot={lot} />
-        <MySeal lot={lot} />
-      </aside>
-
-      {lot.phase === 'bidding' && (
-        <div className="bidbar" role="region" aria-label="Bid">
-          <span>
-            <small>top bid</small>
-            <b className="coral">sealed</b>
-          </span>
-          <span>
-            <small>closes in</small>
-            <b className="mono">{blocksLeft ?? '—'} blocks</b>
-          </span>
-          <button className="btn primary" onClick={() => document.querySelector('.auction-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-            place bid
-          </button>
-        </div>
-      )}
+            <span>
+              <PhasePill phase={l.phase} />
+            </span>
+            <span className="hide-sm mono">{valid}</span>
+            <span className="hide-sm mono">
+              {l.record?.settlement ? `hammer ${num(l.record.settlement.height)}` : l.phase === 'bidding' && tip ? `${l.card.closeHeight - tip} blocks` : `block ${num(l.card.revealCloseHeight ?? l.card.closeHeight)}`}
+            </span>
+            <span className={`mono${l.winner ? ' gold' : ''}`}>{l.winner ? `${taz(l.winner.bidZat)} TAZ` : l.noSale ? 'no sale' : 'sealed'}</span>
+          </a>
+        );
+      })}
     </div>
   );
 }
