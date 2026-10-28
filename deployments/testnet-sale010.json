@@ -1,0 +1,226 @@
+{
+  "network": "testnet",
+  "lot": {
+    "title": "Paper Lantern",
+    "art": "lantern",
+    "blurb": "A flat paper lantern. Demo lot, real testnet bids."
+  },
+  "auction": {
+    "name": "fuin-sale010-2026-10-28T11:32",
+    "address": "utest1nf60qztq7tcpqut63kmyx8epl52hrlkwzl57ql8m8rxnjcs6rlsprw3gwn7h4vsma4jsvxl5hnur7wgeddqvgzrslfhy582h8vagnvxf",
+    "uivk": "uivktest13q05lhhc5ha8m7dhcsccm80qlcka82drx4cs4p9whv24w3uvcnevfu0np504u9zngp7ld4f8tmvu9mzzfh54j3w4gpjmnvx2c44tgd7ywpnmrjqdflccgemweunqapxx8r8huh8xph4jv5vhs9ja0eltcw0fhw9weyfulkzjtmcgs8u974a27xl6vd77cpfulah046gjd92d75qsxuec95mjsyh07lzf23v95lwydm6n7kkt60z",
+    "depositZat": "200000",
+    "reserveZat": "50000",
+    "openHeight": 4550755,
+    "closeHeight": 4550795,
+    "revealCloseHeight": 4550831,
+    "disputeBlocks": 60,
+    "revealKey": "7dcb3fa57d229f7ee8a8f8c8fbd0ead80aa2f7a089b354d09851624481919559",
+    "seller": "utest137az5fc0a0cmv8yttg8c7e9ztgpn2t63pe7u6jr406evyx09w0my2kzy268gszrg4a9qsc2skq3epu4k7tq7y7gy94634fkv6gppa22h",
+    "auctionId": "140271167904279203885367914249606937262"
+  },
+  "deposits": [
+    {
+      "txid": "d1978f53439e3973238da43498e80258c79d8fa39c100511f9c438285d284112",
+      "height": 4550762,
+      "valueZat": "200000",
+      "memo": "sba1:140271167904279203885367914249606937262:17074837797273814448909250336652640872971390162885488144782355688718504267037",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder1 sealed bid (Fuin app, via sba-mcp)"
+    },
+    {
+      "txid": "79ace8c1b0ff6aba1c214febb6a85bc2e8f06f88367e7fac54233ccdfaefc8fe",
+      "height": 4550782,
+      "valueZat": "200000",
+      "memo": "sba1:140271167904279203885367914249606937262:975857212736402362043536495924668603251998043634107379493409569374931553417",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder3 sealed bid (Fuin app, via sba-mcp)"
+    },
+    {
+      "txid": "7b43a58ec4a35330e81645e2a55a2d89572d4f5d52c51d74364a1adc583530cd",
+      "height": 4550789,
+      "valueZat": "200000",
+      "memo": "sba1:140271167904279203885367914249606937262:19162094970792188276644650332627120212187325146146021418325122313912669319821",
+      "status": "valid",
+      "reason": null,
+      "label": "bidder2 sealed bid (Fuin app, via sba-mcp)"
+    }
+  ],
+  "reveals": [
+    {
+      "ref": "39c7e34532c5cf983e56c1f9f3a1f270390c2099c4eff6792637e80d7c4c855c",
+      "txid": "39c7e34532c5cf983e56c1f9f3a1f270390c2099c4eff6792637e80d7c4c855c",
+      "height": 4550801,
+      "deposit": "d1978f53439e3973238da43498e80258c79d8fa39c100511f9c438285d284112",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder1 reveal (Fuin app, via sba-mcp)"
+    },
+    {
+      "ref": "0950abb1c8f360d20779c7c2a24cf0c7027e8ca325d59a0d12b91916567c7ec3",
+      "txid": "0950abb1c8f360d20779c7c2a24cf0c7027e8ca325d59a0d12b91916567c7ec3",
+      "height": 4550803,
+      "deposit": "79ace8c1b0ff6aba1c214febb6a85bc2e8f06f88367e7fac54233ccdfaefc8fe",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder3 reveal (Fuin app, via sba-mcp)"
+    },
+    {
+      "ref": "d3870b70091c1a1a9818b74fdbe83baaa3d765ed97a6bd514571c712ed4b4215",
+      "txid": "d3870b70091c1a1a9818b74fdbe83baaa3d765ed97a6bd514571c712ed4b4215",
+      "height": 4550804,
+      "deposit": "7b43a58ec4a35330e81645e2a55a2d89572d4f5d52c51d74364a1adc583530cd",
+      "status": "accepted",
+      "reason": null,
+      "label": "bidder2 reveal (Fuin app, via sba-mcp)"
+    }
+  ],
+  "scannedTo": 4550831,
+  "outcome": {
+    "winnerSlot": 1,
+    "winningBidZat": "138000",
+    "reserveZat": "50000",
+    "commitments": [
+      "17074837797273814448909250336652640872971390162885488144782355688718504267037",
+      "975857212736402362043536495924668603251998043634107379493409569374931553417",
+      "19162094970792188276644650332627120212187325146146021418325122313912669319821",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178"
+    ],
+    "proof": {
+      "pi_a": [
+        "7729221824333367260802405282347222070984643100005598824296421583967037931252",
+        "115044895222556946681573134723744079795619113575853858203828095887319855053",
+        "1"
+      ],
+      "pi_b": [
+        [
+          "2583479909269421491947457409424655930513149441328704540554909539240562631361",
+          "9438933010675276555680189781668798529841875087230128996966842372286103982165"
+        ],
+        [
+          "3055321292303911443128317862338588628051849930372054802081058867664511710077",
+          "7133739012609793519108734005283426449991600564176174163740528171204084645007"
+        ],
+        [
+          "1",
+          "0"
+        ]
+      ],
+      "pi_c": [
+        "6384828405531464963978001677710725594853526320652619505336690020556044744066",
+        "15205034985710948781330162627341350288669585067072999228518940633072651559778",
+        "1"
+      ],
+      "protocol": "groth16",
+      "curve": "bn128"
+    },
+    "publicSignals": [
+      "140271167904279203885367914249606937262",
+      "50000",
+      "17074837797273814448909250336652640872971390162885488144782355688718504267037",
+      "975857212736402362043536495924668603251998043634107379493409569374931553417",
+      "19162094970792188276644650332627120212187325146146021418325122313912669319821",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "9072673074942981012546065514243638090379752510373780632480264407200418848178",
+      "1",
+      "138000"
+    ],
+    "unrevealed": [],
+    "noSale": null,
+    "proofVerifies": true,
+    "slotsMatchDeposits": true
+  },
+  "settlement": {
+    "txid": "0a490abb3f0dafda70c6dad51a704c3147bf65a295a8746d317e8ecf45856817",
+    "height": 4550833,
+    "outputs": [
+      {
+        "amountZat": "138000",
+        "why": "winning bid to the seller",
+        "recipient": "seller"
+      },
+      {
+        "amountZat": "2000",
+        "why": "winner: deposit minus bid and settlement fee",
+        "recipient": "bidder3"
+      },
+      {
+        "amountZat": "200000",
+        "why": "refund (losing bid deposit d1978f53)",
+        "recipient": "bidder1"
+      },
+      {
+        "amountZat": "200000",
+        "why": "refund (losing bid deposit 7b43a58e)",
+        "recipient": "bidder2"
+      }
+    ],
+    "viewingKeyChecks": [
+      {
+        "recipient": "seller",
+        "expected": "138000",
+        "seen": [
+          138000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder1",
+        "expected": "200000",
+        "seen": [
+          200000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder2",
+        "expected": "200000",
+        "seen": [
+          200000
+        ],
+        "ok": true
+      },
+      {
+        "recipient": "bidder3",
+        "expected": "2000",
+        "seen": [
+          2000
+        ],
+        "ok": true
+      }
+    ]
+  },
+  "ironwoodOnly": true,
+  "blockTimes": {
+    "open": {
+      "hash": "00002ad909454c21cbf0892b455034d61184dc7a7d62c90f60778b4a0cedfbf5",
+      "height": 4550755,
+      "time": 1793187150
+    },
+    "close": {
+      "hash": "00000469a10eb5a3b7064b658664433e1a2b46f7b01f3167a76107be4e3ec4ef",
+      "height": 4550795,
+      "time": 1793188020
+    },
+    "revealClose": {
+      "hash": "00002e4afb5157bdfb713ad4090ae5062818385c280cadfd032a2b4619611521",
+      "height": 4550831,
+      "time": 1793188875
+    },
+    "settlement": {
+      "hash": "000008eeb3178feae55c02b9f4318be77f5bb9a27cf3a2a9e651a8bc3b070f4f",
+      "height": 4550833,
+      "time": 1793189027
+    }
+  },
+  "verificationKeySha256": "d2a3dfccee4d81ab1d2826953969ff383ab467dab0ac4fdbfcac903fe7c0fca2"
+}
