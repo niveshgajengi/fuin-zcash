@@ -342,7 +342,7 @@ function Hammer({ lot }: { lot: Lot }) {
   return (
     <section className="hammer">
       <div className="hm-art">
-        <img src={`${import.meta.env.BASE_URL}brand/opened.webp`} alt="" onError={(e) => ((e.target as HTMLImageElement).src = ART('envelope'))} />
+        <img src={`${import.meta.env.BASE_URL}brand/opened.svg`} alt="" onError={(e) => ((e.target as HTMLImageElement).src = ART('envelope'))} />
       </div>
       <div className="hm-body">
         <div className="hm-eyebrow mono">hammer · block {num(r.settlement!.height)}</div>

@@ -57,8 +57,8 @@ export function BlockChart({ lot, tip }: { lot: Lot; tip: number }) {
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-label="Deposits and reveal notes by block">
           <defs>
             <linearGradient id="cfill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0" stopColor="#ff5a5f" stopOpacity="0.35" />
-              <stop offset="1" stopColor="#ff5a5f" stopOpacity="0" />
+              <stop offset="0" stopColor="#b9a6ff" stopOpacity="0.55" />
+              <stop offset="1" stopColor="#b9a6ff" stopOpacity="0.1" />
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((f) => (

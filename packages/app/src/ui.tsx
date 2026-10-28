@@ -2,13 +2,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { eta, sealHue, short, taz, num, type FeedItem, type Lot, type Phase } from './data';
 import { useNow, useStore } from './store';
 
-export const ART = (name: string) => `${import.meta.env.BASE_URL}brand/lot-${name}.webp`;
+export const ART = (name: string) => `${import.meta.env.BASE_URL}brand/lot-${name}.svg`;
 export const ARTS = ['envelope', 'hanko', 'koi', 'key', 'lucky-cat', 'lantern'];
 
 export function Logo({ size = 30 }: { size?: number }) {
   return (
     <a className="logo" href="#/" aria-label="Fuin home">
-      <img src={`${import.meta.env.BASE_URL}brand/mark-512.png`} width={size} height={size} alt="" />
+      <img src={`${import.meta.env.BASE_URL}brand/mark.svg`} width={size} height={size} alt="" />
       <span>fuin</span>
     </a>
   );
@@ -19,17 +19,16 @@ export function SealAvatar({ seed, size = 32, open = false }: { seed: string; si
   const h = sealHue(seed || 'x');
   const petals = 5 + (h % 4);
   const rot = h % 360;
-  const tone = ['#ff5a5f', '#ff7b72', '#e8474f', '#ff8f8a', '#d93d4a'][h % 5];
+  const tone = ['#b9a6ff', '#7ee0b5', '#6cc4ff', '#ff8fb8', '#ffb86b'][h % 5];
   return (
     <svg className={`seal-avatar${open ? ' open' : ''}`} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="19" fill={open ? '#f2c46d' : tone} />
-      <circle cx="20" cy="20" r="14.5" fill="none" stroke="rgba(58,10,20,.35)" strokeWidth="1.2" />
-      <g transform={`rotate(${rot} 20 20)`} fill="rgba(58,10,20,.55)">
+      <circle cx="20" cy="20" r="18" fill={open ? '#ffd23f' : tone} stroke="#141414" strokeWidth="2.5" />
+      <g transform={`rotate(${rot} 20 20)`} fill="#141414" opacity=".8">
         {Array.from({ length: petals }, (_, i) => (
           <ellipse key={i} cx="20" cy="12.4" rx="2.4" ry="5" transform={`rotate(${(360 / petals) * i} 20 20)`} />
         ))}
       </g>
-      <circle cx="20" cy="20" r="2.6" fill={open ? '#3a0a14' : '#fbe9ec'} />
+      <circle cx="20" cy="20" r="3" fill="#fff" stroke="#141414" strokeWidth="1.5" />
     </svg>
   );
 }
