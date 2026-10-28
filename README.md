@@ -62,9 +62,12 @@ pnpm install && pnpm fuin          # the node (needs .demo/wallets and SBA_ZINGO
 pnpm --filter @sba/app dev         # http://localhost:5180 (proxies /api to the node)
 ```
 
-Visual polish follows the Dribbble auction and marketplace shots (w19, w20). Logo mark, lot art, hero
-and envelope art were generated with ChatGPT; the lot art is illustrative, every number is chain data
-or a published record.
+The look is colorful neo-brutalism, after the Dribbble neubrutalism and brutalist shots in the
+hackathon workspace (`design-references/web-shots/w61-*`, `w62-*`, `w18-*`, `w47-*`): cream paper,
+flat yellow, lavender, mint, sky and pink fills, 3px ink outlines, hard offset shadows, Archivo Black
+display type, and stickers for "sealed" and "opened". The lot art and the logo mark are flat SVG
+illustrations drawn for this app (`packages/app/public/brand/`); the lot art is illustrative, every
+number is chain data or a published record.
 
 ## Live runs through the app (27 and 28 Oct 2026)
 
