@@ -3864,13 +3864,35 @@ h2,
 .tr.won {
   background: var(--nb-y);
 }
-.proof li.ok,
-.proof li.pass {
-  background: #fff;
+.proof ol {
+  gap: 12px;
 }
-.proof li.bad,
-.proof li.fail {
+.ps-icon {
+  border: 2px solid var(--ink);
+  font-weight: 700;
+}
+.ps-ok .ps-icon {
+  background: var(--nb-m);
+  color: var(--ink);
+}
+.proof li.ps-bad {
   background: var(--nb-p);
+  border-color: var(--ink) !important;
+}
+.ps-bad .ps-icon {
+  background: var(--ink);
+  color: #fff;
+}
+.ps-bad b::after {
+  content: 'FAILS';
+  margin-left: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  background: #fff;
+  border: 2px solid var(--ink);
+  border-radius: 6px;
+  padding: 1px 6px;
 }
 .thumb {
   border: 2px solid var(--ink);
