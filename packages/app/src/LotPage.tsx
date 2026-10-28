@@ -415,9 +415,13 @@ function Proof({ lot }: { lot: Lot }) {
     },
     [r, lot.bids],
   );
+  // Check once per settlement: the node's poll hands this lot a new object every few seconds, which
+  // must not re-run the checks (that undid the tamper button).
+  const settled = r.settlement?.txid ?? r.auction.auctionId;
   useEffect(() => {
     void run(false);
-  }, [run]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settled]);
   return (
     <div className="proof">
       <ol>
