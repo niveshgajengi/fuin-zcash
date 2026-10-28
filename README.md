@@ -66,19 +66,37 @@ Visual polish follows the Dribbble auction and marketplace shots (w19, w20). Log
 and envelope art were generated with ChatGPT; the lot art is illustrative, every number is chain data
 or a published record.
 
-## Live runs through the app (27 Oct 2026)
+## Live runs through the app (27 and 28 Oct 2026)
 
-Sales 004 to 008 were listed, bid, revealed and settled from the app on this machine, through the node.
+Sales 004 to 009 were listed, bid, revealed and settled from the app on this machine, through the node.
 Sale 004 ran out of time (blocks came every ~40 s and a third bid waited for the shared wallet lock, so
 it was mined after the close, and no reveal was sent in the window): it settled as **no sale**, the
 first live no-sale, its unrevealed deposits forfeited to the seller as the rules say. Sale 006's third
 reveal failed to transmit and its retry was mined after the window (late, forfeited). Sale 007 had no
-reveal mined in time (no sale). Sale 008 is the clean run filmed for the demo video. The audit
-(`pnpm --filter @sba/service run audit deployments/testnet-saleNNN.json`) passes on 004 to 008:
+reveal mined in time (no sale). Sale 008 is the clean run filmed for the second video; Sale 009 (Night Koi, 28 Oct) is the run filmed live in the auction-house layout for the round-3 film (one bidder needed a top-up mid-run and its bid went in after it). The audit
+(`pnpm --filter @sba/service run audit deployments/testnet-saleNNN.json`) passes on 004 to 009:
 `chain checks pass; payments not checked` (each sale's payouts were matched by the recipients' own
 keys when it settled; see `viewingKeyChecks`). The node restarted twice during Sale 006, so some of
 its labels are empty. Every auction uses the house address, so a sale's scan also lists other
 auctions' notes in its blocks (`other_auction`, `memo_mismatch`); they take no part in its outcome.
+
+### Sale 009: Night Koi
+
+Auction `fuin-sale009-2026-10-28T08:35`: deposit 200,000 zat, reserve 50,000 zat, listed at block 4,550,341, bids close after 4,550,381, reveals close after 4,550,421. Record: [`deployments/testnet-sale009.json`](deployments/testnet-sale009.json).
+
+| Deposit | Status | Tx | Block |
+|---|---|---|---|
+| bidder3 sealed bid | valid, sealed (never published) | [`a3736ff8…`](https://testnet.zecblock.com/tx/a3736ff8f4f9b35887e5b45d72a388bc060c19c771d743d21602c70c309aa5a7) | 4,550,355 |
+| bidder1 sealed bid | valid, sealed (never published) | [`cf98c5a2…`](https://testnet.zecblock.com/tx/cf98c5a234f97e825d0882adb30aa5a28fdad45cbe5f1810818c7b1c2cfb6d65) | 4,550,355 |
+| bidder2 sealed bid | **valid, wins (128,000 zat)** | [`68b70e6d…`](https://testnet.zecblock.com/tx/68b70e6dcfc68b6ffea6f737cfb5cc74050d984c7ee8e4a2752a98b8c1876c53) | 4,550,367 |
+
+| Reveal note | Status | Tx | Block |
+|---|---|---|---|
+| bidder1 reveal | accepted | [`366fd5d7…`](https://testnet.zecblock.com/tx/366fd5d709c2aae5a44cf303dce12ce21008beab0cc54601c1b91b68ab0f0ec4) | 4,550,404 |
+| bidder3 reveal | accepted | [`fa25553d…`](https://testnet.zecblock.com/tx/fa25553d355601d619f825b758b7fad5e8bdc59d2aa16f5920c22d345dc71d3b) | 4,550,404 |
+| bidder2 reveal | accepted | [`40a23cd4…`](https://testnet.zecblock.com/tx/40a23cd4294f15204213ea760ee44cc5e5392ea5898c97278b94dbc671937bbf) | 4,550,409 |
+
+**Settlement** [`0854d4ae…`](https://testnet.zecblock.com/tx/0854d4ae3708401634ea9b7faaacff6cf569a4ba44836e00f8cdf11f6eded601) (block 4,550,429), 4 outputs; each recipient's own viewing key read: seller 128,000, bidder1 200,000, bidder2 12,000, bidder3 200,000 zat (all match). The MaxBid proof opens only the winning bid, 128,000 zat.
 
 ### Sale 008: Lucky Cat No. 8
 
